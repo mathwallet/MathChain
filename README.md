@@ -18,17 +18,17 @@ Support project on-chain governance
 
 ## Roadmap
 
-Phase 0 - Galois
+Phase 0 - Galois: MathHub, The Bridge
 
-Phase 1 - Young
+Phase 1 - Young: Social Recovery Enabling
 
-Phase 2 - Champollion
+Phase 2 - Champollion: KayWhySee Enabling
 
-Phase 3 - Babbage
+Phase 3 - Babbage: AMM Stable Coin Swap
 
-Phase 4 - Turing
+Phase 4 - Turing: VPoS Migration
 
-Phase 5 - Shannon
+Phase 5 - Shannon: DeFi Mutual Insurance
 
 Phase 6 - Math
 
