@@ -32,4 +32,10 @@ Phase 5 - Shannon: DeFi Mutual Insurance
 
 Phase 6 - Math
 
+### Website
+
 https://mathchain.org
+
+### Explorer
+
+http://scan.boka.network/#/Galois
