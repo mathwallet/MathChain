@@ -36,6 +36,10 @@ Phase 6 - Math
 
 https://mathchain.org
 
+### About
+
+http://blog.mathwallet.org/?p=2036
+
 ### Explorer
 
 http://scan.boka.network/#/Galois
