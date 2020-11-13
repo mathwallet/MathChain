@@ -20,6 +20,8 @@ use crate::cli::{Cli, Subcommand};
 use sc_cli::{SubstrateCli, RuntimeVersion, Role, ChainSpec};
 use sc_service::PartialComponents;
 use mathchain_runtime::Block;
+use sp_core::crypto::Ss58AddressFormat;
+use service::IdentifyVariant;
 
 impl SubstrateCli for Cli {
 	fn impl_name() -> String {
@@ -61,10 +63,22 @@ impl SubstrateCli for Cli {
 	}
 }
 
+fn set_default_ss58_version(spec: &Box<dyn sc_cli::ChainSpec>) {
+	let ss58_version = if spec.is_galois() {
+		Ss58AddressFormat::Custom(40)
+	} else if spec.is_math() {
+		Ss58AddressFormat::Custom(39)
+	} else {
+		Ss58AddressFormat::Custom(40)
+	};
+
+	sp_core::crypto::set_default_ss58_version(ss58_version);
+}
+
 /// Parse and run command line arguments
 pub fn run() -> sc_cli::Result<()> {
 	let cli = Cli::from_args();
-
+	
 	match &cli.subcommand {
 		Some(Subcommand::BuildSpec(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
@@ -126,6 +140,8 @@ pub fn run() -> sc_cli::Result<()> {
 		},
 		None => {
 			let runner = cli.create_runner(&cli.run)?;
+			set_default_ss58_version(&runner.config().chain_spec);
+
 			runner.run_node_until_exit(|config| match config.role {
 				Role::Light => service::new_light(config),
 				_ => service::new_full(config),

@@ -39,6 +39,7 @@ pallet-aura = { default-features = false, version = '2.0.0' }
 pallet-balances = { default-features = false, version = '2.0.0' }
 pallet-grandpa = { default-features = false, version = '2.0.0' }
 pallet-randomness-collective-flip = { default-features = false, version = '2.0.0' }
+pallet-recovery = { default-features = false, version = '2.0.0' }
 pallet-sudo = { default-features = false, version = '2.0.0' }
 pallet-timestamp = { default-features = false, version = '2.0.0' }
 pallet-transaction-payment = { default-features = false, version = '2.0.0' }
@@ -78,6 +79,7 @@ std = [
     'pallet-balances/std',
     'pallet-grandpa/std',
     'pallet-randomness-collective-flip/std',
+    'pallet-recovery/std',
     'pallet-sudo/std',
     'pallet-template/std',
     'pallet-timestamp/std',

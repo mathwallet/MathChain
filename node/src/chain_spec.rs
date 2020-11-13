@@ -3,16 +3,30 @@ use mathchain_runtime::{
 	AccountId, AuraConfig, BalancesConfig, GenesisConfig, GrandpaConfig,
 	SudoConfig, SystemConfig, WASM_BINARY, Signature
 };
+use mathchain_runtime::constants::currency::MATHS as MATH;
+
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
 use sp_finality_grandpa::AuthorityId as GrandpaId;
 use sp_runtime::traits::{Verify, IdentifyAccount};
-use sc_service::ChainType;
+use sc_service::{ChainType, Properties};
+
+const DEFAULT_PROTOCOL_ID: &str = "math";
 
 // The URL for the telemetry server.
 // const STAGING_TELEMETRY_URL: &str = "wss://telemetry.polkadot.io/submit/";
 
 /// Specialized `ChainSpec`. This is a specialization of the general Substrate ChainSpec type.
 pub type ChainSpec = sc_service::GenericChainSpec<GenesisConfig>;
+
+pub fn math_testnet_properties() -> Properties {
+	let mut properties = Properties::new();
+
+	properties.insert("ss58Format".into(), 40.into());
+	properties.insert("tokenDecimals".into(), 18.into());
+	properties.insert("tokenSymbol".into(), "MATH".into());
+
+	properties
+}
 
 /// Generate a crypto pair from seed.
 pub fn get_from_seed<TPublic: Public>(seed: &str) -> <TPublic::Pair as Pair>::Public {
@@ -45,7 +59,7 @@ pub fn development_config() -> Result<ChainSpec, String> {
 		// Name
 		"Development",
 		// ID
-		"dev",
+		"mathchain-dev",
 		ChainType::Development,
 		move || testnet_genesis(
 			wasm_binary,
@@ -69,9 +83,9 @@ pub fn development_config() -> Result<ChainSpec, String> {
 		// Telemetry
 		None,
 		// Protocol ID
-		None,
+		Some(DEFAULT_PROTOCOL_ID),
 		// Properties
-		None,
+		Some(math_testnet_properties()),
 		// Extensions
 		None,
 	))
@@ -84,7 +98,7 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 		// Name
 		"Local Testnet",
 		// ID
-		"local_testnet",
+		"mathchain_local_testnet",
 		ChainType::Local,
 		move || testnet_genesis(
 			wasm_binary,
@@ -117,9 +131,9 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 		// Telemetry
 		None,
 		// Protocol ID
-		None,
+		Some(DEFAULT_PROTOCOL_ID),
 		// Properties
-		None,
+		Some(math_testnet_properties()),
 		// Extensions
 		None,
 	))
@@ -140,8 +154,8 @@ fn testnet_genesis(
 			changes_trie_config: Default::default(),
 		}),
 		pallet_balances: Some(BalancesConfig {
-			// Configure endowed accounts with initial balance of 1 << 60.
-			balances: endowed_accounts.iter().cloned().map(|k|(k, 1 << 60)).collect(),
+			// Configure endowed accounts with initial balance of 10000 Math.
+			balances: endowed_accounts.iter().cloned().map(|k|(k, 10000 * MATH)).collect(),
 		}),
 		pallet_aura: Some(AuraConfig {
 			authorities: initial_authorities.iter().map(|x| (x.0.clone())).collect(),

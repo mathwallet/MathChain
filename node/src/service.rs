@@ -23,6 +23,25 @@ type FullClient = sc_service::TFullClient<Block, RuntimeApi, Executor>;
 type FullBackend = sc_service::TFullBackend<Block>;
 type FullSelectChain = sc_consensus::LongestChain<FullBackend, Block>;
 
+/// Can be called for a `Configuration` to check if it is a configuration for the `Crab` network.
+pub trait IdentifyVariant {
+	/// Returns if this is a configuration for the `Crab` network.
+	fn is_galois(&self) -> bool;
+
+	/// Returns if this is a configuration for the `Darwinia` network.
+	fn is_math(&self) -> bool;
+}
+
+impl IdentifyVariant for Box<dyn sc_service::ChainSpec> {
+	fn is_galois(&self) -> bool {
+		self.id().starts_with("galois")
+	}
+
+	fn is_math(&self) -> bool {
+		self.id().starts_with("math")
+	}
+}
+
 pub fn new_partial(config: &Configuration) -> Result<sc_service::PartialComponents<
 	FullClient, FullBackend, FullSelectChain,
 	sp_consensus::DefaultImportQueue<Block, FullClient>,
