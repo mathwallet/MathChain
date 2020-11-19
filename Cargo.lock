@@ -2992,6 +2992,8 @@ dependencies = [
  "frame-benchmarking-cli",
  "jsonrpc-core",
  "mathchain-runtime",
+ "mathchain-runtime-galois",
+ "mathchain-runtime-mathchain",
  "pallet-transaction-payment-rpc",
  "sc-basic-authorship",
  "sc-cli",
@@ -3055,6 +3057,14 @@ dependencies = [
  "sp-version",
  "substrate-wasm-builder-runner",
 ]
+
+[[package]]
+name = "mathchain-runtime-galois"
+version = "0.1.0"
+
+[[package]]
+name = "mathchain-runtime-mathchain"
+version = "0.1.0"
 
 [[package]]
 name = "matrixmultiply"

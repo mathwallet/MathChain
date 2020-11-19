@@ -6,4 +6,6 @@ members = [
     'node',
     'pallets/template',
     'runtime',
+    'runtime/galois',
+    'runtime/mathchain',
 ]

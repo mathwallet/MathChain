@@ -23,6 +23,9 @@ use mathchain_runtime::Block;
 use sp_core::crypto::Ss58AddressFormat;
 use service::IdentifyVariant;
 
+use galois_runtime_config::CHAIN_ID as GaoloisChainId;
+use mathchain_runtime_config::CHAIN_ID as MathchainChainId;
+
 impl SubstrateCli for Cli {
 	fn impl_name() -> String {
 		"MathChain Node".into()
@@ -65,11 +68,11 @@ impl SubstrateCli for Cli {
 
 fn set_default_ss58_version(spec: &Box<dyn sc_cli::ChainSpec>) {
 	let ss58_version = if spec.is_galois() {
-		Ss58AddressFormat::Custom(40)
+		Ss58AddressFormat::Custom(GaoloisChainId)
 	} else if spec.is_math() {
-		Ss58AddressFormat::Custom(39)
+		Ss58AddressFormat::Custom(MathchainChainId)
 	} else {
-		Ss58AddressFormat::Custom(40)
+		Ss58AddressFormat::Custom(GaoloisChainId)
 	};
 
 	sp_core::crypto::set_default_ss58_version(ss58_version);

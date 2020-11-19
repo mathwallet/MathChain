@@ -24,6 +24,8 @@ structopt = '0.3.8'
 
 # local dependencies
 mathchain-runtime = { path = '../runtime', version = '0.1.0' }
+galois-runtime-config = { path = '../runtime/galois', package = 'mathchain-runtime-galois'}
+mathchain-runtime-config = { path = '../runtime/mathchain', package = 'mathchain-runtime-mathchain'}
 
 # Substrate dependencies
 frame-benchmarking = '2.0.0'

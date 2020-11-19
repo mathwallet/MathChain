@@ -1,0 +1,9 @@
+[package]
+authors = ['Mathwallet DevHub <https://github.com/mathwallet>']
+description = 'MathChain is the Polkadot Smart Wallet Parachain based on Substrate'
+edition = '2018'
+homepage = 'https://mathwallet.net/mathchain'
+license = 'Unlicense'
+name = 'mathchain-runtime-mathchain'
+repository = 'https://github.com/mathwallet/MathChain/'
+version = '0.1.0'
