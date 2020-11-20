@@ -44,7 +44,7 @@ pub mod constants;
 use constants::{currency::*};
 
 /// Import the template pallet.
-pub use pallet_template;
+// pub use pallet_template;
 
 /// An index to a block.
 pub type BlockNumber = u32;
@@ -282,10 +282,10 @@ impl pallet_sudo::Trait for Runtime {
 	type Call = Call;
 }
 
-/// Configure the pallet template in pallets/template.
-impl pallet_template::Trait for Runtime {
-	type Event = Event;
-}
+// /// Configure the pallet template in pallets/template.
+// impl pallet_template::Trait for Runtime {
+// 	type Event = Event;
+// }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
 construct_runtime!(
@@ -304,7 +304,7 @@ construct_runtime!(
 		Sudo: pallet_sudo::{Module, Call, Config<T>, Storage, Event<T>},
 		Recovery: pallet_recovery::{Module, Call, Storage, Event<T>},
 		// Include the custom logic from the template pallet in the runtime.
-		TemplateModule: pallet_template::{Module, Call, Storage, Event<T>},
+		// TemplateModule: pallet_template::{Module, Call, Storage, Event<T>},
 	}
 );
 
