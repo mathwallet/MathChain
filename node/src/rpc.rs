@@ -15,10 +15,10 @@ use sc_client_api::{
 	backend::{StorageProvider, Backend, StateBackend, AuxStore},
 	client::BlockchainEvents
 };
-use sc_rpc::SubscriptionTaskExecutor;
+// use sc_rpc::SubscriptionTaskExecutor;
 use sp_runtime::traits::BlakeTwo256;
 use sp_block_builder::BlockBuilder;
-use sc_network::NetworkService;
+// use sc_network::NetworkService;
 
 /// Light client extra dependencies.
 pub struct LightDeps<C, F, P> {
@@ -40,18 +40,17 @@ pub struct FullDeps<C, P> {
 	pub pool: Arc<P>,
 	/// Whether to deny unsafe calls
 	pub deny_unsafe: DenyUnsafe,
-	/// The Node authority flag
-	pub is_authority: bool,
-	/// Network service
-	pub network: Arc<NetworkService<Block, Hash>>,
+	// /// The Node authority flag
+	// pub is_authority: bool,
+	// /// Network service
+	// pub network: Arc<NetworkService<Block, Hash>>,
 	/// Manual seal command sink
 	pub command_sink: Option<futures::channel::mpsc::Sender<sc_consensus_manual_seal::rpc::EngineCommand<Hash>>>,
 }
 
 /// Instantiate all Full RPC extensions.
 pub fn create_full<C, P, BE>(
-	deps: FullDeps<C, P>,
-	_subscription_task_executor: SubscriptionTaskExecutor
+	deps: FullDeps<C, P>
 ) -> jsonrpc_core::IoHandler<sc_rpc::Metadata> where
 	BE: Backend<Block> + 'static,
 	BE::State: StateBackend<BlakeTwo256>,
@@ -73,8 +72,6 @@ pub fn create_full<C, P, BE>(
 		client,
 		pool,
 		deny_unsafe,
-		is_authority: _,
-		network: _,
 		command_sink
 	} = deps;
 

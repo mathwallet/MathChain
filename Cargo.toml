@@ -1,5 +1,5 @@
-[profile.release]
-panic = 'unwind'
+# [profile.release]
+# panic = 'unwind'
 
 [workspace]
 members = [

@@ -2,6 +2,7 @@
 
 use std::{sync::Arc, cell::RefCell, time::Duration};
 use sc_client_api::{ExecutorProvider, RemoteBackend};
+use mathchain_consensus::MathchainBlockImport;
 use mathchain_runtime::{self, opaque::Block, RuntimeApi, SLOT_DURATION};
 use sc_service::{error::Error as ServiceError, Configuration, TaskManager};
 use sc_consensus_manual_seal::{self as manual_seal};
@@ -14,16 +15,6 @@ use sc_finality_grandpa::{FinalityProofProvider as GrandpaFinalityProofProvider,
 use crate::cli::Sealing;
 // use sp_runtime::traits::{Block as BlockT};
 use sp_timestamp::InherentError;
-
-use mathchain_consensus::MathchainBlockImport;
-
-/// Provide a mock duration starting at 0 in millisecond for timestamp inherent.
-/// Each call will increment timestamp by slot_duration making Aura think time has passed.
-pub struct MockTimestampInherentDataProvider;
-
-pub const INHERENT_IDENTIFIER: InherentIdentifier = *b"timstap0";
-
-thread_local!(static TIMESTAMP: RefCell<u64> = RefCell::new(0));
 
 // Our native executor instance.
 native_executor_instance!(
@@ -53,6 +44,14 @@ pub enum ConsensusResult {
 	),
 	ManualSeal(MathchainBlockImport<Block, Arc<FullClient>, FullClient>, Sealing)
 }
+
+/// Provide a mock duration starting at 0 in millisecond for timestamp inherent.
+/// Each call will increment timestamp by slot_duration making Aura think time has passed.
+pub struct MockTimestampInherentDataProvider;
+
+pub const INHERENT_IDENTIFIER: InherentIdentifier = *b"timstap0";
+
+thread_local!(static TIMESTAMP: RefCell<u64> = RefCell::new(0));
 
 impl ProvideInherentData for MockTimestampInherentDataProvider {
 	fn inherent_identifier(&self) -> &'static InherentIdentifier {
@@ -95,7 +94,7 @@ impl IdentifyVariant for Box<dyn sc_service::ChainSpec> {
 
 pub fn new_partial(config: &Configuration, sealing: Option<Sealing>) -> Result<sc_service::PartialComponents<
 	FullClient, FullBackend, FullSelectChain,
-	sp_consensus::DefaultImportQueue<Block, FullClient>,
+	sp_consensus::import_queue::BasicQueue<Block, sp_api::TransactionFor<FullClient, Block>>,
 	sc_transaction_pool::FullPool<Block, FullClient>,
 	ConsensusResult,
     >, ServiceError> {
@@ -223,25 +222,22 @@ pub fn new_full(config: Configuration, sealing: Option<Sealing>) -> Result<TaskM
 	let enable_grandpa = !config.disable_grandpa;
 	let prometheus_registry = config.prometheus_registry().cloned();
 	let telemetry_connection_sinks = sc_service::TelemetryConnectionSinks::default();
-	let is_authority = role.is_authority();
-	let subscription_task_executor = sc_rpc::SubscriptionTaskExecutor::new(task_manager.spawn_handle());
+	// let is_authority = role.is_authority();
+	// let subscription_task_executor = sc_rpc::SubscriptionTaskExecutor::new(task_manager.spawn_handle());
 
 	let rpc_extensions_builder = {
 		let client = client.clone();
 		let pool = transaction_pool.clone();
-		let network = network.clone();
+		// let network = network.clone();
 		Box::new(move |deny_unsafe, _| {
 			let deps = crate::rpc::FullDeps {
 				client: client.clone(),
 				pool: pool.clone(),
 				deny_unsafe,
-				is_authority,
-				network: network.clone(),
 				command_sink: Some(command_sink.clone())
 			};
 			crate::rpc::create_full(
-				deps,
-				subscription_task_executor.clone()
+				deps
 			)
 		})
 	};
