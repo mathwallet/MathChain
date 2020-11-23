@@ -22,6 +22,7 @@ substrate-build-script-utils = { git = "https://github.com/paritytech/substrate.
 futures = "0.3.4"
 log = "0.4.8"
 jsonrpc-core = '15.0.0'
+jsonrpc-pubsub = "15.0.0"
 structopt = '0.3.8'
 
 # local dependencies
@@ -60,6 +61,11 @@ sp-timestamp = { git = "https://github.com/paritytech/substrate.git", branch = "
 substrate-frame-rpc-system = { git = "https://github.com/paritytech/substrate.git", branch = "frontier" }
 
 mathchain-consensus = { path = "../consensus" }
+pallet-evm = { path = "../vendor/frontier/frame/evm" }
+pallet-ethereum = { path = "../vendor/frontier/frame/ethereum" }
+fc-consensus = { path = "../vendor/frontier/client/consensus" }
+fc-rpc = { path = "../vendor/frontier/client/rpc" }
+fp-rpc = { path = "../vendor/frontier/primitives/rpc" }
 
 [features]
 runtime-benchmarks = ['mathchain-runtime/runtime-benchmarks']

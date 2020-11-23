@@ -11,3 +11,4 @@ members = [
     'runtime/galois',
     'runtime/mathchain',
 ]
+exclude = ["vendor"]

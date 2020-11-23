@@ -37,6 +37,8 @@ frame-system-benchmarking = { default-features = false, optional = true, git = "
 frame-system-rpc-runtime-api = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "frontier" }
 pallet-aura = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "frontier" }
 pallet-balances = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "frontier" }
+pallet-ethereum = { default-features = false, path = "../vendor/frontier/frame/ethereum" }
+pallet-evm = { default-features = false, path = "../vendor/frontier/frame/evm" }
 pallet-grandpa = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "frontier" }
 pallet-randomness-collective-flip = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "frontier" }
 pallet-recovery = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "frontier" }
@@ -56,6 +58,8 @@ sp-session = { default-features = false, git = "https://github.com/paritytech/su
 sp-std = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "frontier" }
 sp-transaction-pool = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "frontier" }
 sp-version = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "frontier" }
+
+fp-rpc = { default-features = false, path = "../vendor/frontier/primitives/rpc" }
 
 [features]
 default = ['std']

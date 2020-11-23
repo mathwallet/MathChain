@@ -15,10 +15,11 @@ use sc_client_api::{
 	backend::{StorageProvider, Backend, StateBackend, AuxStore},
 	client::BlockchainEvents
 };
-// use sc_rpc::SubscriptionTaskExecutor;
+use sc_rpc::SubscriptionTaskExecutor;
 use sp_runtime::traits::BlakeTwo256;
 use sp_block_builder::BlockBuilder;
-// use sc_network::NetworkService;
+use sc_network::NetworkService;
+use jsonrpc_pubsub::manager::SubscriptionManager;
 
 /// Light client extra dependencies.
 pub struct LightDeps<C, F, P> {
@@ -41,16 +42,19 @@ pub struct FullDeps<C, P> {
 	/// Whether to deny unsafe calls
 	pub deny_unsafe: DenyUnsafe,
 	// /// The Node authority flag
-	// pub is_authority: bool,
+	pub is_authority: bool,
+	/// Whether to enable dev signer
+	pub enable_dev_signer: bool,
 	// /// Network service
-	// pub network: Arc<NetworkService<Block, Hash>>,
+	pub network: Arc<NetworkService<Block, Hash>>,
 	/// Manual seal command sink
 	pub command_sink: Option<futures::channel::mpsc::Sender<sc_consensus_manual_seal::rpc::EngineCommand<Hash>>>,
 }
 
 /// Instantiate all Full RPC extensions.
 pub fn create_full<C, P, BE>(
-	deps: FullDeps<C, P>
+	deps: FullDeps<C, P>,
+	subscription_task_executor: SubscriptionTaskExecutor
 ) -> jsonrpc_core::IoHandler<sc_rpc::Metadata> where
 	BE: Backend<Block> + 'static,
 	BE::State: StateBackend<BlakeTwo256>,
@@ -61,18 +65,26 @@ pub fn create_full<C, P, BE>(
 	C::Api: substrate_frame_rpc_system::AccountNonceApi<Block, AccountId, Index>,
 	C::Api: BlockBuilder<Block>,
 	C::Api: pallet_transaction_payment_rpc::TransactionPaymentRuntimeApi<Block, Balance>,
+	C::Api: fp_rpc::EthereumRuntimeRPCApi<Block>,
 	<C::Api as sp_api::ApiErrorExt>::Error: fmt::Debug,
 	P: TransactionPool<Block=Block> + 'static,
 {
 	use substrate_frame_rpc_system::{FullSystem, SystemApi};
 	use pallet_transaction_payment_rpc::{TransactionPayment, TransactionPaymentApi};
+	use fc_rpc::{
+		EthApi, EthApiServer, NetApi, NetApiServer, EthPubSubApi, EthPubSubApiServer,
+		Web3Api, Web3ApiServer, EthDevSigner, EthSigner,
+	};
 
 	let mut io = jsonrpc_core::IoHandler::default();
 	let FullDeps {
 		client,
 		pool,
 		deny_unsafe,
-		command_sink
+		is_authority,
+		network,
+		command_sink,
+		enable_dev_signer,
 	} = deps;
 
 	io.extend_with(
@@ -80,6 +92,43 @@ pub fn create_full<C, P, BE>(
 	);
 	io.extend_with(
 		TransactionPaymentApi::to_delegate(TransactionPayment::new(client.clone()))
+	);
+
+	let mut signers = Vec::new();
+	if enable_dev_signer {
+		signers.push(Box::new(EthDevSigner::new()) as Box<dyn EthSigner>);
+	}
+	io.extend_with(
+		EthApiServer::to_delegate(EthApi::new(
+			client.clone(),
+			pool.clone(),
+			mathchain_runtime::TransactionConverter,
+			network.clone(),
+			signers,
+			is_authority,
+		))
+	);
+
+	io.extend_with(
+		NetApiServer::to_delegate(NetApi::new(
+			client.clone(),
+			network.clone(),
+		))
+	);
+
+	io.extend_with(
+		Web3ApiServer::to_delegate(Web3Api::new(
+			client.clone(),
+		))
+	);
+
+	io.extend_with(
+		EthPubSubApiServer::to_delegate(EthPubSubApi::new(
+			pool.clone(),
+			client.clone(),
+			network.clone(),
+			SubscriptionManager::new(Arc::new(subscription_task_executor)),
+		))
 	);
 
 	match command_sink {
