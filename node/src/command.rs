@@ -22,6 +22,7 @@ use sc_service::PartialComponents;
 use mathchain_runtime::Block;
 use sp_core::crypto::Ss58AddressFormat;
 use service::IdentifyVariant;
+use crate::service::new_partial;
 
 use galois_runtime_config::CHAIN_ID as GaoloisChainId;
 use mathchain_runtime_config::CHAIN_ID as MathchainChainId;
@@ -81,7 +82,7 @@ fn set_default_ss58_version(spec: &Box<dyn sc_cli::ChainSpec>) {
 /// Parse and run command line arguments
 pub fn run() -> sc_cli::Result<()> {
 	let cli = Cli::from_args();
-	
+
 	match &cli.subcommand {
 		Some(Subcommand::BuildSpec(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
@@ -91,7 +92,7 @@ pub fn run() -> sc_cli::Result<()> {
 			let runner = cli.create_runner(cmd)?;
 			runner.async_run(|config| {
 				let PartialComponents { client, task_manager, import_queue, ..}
-					= service::new_partial(&config)?;
+					= new_partial(&config, cli.run.sealing)?;
 				Ok((cmd.run(client, import_queue), task_manager))
 			})
 		},
@@ -99,7 +100,7 @@ pub fn run() -> sc_cli::Result<()> {
 			let runner = cli.create_runner(cmd)?;
 			runner.async_run(|config| {
 				let PartialComponents { client, task_manager, ..}
-					= service::new_partial(&config)?;
+					= new_partial(&config, cli.run.sealing)?;
 				Ok((cmd.run(client, config.database), task_manager))
 			})
 		},
@@ -107,7 +108,7 @@ pub fn run() -> sc_cli::Result<()> {
 			let runner = cli.create_runner(cmd)?;
 			runner.async_run(|config| {
 				let PartialComponents { client, task_manager, ..}
-					= service::new_partial(&config)?;
+					= new_partial(&config, cli.run.sealing)?;
 				Ok((cmd.run(client, config.chain_spec), task_manager))
 			})
 		},
@@ -115,7 +116,7 @@ pub fn run() -> sc_cli::Result<()> {
 			let runner = cli.create_runner(cmd)?;
 			runner.async_run(|config| {
 				let PartialComponents { client, task_manager, import_queue, ..}
-					= service::new_partial(&config)?;
+					= new_partial(&config, cli.run.sealing)?;
 				Ok((cmd.run(client, import_queue), task_manager))
 			})
 		},
@@ -127,7 +128,7 @@ pub fn run() -> sc_cli::Result<()> {
 			let runner = cli.create_runner(cmd)?;
 			runner.async_run(|config| {
 				let PartialComponents { client, task_manager, backend, ..}
-					= service::new_partial(&config)?;
+					= new_partial(&config, cli.run.sealing)?;
 				Ok((cmd.run(client, backend), task_manager))
 			})
 		},
@@ -142,13 +143,16 @@ pub fn run() -> sc_cli::Result<()> {
 			}
 		},
 		None => {
-			let runner = cli.create_runner(&cli.run)?;
+			let runner = cli.create_runner(&cli.run.base)?;
 			set_default_ss58_version(&runner.config().chain_spec);
 
-			runner.run_node_until_exit(|config| match config.role {
-				Role::Light => service::new_light(config),
-				_ => service::new_full(config),
+			runner.run_node_until_exit(|config| async move {
+				match config.role {
+					Role::Light => service::new_light(config),
+					_ => service::new_full(config, cli.run.sealing, cli.run.enable_dev_signer),
+				}
 			})
 		}
 	}
 }
+
