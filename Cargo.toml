@@ -1,11 +1,14 @@
-[profile.release]
-panic = 'unwind'
+# [profile.release]
+# panic = 'unwind'
 
 [workspace]
 members = [
     'node',
-    'pallets/template',
+    # 'pallets/template',
+    'consensus',
+    'consensus/primitives',
     'runtime',
     'runtime/galois',
     'runtime/mathchain',
 ]
+exclude = ["vendor"]
