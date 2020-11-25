@@ -109,7 +109,7 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
 	spec_name: create_runtime_str!("mathchain"),
 	impl_name: create_runtime_str!("mathchain"),
 	authoring_version: 1,
-	spec_version: 2,
+	spec_version: 3,
 	impl_version: 1,
 	apis: RUNTIME_API_VERSIONS,
 	transaction_version: 1,
@@ -307,11 +307,12 @@ impl FeeCalculator for FixedGasPrice {
 }
 
 parameter_types! {
-	pub const ChainId: u64 = 42;
+	pub const ChainId: u64 = 1140;
 }
 
 impl pallet_evm::Trait for Runtime {
 	type FeeCalculator = FixedGasPrice;
+	type GasToWeight = ();
 	type CallOrigin = EnsureAddressTruncated;
 	type WithdrawOrigin = EnsureAddressTruncated;
 	type AddressMapping = HashedAddressMapping<BlakeTwo256>;
