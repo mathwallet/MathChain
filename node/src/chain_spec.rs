@@ -14,11 +14,16 @@ use std::str::FromStr;
 
 const DEFAULT_PROTOCOL_ID: &str = "math";
 
+
 // The URL for the telemetry server.
 // const STAGING_TELEMETRY_URL: &str = "wss://telemetry.polkadot.io/submit/";
 
 /// Specialized `ChainSpec`. This is a specialization of the general Substrate ChainSpec type.
 pub type ChainSpec = sc_service::GenericChainSpec<GenesisConfig>;
+
+pub fn galois_config() -> Result<ChainSpec, String> {
+	ChainSpec::from_json_bytes(&include_bytes!("../res/galois.json")[..])
+}
 
 pub fn math_testnet_properties() -> Properties {
 	let mut properties = Properties::new();

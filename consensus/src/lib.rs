@@ -28,7 +28,7 @@ use sc_client_api::{BlockOf, backend::AuxStore};
 use sp_blockchain::{HeaderBackend, ProvideCache, well_known_cache_keys::Id as CacheKeyId};
 use sp_block_builder::BlockBuilder as BlockBuilderApi;
 use sp_runtime::generic::OpaqueDigestItemId;
-use sp_runtime::traits::{Block as BlockT, Header as HeaderT};
+use sp_runtime::traits::{Block as BlockT, Header as HeaderT, SaturatedConversion};
 use sp_api::ProvideRuntimeApi;
 use sp_consensus::{
 	BlockImportParams, Error as ConsensusError, BlockImport,
@@ -60,7 +60,7 @@ impl std::convert::From<Error> for ConsensusError {
 pub struct MathchainBlockImport<B: BlockT, I, C> {
 	inner: I,
 	client: Arc<C>,
-	enabled: bool,
+	is_galois: bool,
 	_marker: PhantomData<B>,
 }
 
@@ -69,7 +69,7 @@ impl<Block: BlockT, I: Clone + BlockImport<Block>, C> Clone for MathchainBlockIm
 		MathchainBlockImport {
 			inner: self.inner.clone(),
 			client: self.client.clone(),
-			enabled: self.enabled,
+			is_galois: self.is_galois,
 			_marker: PhantomData,
 		}
 	}
@@ -85,12 +85,12 @@ impl<B, I, C> MathchainBlockImport<B, I, C> where
 	pub fn new(
 		inner: I,
 		client: Arc<C>,
-		enabled: bool,
+		is_galois: bool,
 	) -> Self {
 		Self {
 			inner,
 			client,
-			enabled,
+			is_galois,
 			_marker: PhantomData,
 		}
 	}
@@ -128,7 +128,8 @@ impl<B, I, C> BlockImport<B> for MathchainBlockImport<B, I, C> where
 
 		let client = self.client.clone();
 
-		if self.enabled {
+		// support testnet aura block import
+		if !!!(self.is_galois && block.header.number().clone().saturated_into::<u64>() < 1_252_434) {
 			let log = find_mathchain_log::<B>(&block.header)?;
 			let hash = block.post_hash();
 

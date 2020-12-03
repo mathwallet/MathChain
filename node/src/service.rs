@@ -84,7 +84,7 @@ pub trait IdentifyVariant {
 
 impl IdentifyVariant for Box<dyn sc_service::ChainSpec> {
 	fn is_galois(&self) -> bool {
-		self.id().starts_with("galois")
+		self.id().starts_with("Galois")
 	}
 
 	fn is_math(&self) -> bool {
@@ -122,7 +122,7 @@ pub fn new_partial(config: &Configuration, sealing: Option<Sealing>) -> Result<s
 		let mathchain_block_import = MathchainBlockImport::new(
 			client.clone(),
 			client.clone(),
-			true,
+			true
 		);
 
 		let import_queue = sc_consensus_manual_seal::import_queue(
@@ -145,7 +145,7 @@ pub fn new_partial(config: &Configuration, sealing: Option<Sealing>) -> Result<s
 	let mathchain_block_import = MathchainBlockImport::new(
 		grandpa_block_import.clone(),
 		client.clone(),
-		true
+		config.chain_spec.is_galois()
 	);
 
 	let aura_block_import = sc_consensus_aura::AuraBlockImport::<_, _, _, AuraPair>::new(
