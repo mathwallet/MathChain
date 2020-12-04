@@ -129,7 +129,7 @@ impl<B, I, C> BlockImport<B> for MathchainBlockImport<B, I, C> where
 		let client = self.client.clone();
 
 		// support testnet aura block import
-		if !!!(self.is_galois && block.header.number().clone().saturated_into::<u64>() < 1_252_434) {
+		if !!!(self.is_galois && block.header.number().clone().saturated_into::<u64>() < 1_252_435) {
 			let log = find_mathchain_log::<B>(&block.header)?;
 			let hash = block.post_hash();
 
