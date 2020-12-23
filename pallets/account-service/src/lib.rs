@@ -65,15 +65,13 @@ pub trait Config: frame_system::Config {
 
 #[derive(Clone, Encode, Decode, Eq, PartialEq)]
 pub struct MultiAddressDetails<
-	AccountId: Encode + Decode + Clone + Eq + PartialEq,
 	Info: Codec,
 > {
-	account_id: AccountId,
 	nickname: Info,
 	ethereum: Info
 }
 
-#[derive(PartialEq, Eq, Clone)]
+#[derive(PartialEq, Eq, Clone, Debug)]
 pub enum MultiAddress {
 	/// It's some arbitrary raw bytes.
 	Raw(Vec<u8>),
@@ -120,7 +118,6 @@ impl codec::EncodeLike for MultiAddress {}
 decl_storage! {
 	trait Store for Module<T: Config> as AccountService {
 		MultiAddressOf: map hasher(blake2_128_concat) T::AccountId => Option<MultiAddressDetails<
-			T::AccountId,
 			MultiAddress
 		>>;
 		FromNickname: map hasher(blake2_128_concat) MultiAddress => T::AccountId;
@@ -190,10 +187,18 @@ decl_module! {
 			let info = name.clone();
 			match info {
 				MultiAddress::Raw(info) => {
-					ensure!(!FromNickname::<T>::contains_key(info.clone()), Error::<T>::AlreadyTaked);
+					ensure!(!FromNickname::<T>::contains_key(MultiAddress::Raw(info.clone())), Error::<T>::AlreadyTaked);
 					// <NicknameOf<T>>::insert(&sender, info.clone());
-					FromNickname::<T>::insert(info.clone(), &sender);
-
+					// FromNickname::<T>::insert(info.clone(), &sender);
+					let mut id = match <MultiAddressOf<T>>::get(&sender) {
+						Some(mut id) => {
+							// Only keep non-positive judgements.
+							id
+						}
+						None => MultiAddressDetails { nickname: MultiAddress::Raw(info.clone()), ethereum: MultiAddress::Address20([0u8; 20])},
+					};
+					<MultiAddressOf<T>>::insert(&sender, id);
+					<FromNickname<T>>::insert(MultiAddress::Raw(info.clone()), &sender);
 				},
 				MultiAddress::Address20(info) => {
 					// ensure!(!COUNT_AIRDROP_RECIPIENTS.is_zero(), Error::<T>::AlreadyTaked)
