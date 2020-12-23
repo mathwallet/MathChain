@@ -14,7 +14,7 @@ use sp_runtime::{
 	transaction_validity::{TransactionValidity, TransactionSource},
 };
 use sp_runtime::traits::{
-	BlakeTwo256, Block as BlockT, IdentityLookup, Verify, IdentifyAccount, NumberFor, Saturating,
+	BlakeTwo256, Block as BlockT, AccountIdLookup, Verify, IdentifyAccount, NumberFor, Saturating,
 };
 use sp_api::impl_runtime_apis;
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
@@ -55,6 +55,7 @@ use constants::{currency::*};
 
 /// Import the template pallet.
 // pub use pallet_template;
+pub use pallet_account_service;
 
 /// An index to a block.
 pub type BlockNumber = u32;
@@ -156,7 +157,7 @@ impl frame_system::Config for Runtime {
 	/// The aggregated dispatch type that is available for extrinsics.
 	type Call = Call;
 	/// The lookup mechanism to get account ID from whatever is passed in dispatchers.
-	type Lookup = IdentityLookup<AccountId>;
+	type Lookup = AccountIdLookup<AccountId, ()>;
 	/// The index type for storing how many extrinsics an account has signed.
 	type Index = Index;
 	/// The index type for blocks.
@@ -295,6 +296,27 @@ impl pallet_sudo::Config for Runtime {
 // impl pallet_template::Config for Runtime {
 // 	type Event = Event;
 // }
+parameter_types! {
+    // Choose a fee that incentivizes desireable behavior.
+    pub const MinNickLength: usize = 8;
+    // Maximum bounds on storage are important to secure your chain.
+    pub const MaxNickLength: usize = 15;
+}
+
+impl pallet_account_service::Config for Runtime {
+    // Use the MinNickLength from the parameter_types block.
+    type MinLength = MinNickLength;
+
+    // Use the MaxNickLength from the parameter_types block.
+    type MaxLength = MaxNickLength;
+	
+	// Configure the FRAME System Root origin as the Nick pallet admin.
+    // https://substrate.dev/rustdocs/v2.0.0/frame_system/enum.RawOrigin.html#variant.Root
+    type ForceOrigin = frame_system::EnsureRoot<AccountId>;
+
+	// The ubiquitous event type.
+	type Event = Event;
+}
 
 /// Fixed gas price of `1`.
 pub struct FixedGasPrice;
@@ -363,6 +385,7 @@ construct_runtime!(
 		TransactionPayment: pallet_transaction_payment::{Module, Storage},
 		Sudo: pallet_sudo::{Module, Call, Config<T>, Storage, Event<T>},
 		Recovery: pallet_recovery::{Module, Call, Storage, Event<T>},
+		AccountService: pallet_account_service::{Module, Call, Storage, Event<T>},
 		// Include the custom logic from the template pallet in the runtime.
 		// TemplateModule: pallet_template::{Module, Call, Storage, Event<T>},
 		Ethereum: pallet_ethereum::{Module, Call, Storage, Event, Config, ValidateUnsigned},
@@ -387,7 +410,8 @@ impl fp_rpc::ConvertTransaction<opaque::UncheckedExtrinsic> for TransactionConve
 }
 
 /// The address format for describing accounts.
-pub type Address = AccountId;
+pub type Address = sp_runtime::MultiAddress<AccountId, ()>;
+// pub type Address = AccountId;
 /// Block header type as expected by this runtime.
 pub type Header = generic::Header<BlockNumber, BlakeTwo256>;
 /// Block type as expected by this runtime.

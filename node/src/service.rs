@@ -84,11 +84,11 @@ pub trait IdentifyVariant {
 
 impl IdentifyVariant for Box<dyn sc_service::ChainSpec> {
 	fn is_galois(&self) -> bool {
-		self.id().starts_with("Galois")
+		self.id().starts_with("Galois") || self.id().starts_with("dev")
 	}
 
 	fn is_math(&self) -> bool {
-		self.id().starts_with("math")
+		self.id().starts_with("MathChain")
 	}
 }
 
