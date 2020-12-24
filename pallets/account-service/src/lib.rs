@@ -71,68 +71,30 @@ pub struct MultiAddressDetails<
 	ethereum: Info
 }
 
-#[derive(PartialEq, Eq, Clone, Debug)]
-pub enum MultiAddress {
+#[derive(Encode, Decode, PartialEq, Eq, Clone, Debug)]
+pub enum AccountService {
 	/// It's some arbitrary raw bytes.
-	Raw(Vec<u8>),
-	/// It's a 32 byte representation.
-	Address32([u8; 32]),
+	Nickname(Vec<u8>),
 	/// Its a 20 byte representation.
-	Address20([u8; 20]),
+	Ethereum([u8; 20]),
 }
-
-impl Decode for MultiAddress {
-	fn decode<I: codec::Input>(input: &mut I) -> sp_std::result::Result<Self, codec::Error> {
-		let b = input.read_byte()?;
-		Ok(match b {
-			// 0 => MultiAddress::Id(<AccountId>::decode(input)?),
-			n @ 1 ..= 33 => {
-				let mut r = vec![0u8; n as usize - 1];
-				input.read(&mut r[..])?;
-				MultiAddress::Raw(r)
-			}
-			34 => MultiAddress::Address32(<[u8; 32]>::decode(input)?),
-			35 => MultiAddress::Address20(<[u8; 20]>::decode(input)?),
-			_ => return Err(codec::Error::from("invalid leading byte")),
-		})
-	}
-}
-
-impl Encode for MultiAddress {
-	fn encode(&self) -> Vec<u8> {
-		match self {
-			// MultiAddress::Id(ref h) => once(0u8).chain(h.iter().cloned()).collect(),
-			MultiAddress::Raw(ref x) => {
-				let l = x.len().min(32);
-				let mut r = vec![l as u8 + 1; l + 1];
-				&mut r[1..].copy_from_slice(&x[..l as usize]);
-				r
-			},
-			MultiAddress::Address32(ref h) => once(34u8).chain(h.iter().cloned()).collect(),
-			MultiAddress::Address20(ref h) => once(35u8).chain(h.iter().cloned()).collect(),
-		}
-	}
-}
-impl codec::EncodeLike for MultiAddress {}
 
 decl_storage! {
 	trait Store for Module<T: Config> as AccountService {
 		MultiAddressOf: map hasher(blake2_128_concat) T::AccountId => Option<MultiAddressDetails<
-			MultiAddress
+			AccountService
 		>>;
-		FromNickname: map hasher(blake2_128_concat) MultiAddress => T::AccountId;
-		FromEthereum: map hasher(blake2_128_concat) MultiAddress => T::AccountId;
+		FromNickname: map hasher(blake2_128_concat) AccountService => T::AccountId;
+		FromEthereum: map hasher(blake2_128_concat) AccountService => T::AccountId;
 	}
 }
 
 decl_event!(
 	pub enum Event<T> where AccountId = <T as frame_system::Config>::AccountId {
-		/// A name was set. \[who\]
-		NameSet(AccountId),
 		/// A name was forcibly set. \[target\]
-		NameForced(AccountId),
-		/// A name was changed. \[who\]
-		NameChanged(AccountId),
+		NameForced(AccountId, AccountService),
+		/// A name was changed. \[who, to\]
+		NameChanged(AccountId, AccountService),
 		/// A name was cleared, and the given balance returned. \[who\]
 		NameCleared(AccountId),
 	}
@@ -182,33 +144,36 @@ decl_module! {
 		/// - One event.
 		/// # </weight>
 		#[weight = 50_000_000]
-		fn bind(origin, name: MultiAddress) {
+		fn bind(origin, name: AccountService) {
 			let sender = ensure_signed(origin)?;
 			let info = name.clone();
 			match info {
-				MultiAddress::Raw(info) => {
-					ensure!(!FromNickname::<T>::contains_key(MultiAddress::Raw(info.clone())), Error::<T>::AlreadyTaked);
-					// <NicknameOf<T>>::insert(&sender, info.clone());
-					// FromNickname::<T>::insert(info.clone(), &sender);
+				AccountService::Nickname(_) => {
+					ensure!(!FromNickname::<T>::contains_key(info.clone()), Error::<T>::AlreadyTaked);
 					let mut id = match <MultiAddressOf<T>>::get(&sender) {
 						Some(mut id) => {
-							// Only keep non-positive judgements.
+							id.nickname = info.clone();
 							id
 						}
-						None => MultiAddressDetails { nickname: MultiAddress::Raw(info.clone()), ethereum: MultiAddress::Address20([0u8; 20])},
+						None =>	MultiAddressDetails { nickname: info.clone(), ethereum: AccountService::Ethereum([0u8; 20])},
 					};
 					<MultiAddressOf<T>>::insert(&sender, id);
-					<FromNickname<T>>::insert(MultiAddress::Raw(info.clone()), &sender);
+					<FromNickname<T>>::insert(info.clone(), &sender);	
 				},
-				MultiAddress::Address20(info) => {
-					// ensure!(!COUNT_AIRDROP_RECIPIENTS.is_zero(), Error::<T>::AlreadyTaked)
-				},
-				_ => {
-
+				AccountService::Ethereum(_) => {
+					ensure!(!FromEthereum::<T>::contains_key(info.clone()), Error::<T>::AlreadyTaked);
+					let mut id = match <MultiAddressOf<T>>::get(&sender) {
+						Some(mut id) => {
+							id.ethereum = info.clone();
+							id
+						}
+						None => MultiAddressDetails { nickname: AccountService::Nickname(vec![0]), ethereum: info.clone()},
+					};
+					<MultiAddressOf<T>>::insert(&sender, id);
+					<FromEthereum<T>>::insert(info.clone(), &sender);	
 				}
 			}
-			Self::deposit_event(RawEvent::NameSet(sender.clone()));
-
+			Self::deposit_event(RawEvent::NameChanged(sender.clone(), info.clone()));
 		}
 	}
 }
