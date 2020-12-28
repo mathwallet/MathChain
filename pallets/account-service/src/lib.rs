@@ -26,7 +26,6 @@
 //!
 //! * `bind` - Set the MultiAddress with AccountId.
 //! * `clear` - Clean the special AccountId MultiAddress bind.
-//! * `set` - Change special Address format for AccountId.
 //! * `bind_for` - Set the MultiAddress with other person AccountId.
 //! * `clear_for` - Clean other AccountId MultiAddress bind
 //!
@@ -36,17 +35,15 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use sp_std::prelude::*;
-use sp_std::{fmt::Debug, ops::Add, iter::once};
-use sp_runtime::{
-	traits::{StaticLookup, Zero}
-};
+use sp_std::fmt::Debug;
+
 use frame_support::{
 	decl_module, decl_event, decl_storage, ensure, decl_error,
-	traits::{Currency, EnsureOrigin, ReservableCurrency, OnUnbalanced, Get},
+	traits::{EnsureOrigin, Get},
 };
 use frame_system::{ensure_signed, ensure_root};
 
-use codec::{Encode, Decode, Compact, HasCompact, Codec};
+use codec::{Encode, Decode, Codec};
 
 pub trait Config: frame_system::Config {
 	/// The overarching event type.
@@ -81,11 +78,12 @@ pub enum AccountService {
 
 decl_storage! {
 	trait Store for Module<T: Config> as AccountService {
-		MultiAddressOf: map hasher(blake2_128_concat) T::AccountId => Option<MultiAddressDetails<
+		MultiAddressOf get(fn multi_address_of): map hasher(blake2_128_concat) <T as frame_system::Config>::AccountId => Option<MultiAddressDetails<
 			AccountService
 		>>;
-		FromNickname: map hasher(blake2_128_concat) AccountService => T::AccountId;
-		FromEthereum: map hasher(blake2_128_concat) AccountService => T::AccountId;
+		FromNickname get(fn from_nick_name): map hasher(blake2_128_concat) AccountService => <T as frame_system::Config>::AccountId;
+		FromEthereum get(fn from_ethereum): map hasher(blake2_128_concat) AccountService => <T as frame_system::Config>::AccountId;
+		AccountRoot get(fn account_root) config(): <T as frame_system::Config>::AccountId;
 	}
 }
 
@@ -97,6 +95,8 @@ decl_event!(
 		NameChanged(AccountId, AccountService),
 		/// A name was cleared, and the given balance returned. \[who\]
 		NameCleared(AccountId),
+		/// Account root key set
+		KeyChanged(AccountId),
 	}
 );
 
@@ -111,6 +111,8 @@ decl_error! {
 		Unnamed,
 		/// A name or address has been binded.
 		AlreadyTaked,
+		/// Not allow to bind
+		NotAllowed,
 	}
 }
 
@@ -144,13 +146,13 @@ decl_module! {
 		/// - One event.
 		/// # </weight>
 		#[weight = 50_000_000]
-		fn bind(origin, name: AccountService) {
+		fn bind(origin, account_service: AccountService) {
 			let sender = ensure_signed(origin)?;
-			let info = name.clone();
+			let info = account_service.clone();
 			match info {
 				AccountService::Nickname(_) => {
 					ensure!(!FromNickname::<T>::contains_key(info.clone()), Error::<T>::AlreadyTaked);
-					let mut id = match <MultiAddressOf<T>>::get(&sender) {
+					let id = match <MultiAddressOf<T>>::get(&sender) {
 						Some(mut id) => {
 							id.nickname = info.clone();
 							id
@@ -161,19 +163,101 @@ decl_module! {
 					<FromNickname<T>>::insert(info.clone(), &sender);	
 				},
 				AccountService::Ethereum(_) => {
+					ensure!(false, Error::<T>::NotAllowed);
+					// ensure!(!FromEthereum::<T>::contains_key(info.clone()), Error::<T>::AlreadyTaked);
+					// let id = match <MultiAddressOf<T>>::get(&sender) {
+					// 	Some(mut id) => {
+					// 		id.ethereum = info.clone();
+					// 		id
+					// 	}
+					// 	None => MultiAddressDetails { nickname: AccountService::Nickname(vec![0]), ethereum: info.clone()},
+					// };
+					// <MultiAddressOf<T>>::insert(&sender, id);
+					// <FromEthereum<T>>::insert(info.clone(), &sender);	
+				}
+			}
+			Self::deposit_event(RawEvent::NameChanged(sender.clone(), info.clone()));
+		}
+
+		#[weight = 50_000_000]
+		fn clear(origin) {
+			let sender = ensure_signed(origin)?;
+			match <MultiAddressOf<T>>::take(&sender) {
+				Some(multi_address_detail) => {
+					<FromNickname<T>>::remove(&multi_address_detail.nickname);
+					<FromEthereum<T>>::remove(&multi_address_detail.ethereum);
+				}
+				_ => {}
+			};
+			Self::deposit_event(RawEvent::NameCleared(sender.clone()));
+		}
+
+		#[weight = 50_000_000]
+		fn force_bind(origin, dest: <T as frame_system::Config>::AccountId, account_service: AccountService) {
+			let sender = ensure_signed(origin)?;
+			ensure!(sender == Self::account_root(), Error::<T>::NotAllowed);
+			let info = account_service.clone();
+			match info {
+				AccountService::Nickname(_) => {
+					ensure!(!FromNickname::<T>::contains_key(info.clone()), Error::<T>::AlreadyTaked);
+					let id = match <MultiAddressOf<T>>::get(&dest) {
+						Some(mut id) => {
+							id.nickname = info.clone();
+							id
+						}
+						None =>	MultiAddressDetails { nickname: info.clone(), ethereum: AccountService::Ethereum([0u8; 20])},
+					};
+					<MultiAddressOf<T>>::insert(&dest, id);
+					<FromNickname<T>>::insert(info.clone(), &dest);	
+				},
+				AccountService::Ethereum(_) => {
+					// ensure!(false, Error::<T>::NotAllowed);
 					ensure!(!FromEthereum::<T>::contains_key(info.clone()), Error::<T>::AlreadyTaked);
-					let mut id = match <MultiAddressOf<T>>::get(&sender) {
+					let id = match <MultiAddressOf<T>>::get(&dest) {
 						Some(mut id) => {
 							id.ethereum = info.clone();
 							id
 						}
 						None => MultiAddressDetails { nickname: AccountService::Nickname(vec![0]), ethereum: info.clone()},
 					};
-					<MultiAddressOf<T>>::insert(&sender, id);
-					<FromEthereum<T>>::insert(info.clone(), &sender);	
+					<MultiAddressOf<T>>::insert(&dest, id);
+					<FromEthereum<T>>::insert(info.clone(), &dest);	
 				}
 			}
-			Self::deposit_event(RawEvent::NameChanged(sender.clone(), info.clone()));
+			Self::deposit_event(RawEvent::NameChanged(dest.clone(), info.clone()));
+		}
+
+		/// Authenticates the current account root key and sets the given AccountId (`new`) as the new account root key.
+		///
+		/// The dispatch origin for this call must be _Signed_.
+		///
+		/// # <weight>
+		/// - O(1).
+		/// - Limited storage reads.
+		/// - One DB change.
+		/// # </weight>
+		#[weight = 5_000_000]
+		fn set_key(origin, new: <T as frame_system::Config>::AccountId) {
+			// This is a public call, so we ensure that the origin is some signed account.
+			let _sender = ensure_root(origin)?;
+
+			Self::deposit_event(RawEvent::KeyChanged(new.clone()));
+			<AccountRoot<T>>::put(&new);
+		}
+
+		#[weight = 50_000_000]
+		fn force_clear(origin, dest: <T as frame_system::Config>::AccountId) {
+			let sender = ensure_signed(origin)?;
+			ensure!(sender == Self::account_root(), Error::<T>::NotAllowed);
+			match <MultiAddressOf<T>>::take(&dest) {
+				Some(multi_address_detail) => {
+					<FromNickname<T>>::remove(&multi_address_detail.nickname);
+					<FromEthereum<T>>::remove(&multi_address_detail.ethereum);
+				}
+				_ => {}
+			};
+			Self::deposit_event(RawEvent::NameCleared(dest));
+			
 		}
 	}
 }

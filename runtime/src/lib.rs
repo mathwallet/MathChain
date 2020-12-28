@@ -6,15 +6,15 @@
 #[cfg(feature = "std")]
 include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
 
-use sp_std::{prelude::*, marker::PhantomData};
-use codec::{Encode, Decode};
+use codec::{Codec, Encode, Decode};
+use sp_std::{self, prelude::*, marker::PhantomData, fmt::Debug};
 use sp_core::{crypto::KeyTypeId, OpaqueMetadata, U256, H160, H256};
 use sp_runtime::{
 	ApplyExtrinsicResult, generic, create_runtime_str, impl_opaque_keys, MultiSignature,
 	transaction_validity::{TransactionValidity, TransactionSource},
 };
 use sp_runtime::traits::{
-	BlakeTwo256, Block as BlockT, AccountIdLookup, Verify, IdentifyAccount, NumberFor, Saturating,
+	BlakeTwo256, Block as BlockT, Verify, IdentifyAccount, NumberFor, Saturating, StaticLookup, LookupError
 };
 use sp_api::impl_runtime_apis;
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
@@ -24,7 +24,7 @@ use sp_version::RuntimeVersion;
 #[cfg(feature = "std")]
 use sp_version::NativeVersion;
 use sp_core::crypto::Public;
-
+use sp_core::crypto::AccountId32;
 
 // A few exports that help ease life for downstream crates.
 #[cfg(any(feature = "std", test))]
@@ -56,6 +56,7 @@ use constants::{currency::*};
 /// Import the template pallet.
 // pub use pallet_template;
 pub use pallet_account_service;
+use pallet_account_service::{AccountService as AccountServiceEnum};
 
 /// An index to a block.
 pub type BlockNumber = u32;
@@ -145,6 +146,31 @@ parameter_types! {
 		.saturating_sub(Perbill::from_percent(10)) * MaximumBlockWeight::get();
 	pub const MaximumBlockLength: u32 = 5 * 1024 * 1024;
 	pub const Version: RuntimeVersion = VERSION;
+}
+
+/// A lookup implementation returning the `AccountId` from a `MultiAddress`.
+pub struct AccountIdLookup<AccountId, AccountIndex>(PhantomData<(AccountId, AccountIndex)>);
+impl<AccountId, AccountIndex> StaticLookup for AccountIdLookup<AccountId, AccountIndex>
+where
+	AccountId: Codec + Clone + PartialEq + Debug + From<AccountId32>,
+	AccountIndex: Codec + Clone + PartialEq + Debug,
+	sp_runtime::MultiAddress<AccountId, AccountIndex>: Codec,
+{
+	type Source = sp_runtime::MultiAddress<AccountId, AccountIndex>;
+	type Target = AccountId;
+	fn lookup(x: Self::Source) -> Result<Self::Target, LookupError> {
+		match x {
+			sp_runtime::MultiAddress::Id(i) => Ok(i),
+			sp_runtime::MultiAddress::Address20(i) => {
+				Ok(
+					AccountService::from_ethereum(&AccountServiceEnum::Ethereum(i)).into()
+				)},
+			_ => Err(LookupError),
+		}
+	}
+	fn unlookup(x: Self::Target) -> Self::Source {
+		sp_runtime::MultiAddress::Id(x)
+	}
 }
 
 // Configure FRAME pallets to include in runtime.
@@ -304,18 +330,19 @@ parameter_types! {
 }
 
 impl pallet_account_service::Config for Runtime {
-    // Use the MinNickLength from the parameter_types block.
-    type MinLength = MinNickLength;
+	// Use the MinNickLength from the parameter_types block.
+	type MinLength = MinNickLength;
 
-    // Use the MaxNickLength from the parameter_types block.
-    type MaxLength = MaxNickLength;
-	
-	// Configure the FRAME System Root origin as the Nick pallet admin.
-    // https://substrate.dev/rustdocs/v2.0.0/frame_system/enum.RawOrigin.html#variant.Root
-    type ForceOrigin = frame_system::EnsureRoot<AccountId>;
+	// Use the MaxNickLength from the parameter_types block.
+	type MaxLength = MaxNickLength;
+
+// Configure the FRAME System Root origin as the Nick pallet admin.
+	// https://substrate.dev/rustdocs/v2.0.0/frame_system/enum.RawOrigin.html#variant.Root
+	type ForceOrigin = frame_system::EnsureRoot<AccountId>;
 
 	// The ubiquitous event type.
 	type Event = Event;
+
 }
 
 /// Fixed gas price of `1`.
