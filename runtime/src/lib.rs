@@ -6,15 +6,15 @@
 #[cfg(feature = "std")]
 include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
 
-use codec::{Codec, Encode, Decode};
-use sp_std::{self, prelude::*, marker::PhantomData, fmt::Debug};
+use sp_std::{prelude::*, marker::PhantomData};
+use codec::{Encode, Decode};
 use sp_core::{crypto::KeyTypeId, OpaqueMetadata, U256, H160, H256};
 use sp_runtime::{
 	ApplyExtrinsicResult, generic, create_runtime_str, impl_opaque_keys, MultiSignature,
 	transaction_validity::{TransactionValidity, TransactionSource},
 };
 use sp_runtime::traits::{
-	BlakeTwo256, Block as BlockT, Verify, IdentifyAccount, NumberFor, Saturating, StaticLookup, LookupError
+	BlakeTwo256, Block as BlockT, IdentityLookup, Verify, IdentifyAccount, NumberFor, Saturating,
 };
 use sp_api::impl_runtime_apis;
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
@@ -24,7 +24,7 @@ use sp_version::RuntimeVersion;
 #[cfg(feature = "std")]
 use sp_version::NativeVersion;
 use sp_core::crypto::Public;
-use sp_core::crypto::AccountId32;
+
 
 // A few exports that help ease life for downstream crates.
 #[cfg(any(feature = "std", test))]
@@ -33,7 +33,6 @@ pub use pallet_timestamp::Call as TimestampCall;
 pub use pallet_balances::Call as BalancesCall;
 pub use sp_runtime::{Permill, Perbill};
 pub use pallet_recovery::Call as RecoveryCall;
-use pallet_transaction_payment::CurrencyAdapter;
 
 pub use frame_support::{
 	construct_runtime, parameter_types, StorageValue,
@@ -55,8 +54,6 @@ use constants::{currency::*};
 
 /// Import the template pallet.
 // pub use pallet_template;
-pub use pallet_account_service;
-pub use pallet_account_service::AccountServiceEnum;
 
 /// An index to a block.
 pub type BlockNumber = u32;
@@ -148,42 +145,9 @@ parameter_types! {
 	pub const Version: RuntimeVersion = VERSION;
 }
 
-/// A lookup implementation returning the `AccountId` from a `MultiAddress`.
-pub struct AccountIdLookup<AccountId, AccountIndex>(PhantomData<(AccountId, AccountIndex)>);
-impl<AccountId, AccountIndex> StaticLookup for AccountIdLookup<AccountId, AccountIndex>
-where
-	AccountId: Codec + Clone + PartialEq + Debug + From<AccountId32> + core::cmp::PartialEq<AccountId32>,
-	AccountIndex: Codec + Clone + PartialEq + Debug,
-	sp_runtime::MultiAddress<AccountId, AccountIndex>: Codec,
-{
-	type Source = sp_runtime::MultiAddress<AccountId, AccountIndex>;
-	type Target = AccountId;
-	fn lookup(x: Self::Source) -> Result<Self::Target, LookupError> {
-		match x {
-			sp_runtime::MultiAddress::Id(i) => Ok(i),
-			sp_runtime::MultiAddress::Address20(i) => {
-				let account = AccountService::from_ethereum(&AccountServiceEnum::Ethereum(i)).into();
-				Ok(if account == AccountId32::new([0u8; 32]) {
-					let mut data = [0u8; 32];
-					data[0..4].copy_from_slice(b"evm:");
-					data[4..24].copy_from_slice(&i[..]);
-					// let hash = H::hash(&data);
-					AccountId32::new(data).into()
-				} else {
-					account
-				})
-			},
-			_ => Err(LookupError),
-		}
-	}
-	fn unlookup(x: Self::Target) -> Self::Source {
-		sp_runtime::MultiAddress::Id(x)
-	}
-}
-
 // Configure FRAME pallets to include in runtime.
 
-impl frame_system::Config for Runtime {
+impl frame_system::Trait for Runtime {
 	/// The basic call filter to use in dispatchable.
 	type BaseCallFilter = ();
 	/// The identifier used to distinguish between accounts.
@@ -191,7 +155,7 @@ impl frame_system::Config for Runtime {
 	/// The aggregated dispatch type that is available for extrinsics.
 	type Call = Call;
 	/// The lookup mechanism to get account ID from whatever is passed in dispatchers.
-	type Lookup = AccountIdLookup<AccountId, ()>;
+	type Lookup = IdentityLookup<AccountId>;
 	/// The index type for storing how many extrinsics an account has signed.
 	type Index = Index;
 	/// The index type for blocks.
@@ -242,11 +206,11 @@ impl frame_system::Config for Runtime {
 	type SystemWeightInfo = ();
 }
 
-impl pallet_aura::Config for Runtime {
+impl pallet_aura::Trait for Runtime {
 	type AuthorityId = AuraId;
 }
 
-impl pallet_grandpa::Config for Runtime {
+impl pallet_grandpa::Trait for Runtime {
 	type Event = Event;
 	type Call = Call;
 
@@ -271,7 +235,7 @@ parameter_types! {
 	pub const RecoveryDeposit: Balance = 5 * MATHS;
 }
 
-impl pallet_recovery::Config for Runtime {
+impl pallet_recovery::Trait for Runtime {
 	type Event = Event;
 	type Call = Call;
 	type Currency = Balances;
@@ -285,7 +249,7 @@ parameter_types! {
 	pub const MinimumPeriod: u64 = SLOT_DURATION / 2;
 }
 
-impl pallet_timestamp::Config for Runtime {
+impl pallet_timestamp::Trait for Runtime {
 	/// A timestamp: milliseconds since the unix epoch.
 	type Moment = u64;
 	type OnTimestampSet = Aura;
@@ -298,7 +262,7 @@ parameter_types! {
 	pub const MaxLocks: u32 = 50;
 }
 
-impl pallet_balances::Config for Runtime {
+impl pallet_balances::Trait for Runtime {
 	type MaxLocks = MaxLocks;
 	/// The type for recording an account's balance.
 	type Balance = Balance;
@@ -314,44 +278,23 @@ parameter_types! {
 	pub const TransactionByteFee: Balance = 1;
 }
 
-impl pallet_transaction_payment::Config for Runtime {
-	type OnChargeTransaction = CurrencyAdapter<Balances, ()>;
+impl pallet_transaction_payment::Trait for Runtime {
+	type Currency = Balances;
+	type OnTransactionPayment = ();
 	type TransactionByteFee = TransactionByteFee;
 	type WeightToFee = IdentityFee<Balance>;
 	type FeeMultiplierUpdate = ();
 }
 
-impl pallet_sudo::Config for Runtime {
+impl pallet_sudo::Trait for Runtime {
 	type Event = Event;
 	type Call = Call;
 }
 
 // /// Configure the pallet template in pallets/template.
-// impl pallet_template::Config for Runtime {
+// impl pallet_template::Trait for Runtime {
 // 	type Event = Event;
 // }
-parameter_types! {
-    // Choose a fee that incentivizes desireable behavior.
-    pub const MinNickLength: usize = 8;
-    // Maximum bounds on storage are important to secure your chain.
-    pub const MaxNickLength: usize = 15;
-}
-
-impl pallet_account_service::Config for Runtime {
-	// Use the MinNickLength from the parameter_types block.
-	type MinLength = MinNickLength;
-
-	// Use the MaxNickLength from the parameter_types block.
-	type MaxLength = MaxNickLength;
-
-// Configure the FRAME System Root origin as the Nick pallet admin.
-	// https://substrate.dev/rustdocs/v2.0.0/frame_system/enum.RawOrigin.html#variant.Root
-	type ForceOrigin = frame_system::EnsureRoot<AccountId>;
-
-	// The ubiquitous event type.
-	type Event = Event;
-
-}
 
 /// Fixed gas price of `1`.
 pub struct FixedGasPrice;
@@ -367,12 +310,12 @@ parameter_types! {
 	pub const ChainId: u64 = 1140;
 }
 
-impl pallet_evm::Config for Runtime {
+impl pallet_evm::Trait for Runtime {
 	type FeeCalculator = FixedGasPrice;
 	type GasToWeight = ();
 	type CallOrigin = EnsureAddressTruncated;
 	type WithdrawOrigin = EnsureAddressTruncated;
-	type AddressMapping = HashedAddressMapping<Self>;
+	type AddressMapping = HashedAddressMapping<BlakeTwo256>;
 	type Currency = Balances;
 	type Event = Event;
 	type Runner = pallet_evm::runner::stack::Runner<Self>;
@@ -399,7 +342,7 @@ impl<F: FindAuthor<u32>> FindAuthor<H160> for EthereumFindAuthor<F>
 	}
 }
 
-impl pallet_ethereum::Config for Runtime {
+impl pallet_ethereum::Trait for Runtime {
 	type Event = Event;
 	type FindAuthor = EthereumFindAuthor<Aura>;
 }
@@ -420,7 +363,6 @@ construct_runtime!(
 		TransactionPayment: pallet_transaction_payment::{Module, Storage},
 		Sudo: pallet_sudo::{Module, Call, Config<T>, Storage, Event<T>},
 		Recovery: pallet_recovery::{Module, Call, Storage, Event<T>},
-		AccountService: pallet_account_service::{Module, Call, Storage, Event<T>},
 		// Include the custom logic from the template pallet in the runtime.
 		// TemplateModule: pallet_template::{Module, Call, Storage, Event<T>},
 		Ethereum: pallet_ethereum::{Module, Call, Storage, Event, Config, ValidateUnsigned},
@@ -445,8 +387,7 @@ impl fp_rpc::ConvertTransaction<opaque::UncheckedExtrinsic> for TransactionConve
 }
 
 /// The address format for describing accounts.
-pub type Address = sp_runtime::MultiAddress<AccountId, ()>;
-// pub type Address = AccountId;
+pub type Address = AccountId;
 /// Block header type as expected by this runtime.
 pub type Header = generic::Header<BlockNumber, BlakeTwo256>;
 /// Block type as expected by this runtime.
@@ -603,7 +544,7 @@ impl_runtime_apis! {
 
 	impl fp_rpc::EthereumRuntimeRPCApi<Block> for Runtime {
 		fn chain_id() -> u64 {
-			<Runtime as pallet_evm::Config>::ChainId::get()
+			<Runtime as pallet_evm::Trait>::ChainId::get()
 		}
 
 		fn account_basic(address: H160) -> EVMAccount {
@@ -611,7 +552,7 @@ impl_runtime_apis! {
 		}
 
 		fn gas_price() -> U256 {
-			<Runtime as pallet_evm::Config>::FeeCalculator::min_gas_price()
+			<Runtime as pallet_evm::Trait>::FeeCalculator::min_gas_price()
 		}
 
 		fn account_code_at(address: H160) -> Vec<u8> {
@@ -636,17 +577,8 @@ impl_runtime_apis! {
 			gas_limit: U256,
 			gas_price: Option<U256>,
 			nonce: Option<U256>,
-			estimate: bool,
 		) -> Result<pallet_evm::CallInfo, sp_runtime::DispatchError> {
-			let config = if estimate {
-				let mut config = <Runtime as pallet_evm::Config>::config().clone();
-				config.estimate = true;
-				Some(config)
-			} else {
-				None
-			};
-
-			<Runtime as pallet_evm::Config>::Runner::call(
+			<Runtime as pallet_evm::Trait>::Runner::call(
 				from,
 				to,
 				data,
@@ -654,7 +586,6 @@ impl_runtime_apis! {
 				gas_limit.low_u32(),
 				gas_price,
 				nonce,
-				config.as_ref().unwrap_or(<Runtime as pallet_evm::Config>::config()),
 			).map_err(|err| err.into())
 		}
 
@@ -665,24 +596,14 @@ impl_runtime_apis! {
 			gas_limit: U256,
 			gas_price: Option<U256>,
 			nonce: Option<U256>,
-			estimate: bool,
 		) -> Result<pallet_evm::CreateInfo, sp_runtime::DispatchError> {
-			let config = if estimate {
-				let mut config = <Runtime as pallet_evm::Config>::config().clone();
-				config.estimate = true;
-				Some(config)
-			} else {
-				None
-			};
-
-			<Runtime as pallet_evm::Config>::Runner::create(
+			<Runtime as pallet_evm::Trait>::Runner::create(
 				from,
 				data,
 				value,
 				gas_limit.low_u32(),
 				gas_price,
 				nonce,
-				config.as_ref().unwrap_or(<Runtime as pallet_evm::Config>::config()),
 			).map_err(|err| err.into())
 		}
 
