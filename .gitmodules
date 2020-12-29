@@ -1,3 +1,3 @@
 [submodule "vendor/frontier"]
 	path = vendor/frontier
-	url = git@github.com:paritytech/frontier.git
+	url = git@github.com:mathwallet/frontier.git
