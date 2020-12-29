@@ -56,7 +56,7 @@ use constants::{currency::*};
 /// Import the template pallet.
 // pub use pallet_template;
 pub use pallet_account_service;
-use pallet_account_service::{AccountService as AccountServiceEnum};
+pub use pallet_account_service::AccountServiceEnum;
 
 /// An index to a block.
 pub type BlockNumber = u32;
@@ -152,7 +152,7 @@ parameter_types! {
 pub struct AccountIdLookup<AccountId, AccountIndex>(PhantomData<(AccountId, AccountIndex)>);
 impl<AccountId, AccountIndex> StaticLookup for AccountIdLookup<AccountId, AccountIndex>
 where
-	AccountId: Codec + Clone + PartialEq + Debug + From<AccountId32>,
+	AccountId: Codec + Clone + PartialEq + Debug + From<AccountId32> + core::cmp::PartialEq<AccountId32>,
 	AccountIndex: Codec + Clone + PartialEq + Debug,
 	sp_runtime::MultiAddress<AccountId, AccountIndex>: Codec,
 {
@@ -162,9 +162,17 @@ where
 		match x {
 			sp_runtime::MultiAddress::Id(i) => Ok(i),
 			sp_runtime::MultiAddress::Address20(i) => {
-				Ok(
-					AccountService::from_ethereum(&AccountServiceEnum::Ethereum(i)).into()
-				)},
+				let account = AccountService::from_ethereum(&AccountServiceEnum::Ethereum(i)).into();
+				Ok(if account == AccountId32::new([0u8; 32]) {
+					let mut data = [0u8; 32];
+					data[0..4].copy_from_slice(b"evm:");
+					data[4..24].copy_from_slice(&i[..]);
+					// let hash = H::hash(&data);
+					AccountId32::new(data).into()
+				} else {
+					account
+				})
+			},
 			_ => Err(LookupError),
 		}
 	}
@@ -364,7 +372,7 @@ impl pallet_evm::Config for Runtime {
 	type GasToWeight = ();
 	type CallOrigin = EnsureAddressTruncated;
 	type WithdrawOrigin = EnsureAddressTruncated;
-	type AddressMapping = HashedAddressMapping<BlakeTwo256>;
+	type AddressMapping = HashedAddressMapping<Self>;
 	type Currency = Balances;
 	type Event = Event;
 	type Runner = pallet_evm::runner::stack::Runner<Self>;

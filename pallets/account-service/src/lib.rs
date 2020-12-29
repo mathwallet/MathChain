@@ -69,7 +69,7 @@ pub struct MultiAddressDetails<
 }
 
 #[derive(Encode, Decode, PartialEq, Eq, Clone, Debug)]
-pub enum AccountService {
+pub enum AccountServiceEnum {
 	/// It's some arbitrary raw bytes.
 	Nickname(Vec<u8>),
 	/// Its a 20 byte representation.
@@ -79,10 +79,10 @@ pub enum AccountService {
 decl_storage! {
 	trait Store for Module<T: Config> as AccountService {
 		MultiAddressOf get(fn multi_address_of): map hasher(blake2_128_concat) <T as frame_system::Config>::AccountId => Option<MultiAddressDetails<
-			AccountService
+			AccountServiceEnum
 		>>;
-		FromNickname get(fn from_nick_name): map hasher(blake2_128_concat) AccountService => <T as frame_system::Config>::AccountId;
-		FromEthereum get(fn from_ethereum): map hasher(blake2_128_concat) AccountService => <T as frame_system::Config>::AccountId;
+		FromNickname get(fn from_nick_name): map hasher(blake2_128_concat) AccountServiceEnum => <T as frame_system::Config>::AccountId;
+		FromEthereum get(fn from_ethereum): map hasher(blake2_128_concat) AccountServiceEnum => <T as frame_system::Config>::AccountId;
 		AccountRoot get(fn account_root) config(): <T as frame_system::Config>::AccountId;
 	}
 }
@@ -90,9 +90,9 @@ decl_storage! {
 decl_event!(
 	pub enum Event<T> where AccountId = <T as frame_system::Config>::AccountId {
 		/// A name was forcibly set. \[target\]
-		NameForced(AccountId, AccountService),
+		NameForced(AccountId, AccountServiceEnum),
 		/// A name was changed. \[who, to\]
-		NameChanged(AccountId, AccountService),
+		NameChanged(AccountId, AccountServiceEnum),
 		/// A name was cleared, and the given balance returned. \[who\]
 		NameCleared(AccountId),
 		/// Account root key set
@@ -146,23 +146,23 @@ decl_module! {
 		/// - One event.
 		/// # </weight>
 		#[weight = 50_000_000]
-		fn bind(origin, account_service: AccountService) {
+		fn bind(origin, account_service: AccountServiceEnum) {
 			let sender = ensure_signed(origin)?;
 			let info = account_service.clone();
 			match info {
-				AccountService::Nickname(_) => {
+				AccountServiceEnum::Nickname(_) => {
 					ensure!(!FromNickname::<T>::contains_key(info.clone()), Error::<T>::AlreadyTaked);
 					let id = match <MultiAddressOf<T>>::get(&sender) {
 						Some(mut id) => {
 							id.nickname = info.clone();
 							id
 						}
-						None =>	MultiAddressDetails { nickname: info.clone(), ethereum: AccountService::Ethereum([0u8; 20])},
+						None =>	MultiAddressDetails { nickname: info.clone(), ethereum: AccountServiceEnum::Ethereum([0u8; 20])},
 					};
 					<MultiAddressOf<T>>::insert(&sender, id);
 					<FromNickname<T>>::insert(info.clone(), &sender);	
 				},
-				AccountService::Ethereum(_) => {
+				AccountServiceEnum::Ethereum(_) => {
 					ensure!(false, Error::<T>::NotAllowed);
 					// ensure!(!FromEthereum::<T>::contains_key(info.clone()), Error::<T>::AlreadyTaked);
 					// let id = match <MultiAddressOf<T>>::get(&sender) {
@@ -193,24 +193,24 @@ decl_module! {
 		}
 
 		#[weight = 50_000_000]
-		fn force_bind(origin, dest: <T as frame_system::Config>::AccountId, account_service: AccountService) {
+		fn force_bind(origin, dest: <T as frame_system::Config>::AccountId, account_service: AccountServiceEnum) {
 			let sender = ensure_signed(origin)?;
 			ensure!(sender == Self::account_root(), Error::<T>::NotAllowed);
 			let info = account_service.clone();
 			match info {
-				AccountService::Nickname(_) => {
+				AccountServiceEnum::Nickname(_) => {
 					ensure!(!FromNickname::<T>::contains_key(info.clone()), Error::<T>::AlreadyTaked);
 					let id = match <MultiAddressOf<T>>::get(&dest) {
 						Some(mut id) => {
 							id.nickname = info.clone();
 							id
 						}
-						None =>	MultiAddressDetails { nickname: info.clone(), ethereum: AccountService::Ethereum([0u8; 20])},
+						None =>	MultiAddressDetails { nickname: info.clone(), ethereum: AccountServiceEnum::Ethereum([0u8; 20])},
 					};
 					<MultiAddressOf<T>>::insert(&dest, id);
 					<FromNickname<T>>::insert(info.clone(), &dest);	
 				},
-				AccountService::Ethereum(_) => {
+				AccountServiceEnum::Ethereum(_) => {
 					// ensure!(false, Error::<T>::NotAllowed);
 					ensure!(!FromEthereum::<T>::contains_key(info.clone()), Error::<T>::AlreadyTaked);
 					let id = match <MultiAddressOf<T>>::get(&dest) {
@@ -218,7 +218,7 @@ decl_module! {
 							id.ethereum = info.clone();
 							id
 						}
-						None => MultiAddressDetails { nickname: AccountService::Nickname(vec![0]), ethereum: info.clone()},
+						None => MultiAddressDetails { nickname: AccountServiceEnum::Nickname(vec![0]), ethereum: info.clone()},
 					};
 					<MultiAddressOf<T>>::insert(&dest, id);
 					<FromEthereum<T>>::insert(info.clone(), &dest);	

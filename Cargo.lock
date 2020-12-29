@@ -3999,6 +3999,7 @@ dependencies = [
  "frame-support",
  "frame-system",
  "impl-trait-for-tuples",
+ "pallet-account-service",
  "pallet-balances",
  "pallet-timestamp",
  "parity-scale-codec",
