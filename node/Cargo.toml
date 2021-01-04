@@ -7,7 +7,7 @@ homepage = 'https://mathwallet.net/mathchain'
 license = 'Unlicense'
 name = 'mathchain'
 repository = 'https://github.com/mathwallet/MathChain/'
-version = '0.2.3'
+version = '0.3.0'
 
 [package.metadata.docs.rs]
 targets = ['x86_64-unknown-linux-gnu']
