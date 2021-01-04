@@ -1,2 +1,1 @@
-Welcome
-欢迎
+Please Visit at [Documents](https://docs.mathchain.org)
