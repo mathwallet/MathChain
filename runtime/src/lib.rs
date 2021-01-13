@@ -287,6 +287,9 @@ impl pallet_timestamp::Config for Runtime {
 parameter_types! {
 	pub const ExistentialDeposit: u128 = 500;
 	pub const MaxLocks: u32 = 50;
+	pub const DailyLimit: u128 = 10_000 * MATHS;
+	pub const MonthlyLimit: u128 = 1_000_000 * MATHS;
+	pub const YearlyLimit: u128 = 1_000_000_000 * MATHS;
 }
 
 impl pallet_balances::Config for Runtime {
@@ -299,6 +302,9 @@ impl pallet_balances::Config for Runtime {
 	type ExistentialDeposit = ExistentialDeposit;
 	type AccountStore = System;
 	type WeightInfo = ();
+	type DailyLimit = DailyLimit;
+	type MonthlyLimit = MonthlyLimit;
+	type YearlyLimit = YearlyLimit;
 }
 
 parameter_types! {
@@ -701,5 +707,4 @@ impl_runtime_apis! {
 			)
 		}
 	}
-
 }

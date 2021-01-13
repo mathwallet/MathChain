@@ -24,7 +24,7 @@ pub trait Config: frame_system::Config {
 decl_storage! {
 	// A unique name is used to ensure that the pallet's storage items are isolated.
 	// This name may be updated, but each pallet in the runtime must use a unique name.
-	// ---------------------------------vvvvvvvvvvvvvv
+	// ---------------------------------
 	trait Store for Module<T: Config> as TemplateModule {
 		// Learn more about declaring storage items:
 		// https://substrate.dev/docs/en/knowledgebase/runtime/storage#declaring-storage-items
