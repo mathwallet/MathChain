@@ -316,18 +316,20 @@ pub struct AccountLimit<DailyLimit, MonthlyLimit, YearlyLimit> {
 	pub monthly_limit: MonthlyLimit,
 	pub yearly_limit: YearlyLimit,
 }
+
 #[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug)]
-pub struct TransferAmountInfo<DailyInfo, MonthlyInfo, YearlyInfo> {
+pub struct TransferAmountInfo<
+	Date: Codec,
+	DailyInfo,
+	MonthlyInfo,
+	YearlyInfo
+> {
+	pub date: Date,
 	pub daily_info: DailyInfo,
 	pub monthly_info: MonthlyInfo,
 	pub yearly_info: YearlyInfo,
 }
 
-#[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug)]
-pub struct TransferAmountDetail<Date, Balance> {
-	pub transfer_info_date: Date,
-	pub transfer_info_amount: Balance,
-}
 
 impl From<WithdrawReasons> for Reasons {
 	fn from(r: WithdrawReasons) -> Reasons {
@@ -436,7 +438,7 @@ decl_storage! {
 		/// NOTE: Should only be accessed when setting, changing and freeing a lock.
 		pub Locks get(fn locks): map hasher(blake2_128_concat) T::AccountId => Vec<BalanceLock<T::Balance>>;
 		pub Limits get(fn limits): map hasher(blake2_128_concat) T::AccountId => Option<AccountLimit<T::Balance, T::Balance, T::Balance>>;
-		pub TransferInfo get(fn transfer_info): map hasher(blake2_128_concat) T::AccountId => Option<TransferAmountInfo<TransferAmountDetail<Vec<u8>, T::Balance>, TransferAmountDetail<Vec<u8>, T::Balance>, TransferAmountDetail<Vec<u8>, T::Balance>>>;
+		pub TransferInfo get(fn transfer_info): map hasher(blake2_128_concat) T::AccountId => Option<TransferAmountInfo<i64, T::Balance, T::Balance, T::Balance>>;
 		/// Storage version of the pallet.
 		///
 		/// This is set to v2.0.0 for new networks.
@@ -973,7 +975,38 @@ impl<T: Config<I>, I: Instance> Currency<T::AccountId> for Module<T, I> where
 		if amount.is_zero() { return Ok(()) }
 		let min_balance = Self::account(who).frozen(reasons.into());
 		ensure!(new_balance >= min_balance, Error::<T, I>::LiquidityRestrictions);
-		Ok(())
+		match reasons {
+			WithdrawReasons::TRANSFER => {
+				if amount.is_zero() { return Ok(()) }
+				let account_limit = Limits::<T, I>::get(&who);
+				let account_amount = TransferInfo::<T, I>::get(&who);
+				let limit = match account_limit {
+					Some(mut limit) => {
+						limit
+					}
+					None => {
+						AccountLimit {daily_limit: T::DailyLimit::get(),	monthly_limit: T::MonthlyLimit::get(),	yearly_limit: T::YearlyLimit::get()}
+					}
+				};
+
+				let amount = match account_amount {
+					Some(mut amount) => {
+						amount
+					}
+					None => {
+						let timestamp = chrono::Utc.now().timestamp();
+						TransferAmountInfo {
+							date: timestamp,
+							daily_info: Zero::zero(),
+							monthly_info: Zero::zero(),
+							yearly_info: Zero::zero(),
+						}
+					}
+				};
+				Ok(())
+			}
+			_ => Ok(())
+		}
 	}
 
 	// Transfer some free balance from `transactor` to `dest`, respecting existence requirements.
