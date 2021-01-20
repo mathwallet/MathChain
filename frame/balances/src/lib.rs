@@ -172,7 +172,7 @@ use sp_runtime::{
 	RuntimeDebug, DispatchResult, DispatchError,
 	traits::{
 		Zero, AtLeast32BitUnsigned, StaticLookup, Member, CheckedAdd, CheckedSub,
-		MaybeSerializeDeserialize, Saturating, Bounded,
+		MaybeSerializeDeserialize, Saturating, Bounded, UniqueSaturatedInto,
 	},
 };
 
@@ -180,7 +180,7 @@ use frame_system::{self as system, ensure_signed, ensure_root};
 pub use self::imbalances::{PositiveImbalance, NegativeImbalance};
 pub use weights::WeightInfo;
 
-pub trait Subtrait<I: Instance = DefaultInstance>: frame_system::Config {
+pub trait Subtrait<I: Instance = DefaultInstance>: frame_system::Config  {
 	/// The balance of an account.
 	type Balance: Parameter + Member + AtLeast32BitUnsigned + Codec + Default + Copy +
 		MaybeSerializeDeserialize + Debug;
@@ -199,7 +199,7 @@ pub trait Subtrait<I: Instance = DefaultInstance>: frame_system::Config {
 	type MaxLocks: Get<u32>;
 }
 
-pub trait Config<I: Instance = DefaultInstance>: frame_system::Config {
+pub trait Config<I: Instance = DefaultInstance>: frame_system::Config + pallet_timestamp::Config {
 	/// The balance of an account.
 	type Balance: Parameter + Member + AtLeast32BitUnsigned + Codec + Default + Copy +
 		MaybeSerializeDeserialize + Debug;
@@ -438,7 +438,7 @@ decl_storage! {
 		/// NOTE: Should only be accessed when setting, changing and freeing a lock.
 		pub Locks get(fn locks): map hasher(blake2_128_concat) T::AccountId => Vec<BalanceLock<T::Balance>>;
 		pub Limits get(fn limits): map hasher(blake2_128_concat) T::AccountId => Option<AccountLimit<T::Balance, T::Balance, T::Balance>>;
-		pub TransferInfo get(fn transfer_info): map hasher(blake2_128_concat) T::AccountId => Option<TransferAmountInfo<i64, T::Balance, T::Balance, T::Balance>>;
+		pub TransferInfo get(fn transfer_info): map hasher(blake2_128_concat) T::AccountId => Option<TransferAmountInfo<u64, T::Balance, T::Balance, T::Balance>>;
 		/// Storage version of the pallet.
 		///
 		/// This is set to v2.0.0 for new networks.
@@ -503,7 +503,7 @@ decl_module! {
 		/// - DB Weight: 1 Read and 1 Write to destination account
 		/// - Origin account is already in memory, so no DB operations for them.
 		/// # </weight>
-		#[weight = T::WeightInfo::transfer()]
+		#[weight = <T as Config<I>>::WeightInfo::transfer()]
 		pub fn transfer(
 			origin,
 			dest: <T::Lookup as StaticLookup>::Source,
@@ -532,8 +532,8 @@ decl_module! {
 		///     - Killing: 35.11 µs
 		/// - DB Weight: 1 Read, 1 Write to `who`
 		/// # </weight>
-		#[weight = T::WeightInfo::set_balance_creating() // Creates a new account.
-			.max(T::WeightInfo::set_balance_killing()) // Kills an existing account.
+		#[weight = <T as Config<I>>::WeightInfo::set_balance_creating() // Creates a new account.
+			.max(<T as Config<I>>::WeightInfo::set_balance_killing()) // Kills an existing account.
 		]
 		fn set_balance(
 			origin,
@@ -576,7 +576,7 @@ decl_module! {
 		/// - Same as transfer, but additional read and write because the source account is
 		///   not assumed to be in the overlay.
 		/// # </weight>
-		#[weight = T::WeightInfo::force_transfer()]
+		#[weight = <T as Config<I>>::WeightInfo::force_transfer()]
 		pub fn force_transfer(
 			origin,
 			source: <T::Lookup as StaticLookup>::Source,
@@ -600,7 +600,7 @@ decl_module! {
 		/// - Base Weight: 51.4 µs
 		/// - DB Weight: 1 Read and 1 Write to dest (sender is in overlay already)
 		/// #</weight>
-		#[weight = T::WeightInfo::transfer_keep_alive()]
+		#[weight = <T as Config<I>>::WeightInfo::transfer_keep_alive()]
 		pub fn transfer_keep_alive(
 			origin,
 			dest: <T::Lookup as StaticLookup>::Source,
@@ -994,7 +994,9 @@ impl<T: Config<I>, I: Instance> Currency<T::AccountId> for Module<T, I> where
 						amount
 					}
 					None => {
-						let timestamp = chrono::Utc.now().timestamp();
+						let timestamp = UniqueSaturatedInto::<u64>::unique_saturated_into(
+							pallet_timestamp::Module::<T>::get()
+						);
 						TransferAmountInfo {
 							date: timestamp,
 							daily_info: Zero::zero(),

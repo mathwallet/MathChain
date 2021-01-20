@@ -22,7 +22,7 @@ frame-benchmarking = { version = "2.0.0", default-features = false, git = "https
 frame-support = { version = "2.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
 frame-system = { version = "2.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
 chrono = { version = "0.4", default-features = false }
-
+pallet-timestamp = { version = "2.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
 [dev-dependencies]
 sp-io = { version = "2.0.0", git = "https://github.com/paritytech/substrate.git", branch = "master" }
 sp-core = { version = "2.0.0", git = "https://github.com/paritytech/substrate.git", branch = "master" }
