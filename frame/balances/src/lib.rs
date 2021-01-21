@@ -244,7 +244,7 @@ decl_event!(
 	pub enum Event<T, I: Instance = DefaultInstance> where
 		<T as frame_system::Config>::AccountId,
 		<T as Config<I>>::Balance,
-		LimitTypes = crate::LimitTypes,
+		AccountLimit = crate::AccountLimit<<T as Config<I>>::Balance, <T as Config<I>>::Balance, <T as Config<I>>::Balance>,
 	{
 		/// An account was created with some free balance. \[account, free_balance\]
 		Endowed(AccountId, Balance),
@@ -266,7 +266,7 @@ decl_event!(
 		/// \[from, to, balance, destination_status\]
 		ReserveRepatriated(AccountId, AccountId, Balance, Status),
 		/// Some user's transfer limit changed
-		LimitChanged(AccountId, LimitTypes, Balance),
+		LimitChanged(AccountId, AccountLimit),
 	}
 );
 
@@ -304,15 +304,15 @@ pub enum Reasons {
 	All = 2,
 }
 
-#[derive(Encode, Decode, Clone, Copy, PartialEq, Eq, RuntimeDebug)]
-pub enum LimitTypes {
-	/// Daily limit
-	Daily = 0,
-	/// Monthly limit
-	Monthly = 1,
-	/// Yearly limit
-	Yearly = 2
-}
+// #[derive(Encode, Decode, Clone, Copy, PartialEq, Eq, RuntimeDebug)]
+// pub enum LimitTypes {
+// 	/// Daily limit
+// 	Daily = 0,
+// 	/// Monthly limit
+// 	Monthly = 1,
+// 	/// Yearly limit
+// 	Yearly = 2
+// }
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug)]
 pub struct AccountLimit<DailyLimit, MonthlyLimit, YearlyLimit> {
@@ -613,6 +613,28 @@ decl_module! {
 			let transactor = ensure_signed(origin)?;
 			let dest = T::Lookup::lookup(dest)?;
 			<Self as Currency<_>>::transfer(&transactor, &dest, value, KeepAlive)?;
+		}
+
+		#[weight = <T as Config<I>>::WeightInfo::set_limit()]
+		pub fn set_limit(
+			origin,
+			limit_info: AccountLimit<T::Balance, T::Balance, T::Balance>
+		) {
+			let sender = ensure_signed(origin)?;
+			let info = limit_info.clone();
+			ensure!(info.daily_limit < T::DailyLimit::get(), Error::<T, I>::OutOfLimit);
+			ensure!(info.monthly_limit < T::MonthlyLimit::get(), Error::<T, I>::OutOfLimit);
+			ensure!(info.yearly_limit < T::YearlyLimit::get(), Error::<T, I>::OutOfLimit);
+			// let limit = match <Limits<T, I>>.get(&sender) {
+			// 	Some(mut id) => {
+			// 		id.daily_limit = info.daily_limit;
+			// 		id.monthly_limit = info.monthly_limit;
+			// 		id.yearly_limit = info.yearly_limit;
+			// 	}
+			// 	_ => 
+			// }
+			<Limits<T, I>>::insert(&sender, info);
+			Self::deposit_event(RawEvent::LimitChanged(sender.clone(), limit_info.clone()));
 		}
 	}
 }
