@@ -1027,6 +1027,7 @@ impl<T: Config<I>, I: Instance> Currency<T::AccountId> for Module<T, I> where
 						a
 					}
 					None => {
+						ensure!(amount <= limit.daily_limit, Error::<T, I>::OutOfLimit);
 						TransferAmountInfo {
 							date: timestamp_now,
 							daily_info: amount,
