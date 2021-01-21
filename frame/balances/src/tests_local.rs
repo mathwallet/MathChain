@@ -81,6 +81,15 @@ impl frame_system::Config for Test {
 	type SS58Prefix = ();
 }
 parameter_types! {
+	pub const MinimumPeriod: u64 = 1000;
+}
+impl pallet_timestamp::Config for Test {
+	type Moment = u64;
+	type OnTimestampSet = ();
+	type MinimumPeriod = MinimumPeriod;
+	type WeightInfo = ();
+}
+parameter_types! {
 	pub const TransactionByteFee: u64 = 1;
 }
 impl pallet_transaction_payment::Config for Test {
@@ -91,6 +100,9 @@ impl pallet_transaction_payment::Config for Test {
 }
 parameter_types! {
 	pub const MaxLocks: u32 = 50;
+	pub const DailyLimit: u64 = 1_000_000_000_000_000_000;
+	pub const MonthlyLimit: u64 = 1_000_000_000_000_000_000;
+	pub const YearlyLimit: u64 = 1_000_000_000_000_000_000;
 }
 impl Config for Test {
 	type Balance = u64;
@@ -105,6 +117,9 @@ impl Config for Test {
 	>;
 	type MaxLocks = MaxLocks;
 	type WeightInfo = ();
+	type DailyLimit = DailyLimit;
+	type MonthlyLimit = MonthlyLimit;
+	type YearlyLimit = YearlyLimit;
 }
 
 pub struct ExtBuilder {
