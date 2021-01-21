@@ -175,6 +175,10 @@ use sp_runtime::{
 		MaybeSerializeDeserialize, Saturating, Bounded, UniqueSaturatedInto,
 	},
 };
+use chrono::TimeZone;
+extern crate alloc;
+
+use alloc::string::ToString;
 
 use frame_system::{self as system, ensure_signed, ensure_root};
 pub use self::imbalances::{PositiveImbalance, NegativeImbalance};
@@ -319,7 +323,7 @@ pub struct AccountLimit<DailyLimit, MonthlyLimit, YearlyLimit> {
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug)]
 pub struct TransferAmountInfo<
-	Date: Codec,
+	Date,
 	DailyInfo,
 	MonthlyInfo,
 	YearlyInfo
@@ -981,30 +985,58 @@ impl<T: Config<I>, I: Instance> Currency<T::AccountId> for Module<T, I> where
 				let account_limit = Limits::<T, I>::get(&who);
 				let account_amount = TransferInfo::<T, I>::get(&who);
 				let limit = match account_limit {
-					Some(mut limit) => {
-						limit
+					Some(a) => {
+						a
 					}
 					None => {
 						AccountLimit {daily_limit: T::DailyLimit::get(),	monthly_limit: T::MonthlyLimit::get(),	yearly_limit: T::YearlyLimit::get()}
 					}
 				};
+				let timestamp_now = UniqueSaturatedInto::<u64>::unique_saturated_into(
+					pallet_timestamp::Module::<T>::get()
+				) / 1000;
+				let transfer_info = match account_amount {
+					Some(mut a) => {
+						let i64_date = chrono::Utc.timestamp(a.date as i64, 0);
+						let i64_now = chrono::Utc.timestamp(timestamp_now as i64, 0);
+						if i64_date.format("%Y-%m-%d").to_string() == i64_now.format("%Y-%m-%d").to_string() {
+							ensure!(amount + a.daily_info <= limit.daily_limit, Error::<T, I>::OutOfLimit);
+							a.daily_info = a.daily_info + amount;
+						} else {
+							ensure!(amount <= limit.daily_limit, Error::<T, I>::OutOfLimit);
+							a.date = timestamp_now;
+							a.daily_info = amount;
+						}
+						if i64_date.format("%Y-%m").to_string() == i64_now.format("%Y-%m").to_string() {
+							ensure!(amount + a.monthly_info <= limit.monthly_limit, Error::<T, I>::OutOfLimit);
+							a.monthly_info = a.monthly_info + amount;
+						} else {
+							ensure!(amount <= limit.monthly_limit, Error::<T, I>::OutOfLimit);
+							a.date = timestamp_now;
+							a.monthly_info = amount;
+						}
 
-				let amount = match account_amount {
-					Some(mut amount) => {
-						amount
+						if i64_date.format("%Y").to_string() == i64_now.format("%Y").to_string() {
+							ensure!(amount + a.yearly_info <= limit.yearly_limit, Error::<T, I>::OutOfLimit);
+							a.yearly_info = a.yearly_info + amount;
+						} else {
+							ensure!(amount <= limit.yearly_limit, Error::<T, I>::OutOfLimit);
+							a.date = timestamp_now;
+							a.yearly_info = amount;
+						}
+						a
 					}
 					None => {
-						let timestamp = UniqueSaturatedInto::<u64>::unique_saturated_into(
-							pallet_timestamp::Module::<T>::get()
-						);
 						TransferAmountInfo {
-							date: timestamp,
-							daily_info: Zero::zero(),
-							monthly_info: Zero::zero(),
-							yearly_info: Zero::zero(),
+							date: timestamp_now,
+							daily_info: amount,
+							monthly_info: amount,
+							yearly_info: amount,
 						}
 					}
 				};
+				<TransferInfo<T, I>>::insert(&who, transfer_info);
+
 				Ok(())
 			}
 			_ => Ok(())
