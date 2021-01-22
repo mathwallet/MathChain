@@ -3406,7 +3406,7 @@ checksum = "7ffc5c5338469d4d3ea17d269fa8ea3512ad247247c30bd2df69e68309ed0a08"
 
 [[package]]
 name = "mathchain"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "fc-consensus",
  "fc-rpc",
@@ -4016,13 +4016,18 @@ dependencies = [
 [[package]]
 name = "pallet-balances"
 version = "2.0.0"
-source = "git+https://github.com/paritytech/substrate.git?branch=master#5215cd71aed415465e4d25926d426900a0b1f29a"
 dependencies = [
+ "chrono",
  "frame-benchmarking",
  "frame-support",
  "frame-system",
+ "pallet-timestamp",
+ "pallet-transaction-payment",
  "parity-scale-codec",
  "serde",
+ "sp-api",
+ "sp-core",
+ "sp-io",
  "sp-runtime",
  "sp-std",
 ]
