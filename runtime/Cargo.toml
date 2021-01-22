@@ -37,7 +37,7 @@ frame-system-benchmarking = { default-features = false, optional = true, git = "
 frame-system-rpc-runtime-api = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
 pallet-account-service = { default-features = false, path = "../pallets/account-service"}
 pallet-aura = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
-pallet-balances = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
+pallet-balances = { default-features = false, path = "../frame/balances" }
 pallet-ethereum = { default-features = false, path = "../vendor/frontier/frame/ethereum" }
 pallet-evm = { default-features = false, path = "../vendor/frontier/frame/evm" }
 pallet-grandpa = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
