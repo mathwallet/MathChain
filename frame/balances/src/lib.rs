@@ -622,9 +622,9 @@ decl_module! {
 		) {
 			let sender = ensure_signed(origin)?;
 			let info = limit_info.clone();
-			ensure!(info.daily_limit < T::DailyLimit::get(), Error::<T, I>::OutOfLimit);
-			ensure!(info.monthly_limit < T::MonthlyLimit::get(), Error::<T, I>::OutOfLimit);
-			ensure!(info.yearly_limit < T::YearlyLimit::get(), Error::<T, I>::OutOfLimit);
+			ensure!(info.daily_limit <= T::DailyLimit::get(), Error::<T, I>::OutOfLimit);
+			ensure!(info.monthly_limit <= T::MonthlyLimit::get(), Error::<T, I>::OutOfLimit);
+			ensure!(info.yearly_limit <= T::YearlyLimit::get(), Error::<T, I>::OutOfLimit);
 			// let limit = match <Limits<T, I>>.get(&sender) {
 			// 	Some(mut id) => {
 			// 		id.daily_limit = info.daily_limit;
