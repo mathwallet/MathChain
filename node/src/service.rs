@@ -16,7 +16,6 @@ use sc_finality_grandpa::SharedVoterState;
 use crate::cli::Sealing;
 // use sp_runtime::traits::{Block as BlockT};
 use sp_timestamp::InherentError;
-use sc_telemetry::TelemetrySpan;
 use sc_keystore::LocalKeystore;
 
 // Our native executor instance.
@@ -99,7 +98,7 @@ pub fn new_partial(config: &Configuration, sealing: Option<Sealing>) -> Result<s
 	FullClient, FullBackend, FullSelectChain,
 	sp_consensus::import_queue::BasicQueue<Block, sp_api::TransactionFor<FullClient, Block>>,
 	sc_transaction_pool::FullPool<Block, FullClient>,
-	(ConsensusResult, PendingTransactions, Option<TelemetrySpan>, Option<FilterPool>),
+	(ConsensusResult, PendingTransactions, Option<FilterPool>),
 >, ServiceError> {
 	if config.keystore_remote.is_some() {
 		return Err(ServiceError::Other(
@@ -107,7 +106,7 @@ pub fn new_partial(config: &Configuration, sealing: Option<Sealing>) -> Result<s
 	}
 	let inherent_data_providers = sp_inherents::InherentDataProviders::new();
 
-	let (client, backend, keystore_container, task_manager, telemetry_span) =
+	let (client, backend, keystore_container, task_manager) =
 		sc_service::new_full_parts::<Block, RuntimeApi, Executor>(&config)?;
 	let client = Arc::new(client);
 
@@ -147,7 +146,7 @@ pub fn new_partial(config: &Configuration, sealing: Option<Sealing>) -> Result<s
 		return Ok(sc_service::PartialComponents {
 			client, backend, task_manager, import_queue, keystore_container,
 			select_chain, transaction_pool, inherent_data_providers,
-			other: (ConsensusResult::ManualSeal(mathchain_block_import, sealing), pending_transactions, telemetry_span, filter_pool)
+			other: (ConsensusResult::ManualSeal(mathchain_block_import, sealing), pending_transactions, filter_pool)
 		})
 	}
 
@@ -179,7 +178,7 @@ pub fn new_partial(config: &Configuration, sealing: Option<Sealing>) -> Result<s
 	Ok(sc_service::PartialComponents {
 		client, backend, task_manager, import_queue, keystore_container, select_chain, transaction_pool,
 		inherent_data_providers,
-		other: (ConsensusResult::Aura(aura_block_import, grandpa_link), pending_transactions, telemetry_span, filter_pool),
+		other: (ConsensusResult::Aura(aura_block_import, grandpa_link), pending_transactions, filter_pool),
 	})
 }
 
@@ -197,9 +196,9 @@ pub fn new_full(
 	enable_dev_signer: bool,
 ) -> Result<TaskManager, ServiceError> {
 	let sc_service::PartialComponents {
-		client, backend, mut task_manager, import_queue, keystore_container,
+		client, backend, mut task_manager, import_queue, mut keystore_container,
 		select_chain, transaction_pool, inherent_data_providers,
-		other: (consensus_result, pending_transactions, telemetry_span, filter_pool),
+		other: (consensus_result, pending_transactions, filter_pool),
 	} = new_partial(&config, sealing)?;
 	
 	if let Some(url) = &config.keystore_remote {
@@ -240,6 +239,7 @@ pub fn new_full(
 	let prometheus_registry = config.prometheus_registry().cloned();
 	let is_authority = role.is_authority();
 	let subscription_task_executor = sc_rpc::SubscriptionTaskExecutor::new(task_manager.spawn_handle());
+	let telemetry_connection_sinks = sc_service::TelemetryConnectionSinks::default();
 
 
 	let rpc_extensions_builder = {
@@ -267,16 +267,17 @@ pub fn new_full(
 		})
 	};
 
-	let (_rpc_handlers, telemetry_connection_notifier) = sc_service::spawn_tasks(sc_service::SpawnTasksParams {
+	sc_service::spawn_tasks(sc_service::SpawnTasksParams {
 		network: network.clone(),
 		client: client.clone(),
 		keystore: keystore_container.sync_keystore(),
 		task_manager: &mut task_manager,
 		transaction_pool: transaction_pool.clone(),
+		telemetry_connection_sinks: telemetry_connection_sinks.clone(),
 		rpc_extensions_builder: rpc_extensions_builder,
 		on_demand: None,
 		remote_blockchain: None,
-		backend, network_status_sinks, system_rpc_tx, config, telemetry_span,
+		backend, network_status_sinks, system_rpc_tx, config,
 	})?;
 
 	// Spawn Frontier EthFilterApi maintenance task.
@@ -449,7 +450,7 @@ pub fn new_full(
 						config: grandpa_config,
 						link: grandpa_link,
 						network,
-						telemetry_on_connect: Some(telemetry_connection_notifier.on_connect_stream()),
+						telemetry_on_connect:  Some(telemetry_connection_sinks.on_connect_stream()),
 						voting_rule: sc_finality_grandpa::VotingRulesBuilder::default().build(),
 						prometheus_registry,
 						shared_voter_state: SharedVoterState::empty(),
@@ -538,6 +539,7 @@ pub fn new_light(config: Configuration) -> Result<TaskManager, ServiceError> {
 		task_manager: &mut task_manager,
 		on_demand: Some(on_demand),
 		rpc_extensions_builder: Box::new(sc_service::NoopRpcExtensionBuilder(rpc_extensions)),
+		telemetry_connection_sinks: sc_service::TelemetryConnectionSinks::default(),
 		config,
 		client,
 		keystore: keystore_container.sync_keystore(),
@@ -545,7 +547,6 @@ pub fn new_light(config: Configuration) -> Result<TaskManager, ServiceError> {
 		network,
 		network_status_sinks,
 		system_rpc_tx,
-		telemetry_span,
 	})?;
 
 	network_starter.start_network();

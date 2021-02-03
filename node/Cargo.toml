@@ -60,7 +60,6 @@ sp-transaction-pool = { git = "https://github.com/paritytech/substrate.git", bra
 sp-timestamp = { git = "https://github.com/paritytech/substrate.git", branch = "master" }
 sc-keystore = { git = "https://github.com/paritytech/substrate.git", branch = "master" }
 substrate-frame-rpc-system = { git = "https://github.com/paritytech/substrate.git", branch = "master" }
-sc-telemetry = { git = "https://github.com/paritytech/substrate.git", branch = "master" }
 
 mathchain-consensus = { path = "../consensus" }
 pallet-evm = { path = "../vendor/frontier/frame/evm" }
