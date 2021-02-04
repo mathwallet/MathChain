@@ -1,3 +1,6 @@
 [submodule "vendor/frontier"]
 	path = vendor/frontier
 	url = git@github.com:mathwallet/frontier.git
+[submodule "vendor/cumulus"]
+	path = vendor/cumulus
+	url = git@github.com:paritytech/cumulus.git
