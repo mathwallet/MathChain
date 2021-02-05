@@ -70,19 +70,19 @@ fc-rpc = { path = "../vendor/frontier/client/rpc" }
 fp-rpc = { path = "../vendor/frontier/primitives/rpc" }
 fc-rpc-core = { path = "../vendor/frontier/client/rpc-core" }
 
-# Cumulus dependencies
-cumulus-consensus = { path = "../vendor/cumulus/consensus" }
-cumulus-collator = { path = "../vendor/cumulus/collator" }
-cumulus-network = { path = "../vendor/cumulus/network" }
-cumulus-primitives = { path = "../vendor/cumulus/primitives" }
-cumulus-service = { path = "../vendor/cumulus/service" }
+# # Cumulus dependencies
+# cumulus-consensus = { path = "../vendor/cumulus/consensus" }
+# cumulus-collator = { path = "../vendor/cumulus/collator" }
+# cumulus-network = { path = "../vendor/cumulus/network" }
+# cumulus-primitives = { path = "../vendor/cumulus/primitives" }
+# cumulus-service = { path = "../vendor/cumulus/service" }
 
-# Polkadot dependencies
-polkadot-primitives = { git = "https://github.com/paritytech/polkadot", branch = "rococo-v1" }
-polkadot-service = { git = "https://github.com/paritytech/polkadot", branch = "rococo-v1" }
-polkadot-cli = { git = "https://github.com/paritytech/polkadot", branch = "rococo-v1" }
-polkadot-test-service = { git = "https://github.com/paritytech/polkadot", branch = "rococo-v1" }
-polkadot-parachain = { git = "https://github.com/paritytech/polkadot", branch = "rococo-v1" }
+# # Polkadot dependencies
+# polkadot-primitives = { git = "https://github.com/paritytech/polkadot", branch = "rococo-v1" }
+# polkadot-service = { git = "https://github.com/paritytech/polkadot", branch = "rococo-v1" }
+# polkadot-cli = { git = "https://github.com/paritytech/polkadot", branch = "rococo-v1" }
+# polkadot-test-service = { git = "https://github.com/paritytech/polkadot", branch = "rococo-v1" }
+# polkadot-parachain = { git = "https://github.com/paritytech/polkadot", branch = "rococo-v1" }
 
 [features]
 runtime-benchmarks = ['mathchain-runtime/runtime-benchmarks']
