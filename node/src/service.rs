@@ -1,10 +1,14 @@
 //! Service and ServiceFactory implementation. Specialized wrapper over substrate service.
+use cumulus_network::build_block_announce_validator;
+use cumulus_service::{
+	prepare_node_config, start_collator, start_full_node, StartCollatorParams, StartFullNodeParams,
+};
 
 use std::{sync::{Arc, Mutex}, cell::RefCell, time::Duration, collections::{HashMap, BTreeMap}};
 use fc_rpc_core::types::{FilterPool, PendingTransactions};
 use sc_client_api::{ExecutorProvider, RemoteBackend, BlockchainEvents};
 use mathchain_consensus::MathchainBlockImport;
-use mathchain_runtime::{self, opaque::Block, RuntimeApi, SLOT_DURATION};
+use mathchain_runtime::RuntimeApi;
 use sc_service::{error::Error as ServiceError, Configuration, TaskManager};
 use sc_consensus_manual_seal::{self as manual_seal};
 
@@ -30,22 +34,22 @@ type FullClient = sc_service::TFullClient<Block, RuntimeApi, Executor>;
 type FullBackend = sc_service::TFullBackend<Block>;
 type FullSelectChain = sc_consensus::LongestChain<FullBackend, Block>;
 
-pub enum ConsensusResult {
-	Aura(
-		sc_consensus_aura::AuraBlockImport<
-			Block,
-			FullClient,
-			MathchainBlockImport<
-				Block,
-				sc_finality_grandpa::GrandpaBlockImport<FullBackend, Block, FullClient, FullSelectChain>,
-				FullClient
-			>,
-			AuraPair
-		>,
-		sc_finality_grandpa::LinkHalf<Block, FullClient, FullSelectChain>
-	),
-	ManualSeal(MathchainBlockImport<Block, Arc<FullClient>, FullClient>, Sealing)
-}
+// pub enum ConsensusResult {
+// 	Aura(
+// 		sc_consensus_aura::AuraBlockImport<
+// 			Block,
+// 			FullClient,
+// 			MathchainBlockImport<
+// 				Block,
+// 				sc_finality_grandpa::GrandpaBlockImport<FullBackend, Block, FullClient, FullSelectChain>,
+// 				FullClient
+// 			>,
+// 			AuraPair
+// 		>,
+// 		sc_finality_grandpa::LinkHalf<Block, FullClient, FullSelectChain>
+// 	),
+// 	ManualSeal(MathchainBlockImport<Block, Arc<FullClient>, FullClient>, Sealing)
+// }
 
 /// Provide a mock duration starting at 0 in millisecond for timestamp inherent.
 /// Each call will increment timestamp by slot_duration making Aura think time has passed.
@@ -95,9 +99,11 @@ impl IdentifyVariant for Box<dyn sc_service::ChainSpec> {
 }
 
 pub fn new_partial(config: &Configuration, sealing: Option<Sealing>) -> Result<sc_service::PartialComponents<
-	FullClient, FullBackend, FullSelectChain,
-	sp_consensus::import_queue::BasicQueue<Block, sp_api::TransactionFor<FullClient, Block>>,
-	sc_transaction_pool::FullPool<Block, FullClient>,
+	TFullClient<Block, RuntimeApi, Executor>,
+	TFullBackend<Block>,
+	(),
+	sp_consensus::import_queue::BasicQueue<Block, PrefixedMemoryDB<BlakeTwo256>>,
+	sc_transaction_pool::FullPool<Block, TFullClient<Block, RuntimeApi, Executor>>,
 	(ConsensusResult, PendingTransactions, Option<FilterPool>),
 >, ServiceError> {
 	if config.keystore_remote.is_some() {
@@ -117,6 +123,12 @@ pub fn new_partial(config: &Configuration, sealing: Option<Sealing>) -> Result<s
 		config.prometheus_registry(),
 		task_manager.spawn_handle(),
 		client.clone(),
+	);
+
+	let frontier_block_import = FrontierBlockImport::new(
+		client.clone(),
+		client.clone(),
+		true
 	);
 
 	let pending_transactions: PendingTransactions
@@ -146,39 +158,27 @@ pub fn new_partial(config: &Configuration, sealing: Option<Sealing>) -> Result<s
 		return Ok(sc_service::PartialComponents {
 			client, backend, task_manager, import_queue, keystore_container,
 			select_chain, transaction_pool, inherent_data_providers,
-			other: (ConsensusResult::ManualSeal(mathchain_block_import, sealing), pending_transactions, filter_pool)
+			other: (pending_transactions, filter_pool)
 		})
 	}
 
-	let (grandpa_block_import, grandpa_link) = sc_finality_grandpa::block_import(
-		client.clone(), &(client.clone() as Arc<_>), select_chain.clone(),
-	)?;
-
 	let mathchain_block_import = MathchainBlockImport::new(
-		grandpa_block_import.clone(),
+		client.clone(),
 		client.clone(),
 		config.chain_spec.is_galois()
 	);
-
-	let aura_block_import = sc_consensus_aura::AuraBlockImport::<_, _, _, AuraPair>::new(
-		mathchain_block_import, client.clone(),
-	);
-
-	let import_queue = sc_consensus_aura::import_queue::<_, _, _, AuraPair, _, _>(
-		sc_consensus_aura::slot_duration(&*client)?,
-		aura_block_import.clone(),
-		Some(Box::new(grandpa_block_import.clone())),
+	let import_queue = cumulus_consensus::import_queue::import_queue(
 		client.clone(),
+		mathchain_block_import.clone(),
 		inherent_data_providers.clone(),
 		&task_manager.spawn_handle(),
-		config.prometheus_registry(),
-		sp_consensus::CanAuthorWithNativeVersion::new(client.executor().clone()),
+		registry.clone(),
 	)?;
 
 	Ok(sc_service::PartialComponents {
 		client, backend, task_manager, import_queue, keystore_container, select_chain, transaction_pool,
 		inherent_data_providers,
-		other: (ConsensusResult::Aura(aura_block_import, grandpa_link), pending_transactions, filter_pool),
+		other: (pending_transactions, filter_pool),
 	})
 }
 

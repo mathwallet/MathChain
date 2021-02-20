@@ -23,12 +23,20 @@ futures = "0.3.4"
 log = "0.4.8"
 jsonrpc-core = '15.0.0'
 jsonrpc-pubsub = "15.0.0"
+parking_lot = '0.9.0'
+trie-root = '0.15.2'
+codec = { package = 'parity-scale-codec', version = '1.0.0' }
 structopt = '0.3.8'
+serde = { version = "1.0.119", features = ["derive"] }
+hex-literal = "0.2.1"
 
 # local dependencies
 mathchain-runtime = { path = '../runtime', version = '0.1.0' }
 galois-runtime-config = { path = '../runtime/galois', package = 'mathchain-runtime-galois'}
 mathchain-runtime-config = { path = '../runtime/mathchain', package = 'mathchain-runtime-mathchain'}
+
+# Parachain dependencies
+rococo-parachain-primitives = { path = "../vendor/cumulus/rococo-parachains/primitives" }
 
 # Substrate dependencies
 frame-benchmarking = { git = "https://github.com/paritytech/substrate.git", branch = "rococo-v1" }
@@ -42,6 +50,7 @@ sc-consensus-aura = { git = "https://github.com/paritytech/substrate.git", branc
 sc-executor = { features = ['wasmtime'], git = "https://github.com/paritytech/substrate.git", branch = "rococo-v1" }
 sc-network = { git = "https://github.com/paritytech/substrate.git", branch = "rococo-v1" }
 sc-finality-grandpa = { git = "https://github.com/paritytech/substrate.git", branch = "rococo-v1" }
+sc-chain-spec = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1" }
 sc-rpc = { git = "https://github.com/paritytech/substrate.git", branch = "rococo-v1" }
 sc-rpc-api = { git = "https://github.com/paritytech/substrate.git", branch = "rococo-v1" }
 sc-service = { features = ['wasmtime'], git = "https://github.com/paritytech/substrate.git", branch = "rococo-v1" }
@@ -70,19 +79,19 @@ fc-rpc = { path = "../vendor/frontier/client/rpc" }
 fp-rpc = { path = "../vendor/frontier/primitives/rpc" }
 fc-rpc-core = { path = "../vendor/frontier/client/rpc-core" }
 
-# # Cumulus dependencies
-# cumulus-consensus = { path = "../vendor/cumulus/consensus" }
-# cumulus-collator = { path = "../vendor/cumulus/collator" }
-# cumulus-network = { path = "../vendor/cumulus/network" }
-# cumulus-primitives = { path = "../vendor/cumulus/primitives" }
-# cumulus-service = { path = "../vendor/cumulus/service" }
+# Cumulus dependencies
+cumulus-consensus = { path = "../vendor/cumulus/consensus" }
+cumulus-collator = { path = "../vendor/cumulus/collator" }
+cumulus-network = { path = "../vendor/cumulus/network" }
+cumulus-primitives = { path = "../vendor/cumulus/primitives" }
+cumulus-service = { path = "../vendor/cumulus/service" }
 
-# # Polkadot dependencies
-# polkadot-primitives = { git = "https://github.com/paritytech/polkadot", branch = "rococo-v1" }
-# polkadot-service = { git = "https://github.com/paritytech/polkadot", branch = "rococo-v1" }
-# polkadot-cli = { git = "https://github.com/paritytech/polkadot", branch = "rococo-v1" }
-# polkadot-test-service = { git = "https://github.com/paritytech/polkadot", branch = "rococo-v1" }
-# polkadot-parachain = { git = "https://github.com/paritytech/polkadot", branch = "rococo-v1" }
+# Polkadot dependencies
+polkadot-primitives = { git = "https://github.com/paritytech/polkadot", branch = "rococo-v1" }
+polkadot-service = { git = "https://github.com/paritytech/polkadot", branch = "rococo-v1" }
+polkadot-cli = { git = "https://github.com/paritytech/polkadot", branch = "rococo-v1" }
+polkadot-test-service = { git = "https://github.com/paritytech/polkadot", branch = "rococo-v1" }
+polkadot-parachain = { git = "https://github.com/paritytech/polkadot", branch = "rococo-v1" }
 
 [features]
 runtime-benchmarks = ['mathchain-runtime/runtime-benchmarks']
