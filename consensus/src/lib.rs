@@ -80,7 +80,7 @@ impl<B, I, C> MathchainBlockImport<B, I, C> where
 	I: BlockImport<B, Transaction = sp_api::TransactionFor<C, B>> + Send + Sync,
 	I::Error: Into<ConsensusError>,
 	C: ProvideRuntimeApi<B> + Send + Sync + HeaderBackend<B> + AuxStore + ProvideCache<B> + BlockOf,
-	C::Api: BlockBuilderApi<B, Error = sp_blockchain::Error>,
+	C::Api: BlockBuilderApi<B>,
 {
 	pub fn new(
 		inner: I,
@@ -101,7 +101,7 @@ impl<B, I, C> BlockImport<B> for MathchainBlockImport<B, I, C> where
 	I: BlockImport<B, Transaction = sp_api::TransactionFor<C, B>> + Send + Sync,
 	I::Error: Into<ConsensusError>,
 	C: ProvideRuntimeApi<B> + Send + Sync + HeaderBackend<B> + AuxStore + ProvideCache<B> + BlockOf,
-	C::Api: BlockBuilderApi<B, Error = sp_blockchain::Error>,
+	C::Api: BlockBuilderApi<B>,
 {
 	type Error = ConsensusError;
 	type Transaction = sp_api::TransactionFor<C, B>;

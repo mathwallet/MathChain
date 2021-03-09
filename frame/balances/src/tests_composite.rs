@@ -85,7 +85,11 @@ impl pallet_transaction_payment::Config for Test {
 	type WeightToFee = IdentityFee<u64>;
 	type FeeMultiplierUpdate = ();
 }
-
+parameter_types! {
+	pub const DailyLimit: u64 = 1_000_000_000_000_000_000;
+	pub const MonthlyLimit: u64 = 1_000_000_000_000_000_000;
+	pub const YearlyLimit: u64 = 1_000_000_000_000_000_000;
+}
 impl Config for Test {
 	type Balance = u64;
 	type DustRemoval = ();
@@ -94,6 +98,9 @@ impl Config for Test {
 	type AccountStore = frame_system::Pallet<Test>;
 	type MaxLocks = ();
 	type WeightInfo = ();
+	type DailyLimit = DailyLimit;
+	type MonthlyLimit = MonthlyLimit;
+	type YearlyLimit = YearlyLimit;
 }
 
 pub struct ExtBuilder {
