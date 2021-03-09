@@ -21,6 +21,7 @@ sp-runtime = {default-features = false, git = "https://github.com/paritytech/sub
 frame-benchmarking = {default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master", optional = true }
 frame-support = {default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
 frame-system = {default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
+log = { version = "0.4.14", default-features = false }
 chrono = { version = "0.4", default-features = false, features = ["alloc"] }
 pallet-timestamp = {default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
 [dev-dependencies]
@@ -40,5 +41,7 @@ std = [
 	"frame-benchmarking/std",
 	"frame-support/std",
 	"frame-system/std",
+	"log/std",
 ]
 runtime-benchmarks = ["frame-benchmarking"]
+try-runtime = ["frame-support/try-runtime"]
