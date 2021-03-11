@@ -219,6 +219,11 @@ pub mod pallet {
 		/// The maximum number of locks that should exist on an account.
 		/// Not strictly enforced, but used for weight estimation.
 		type MaxLocks: Get<u32>;
+
+		type DailyLimit: Get<Self::Balance>;
+		type MonthlyLimit: Get<Self::Balance>;
+		type YearlyLimit: Get<Self::Balance>;
+	
 	}
 
 	#[pallet::pallet]
@@ -258,7 +263,7 @@ pub mod pallet {
 		/// - DB Weight: 1 Read and 1 Write to destination account
 		/// - Origin account is already in memory, so no DB operations for them.
 		/// # </weight>
-		#[pallet::weight(T::WeightInfo::transfer())]
+		#[pallet::weight(<T as Config<I>>::WeightInfo::transfer())]
 		pub fn transfer(
 			origin: OriginFor<T>,
 			dest: <T::Lookup as StaticLookup>::Source,
@@ -289,8 +294,8 @@ pub mod pallet {
 		/// - DB Weight: 1 Read, 1 Write to `who`
 		/// # </weight>
 		#[pallet::weight(
-			T::WeightInfo::set_balance_creating() // Creates a new account.
-				.max(T::WeightInfo::set_balance_killing()) // Kills an existing account.
+			<T as Config<I>>::WeightInfo::set_balance_creating() // Creates a new account.
+				.max(<T as Config<I>>::WeightInfo::set_balance_killing()) // Kills an existing account.
 		)]
 		pub(super) fn set_balance(
 			origin: OriginFor<T>,
@@ -334,7 +339,7 @@ pub mod pallet {
 		/// - Same as transfer, but additional read and write because the source account is
 		///   not assumed to be in the overlay.
 		/// # </weight>
-		#[pallet::weight(T::WeightInfo::force_transfer())]
+		#[pallet::weight(<T as Config<I>>::WeightInfo::force_transfer())]
 		pub fn force_transfer(
 			origin: OriginFor<T>,
 			source: <T::Lookup as StaticLookup>::Source,
@@ -359,7 +364,7 @@ pub mod pallet {
 		/// - Base Weight: 51.4 µs
 		/// - DB Weight: 1 Read and 1 Write to dest (sender is in overlay already)
 		/// #</weight>
-		#[pallet::weight(T::WeightInfo::transfer_keep_alive())]
+		#[pallet::weight(<T as Config<I>>::WeightInfo::transfer_keep_alive())]
 		pub fn transfer_keep_alive(
 			origin: OriginFor<T>,
 			dest: <T::Lookup as StaticLookup>::Source,
@@ -374,7 +379,7 @@ pub mod pallet {
 
 	#[pallet::event]
 	#[pallet::generate_deposit(pub(super) fn deposit_event)]
-	#[pallet::metadata(T::AccountId = "AccountId", T::Balance = "Balance", T::AccountLimit = "AccountLimit")]
+	#[pallet::metadata(T::AccountId = "AccountId", T::Balance = "Balance")]
 	pub enum Event<T: Config<I>, I: 'static = ()> {
 		/// An account was created with some free balance. \[account, free_balance\]
 		Endowed(T::AccountId, T::Balance),
@@ -461,8 +466,8 @@ pub mod pallet {
 		_,
 		Blake2_128Concat,
 		T::AccountId,
-		Option<AccountLimit<T::Balance, T::Balance, T::Balance>>,
-		ValueQuery
+		AccountLimit<T::Balance, T::Balance, T::Balance>,
+		OptionQuery
 	>;
 
 	/// Storage Limits info
@@ -472,8 +477,8 @@ pub mod pallet {
 		_,
 		Blake2_128Concat,
 		T::AccountId,
-		Option<TransferAmountInfo<u64, T::Balance, T::Balance, T::Balance>>,
-		ValueQuery
+		TransferAmountInfo<u64, T::Balance, T::Balance, T::Balance>,
+		OptionQuery
 	>;
 
 	/// Storage version of the pallet.
@@ -1094,7 +1099,7 @@ impl<T: Config<I>, I: 'static> Currency<T::AccountId> for Pallet<T, I> where
 						a
 					}
 					None => {
-						AccountLimit {daily_limit: DailyLimit::get(),	monthly_limit: MonthlyLimit::get(),	yearly_limit: YearlyLimit::get()}
+						AccountLimit {daily_limit: T::DailyLimit::get(),	monthly_limit: T::MonthlyLimit::get(),	yearly_limit: T::YearlyLimit::get()}
 					}
 				};
 				let timestamp_now = UniqueSaturatedInto::<u64>::unique_saturated_into(
