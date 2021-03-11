@@ -1557,6 +1557,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "fc-mapping-sync"
+version = "0.1.0"
+dependencies = [
+ "fc-consensus",
+ "fc-db",
+ "fp-consensus",
+ "fp-rpc",
+ "futures 0.3.13",
+ "futures-timer 3.0.2",
+ "log",
+ "sc-client-api",
+ "sp-api",
+ "sp-blockchain",
+ "sp-runtime",
+]
+
+[[package]]
 name = "fc-rpc"
 version = "0.1.0"
 dependencies = [
@@ -3557,6 +3574,8 @@ name = "mathchain"
 version = "0.4.0"
 dependencies = [
  "fc-consensus",
+ "fc-db",
+ "fc-mapping-sync",
  "fc-rpc",
  "fc-rpc-core",
  "fp-consensus",
@@ -3587,6 +3606,7 @@ dependencies = [
  "sc-rpc",
  "sc-rpc-api",
  "sc-service",
+ "sc-telemetry",
  "sc-transaction-pool",
  "sp-api",
  "sp-block-builder",
@@ -3662,7 +3682,6 @@ dependencies = [
  "pallet-transaction-payment",
  "pallet-transaction-payment-rpc-runtime-api",
  "parity-scale-codec",
- "sc-telemetry",
  "serde",
  "sp-api",
  "sp-block-builder",
