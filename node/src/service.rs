@@ -13,7 +13,7 @@ use sp_inherents::{InherentDataProviders, ProvideInherentData, InherentIdentifie
 use sc_executor::native_executor_instance;
 pub use sc_executor::NativeExecutor;
 use sp_consensus_aura::sr25519::{AuthorityPair as AuraPair};
-use sc_consensus_aura::{ImportQueueParams, StartAuraParams};
+use sc_consensus_aura::{ImportQueueParams, StartAuraParams, SlotProportion};
 use sc_finality_grandpa::SharedVoterState;
 use sp_timestamp::InherentError;
 use sc_telemetry::TelemetrySpan;
@@ -158,7 +158,7 @@ pub fn new_partial(config: &Configuration, sealing: Option<Sealing>) -> Result<
 
 		let import_queue = sc_consensus_manual_seal::import_queue(
 			Box::new(mathchain_block_import.clone()),
-			&task_manager.spawn_handle(),
+			&task_manager.spawn_essential_handle(),
 			config.prometheus_registry(),
 		);
 
@@ -232,7 +232,7 @@ pub fn new_full(
 
 	if config.offchain_worker.enabled {
 		sc_service::build_offchain_workers(
-			&config, backend.clone(), task_manager.spawn_handle(), client.clone(), network.clone(),
+			&config, task_manager.spawn_handle(), client.clone(), network.clone(),
 		);
 	}
 
@@ -402,6 +402,7 @@ pub fn new_full(
 						keystore: keystore_container.sync_keystore(),
 						can_author_with,
 						sync_oracle: network.clone(),
+						block_proposal_slot_portion: SlotProportion::new(2f32 / 3f32),
 					},
 				)?;
 
@@ -461,7 +462,7 @@ pub fn new_full(
 
 // FIXME: #238 Light client does not have a complete import pipeline or support manual/instant seal.
 /// Builds a new service for a light client.
-pub fn new_light(config: Configuration) -> Result<TaskManager, ServiceError> {
+pub fn new_light(mut config: Configuration) -> Result<TaskManager, ServiceError> {
 	let (client, backend, keystore_container, mut task_manager, on_demand) =
 		sc_service::new_light_parts::<Block, RuntimeApi, Executor>(&config)?;
 
@@ -524,7 +525,7 @@ pub fn new_light(config: Configuration) -> Result<TaskManager, ServiceError> {
 
 	if config.offchain_worker.enabled {
 		sc_service::build_offchain_workers(
-			&config, backend.clone(), task_manager.spawn_handle(), client.clone(), network.clone(),
+			&config, task_manager.spawn_handle(), client.clone(), network.clone(),
 		);
 	}
 
