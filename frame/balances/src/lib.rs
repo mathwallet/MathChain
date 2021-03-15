@@ -1185,7 +1185,7 @@ impl<T: Config<I>, I: 'static> Currency<T::AccountId> for Pallet<T, I> where
 							value,
 							WithdrawReasons::TRANSFER,
 							from_account.free,
-						).map_err(|_| Error::<T, I>::LiquidityRestrictions)?;
+						).map_err(|x| x)?;
 
 						// TODO: This is over-conservative. There may now be other providers, and this pallet
 						//   may not even be a provider.
