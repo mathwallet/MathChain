@@ -25,6 +25,26 @@ pub fn galois_config() -> Result<ChainSpec, String> {
 	ChainSpec::from_json_bytes(&include_bytes!("../res/galois.json")[..])
 }
 
+fn galois_build_spec_genesis() -> mathchain_runtime::GenesisConfig {
+	const ROOT: &'static str = "0x24a80b84d2d5130beafcb2b1a3b1a0e0e1cee122ef0e508d6b1eb862b802fe1d";
+
+	let root = AccountId::from(array_bytes::hex_str_array_unchecked!(ROOT, 32));
+	let endowed_accounts = vec![(root.clone(), 10000 * MATH)];
+
+	mathchain_runtime::GenesisConfig {
+		frame_system: mathchain_runtime::SystemConfig {
+			code: mathchain_runtime::WASM_BINARY
+			.expect("WASM binary was not build, please build it!")
+			.to_vec(),
+			changes_trie_config: Default::default(),
+		},
+		pallet_balances: mathchain_runtime::BalancesConfig {
+			balances: endowed_accounts,
+		},
+		pallet_sudo: mathchain_runtime::SudoConfig { key: root },
+	}
+}
+
 pub fn math_testnet_properties() -> Properties {
 	let mut properties = Properties::new();
 
