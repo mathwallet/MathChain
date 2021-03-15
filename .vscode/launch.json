@@ -19,7 +19,7 @@
                     "kind": "bin"
                 }
             },
-            "args": ["--dev", "--ws-external", "--rpc-external"],
+            "args": ["--tmp", "--dev", "--ws-external", "--rpc-external"],
             "cwd": "${workspaceFolder}"
         },
         {
