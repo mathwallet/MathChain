@@ -1,1 +1,1 @@
-pub const CHAIN_ID: u8 = 40;
+pub const CHAIN_ID: u16 = 40;

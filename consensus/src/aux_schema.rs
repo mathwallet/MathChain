@@ -24,7 +24,7 @@ use sp_blockchain::{Result as ClientResult, Error as ClientError};
 
 fn load_decode<B: AuxStore, T: Decode>(backend: &B, key: &[u8]) -> ClientResult<Option<T>> {
 	let corrupt = |e: codec::Error| {
-		ClientError::Backend(format!("Frontier DB is corrupted. Decode error: {}", e.what()))
+		ClientError::Backend(format!("Frontier DB is corrupted. Decode error: {}", e))
 	};
 	match backend.get_aux(key)? {
 		None => Ok(None),
