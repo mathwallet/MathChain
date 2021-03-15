@@ -69,6 +69,9 @@ fp-consensus = { path = "../vendor/frontier/primitives/consensus" }
 fc-rpc = { path = "../vendor/frontier/client/rpc" }
 fp-rpc = { path = "../vendor/frontier/primitives/rpc" }
 fc-rpc-core = { path = "../vendor/frontier/client/rpc-core" }
+sc-telemetry = { git = "https://github.com/paritytech/substrate.git", branch = "master" }
+fc-db = { path = "../vendor/frontier/client/db" }
+fc-mapping-sync = { path = "../vendor/frontier/client/mapping-sync" }
 
 [features]
 runtime-benchmarks = ['mathchain-runtime/runtime-benchmarks']
