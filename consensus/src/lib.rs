@@ -129,26 +129,26 @@ impl<B, I, C> BlockImport<B> for MathchainBlockImport<B, I, C> where
 		let client = self.client.clone();
 
 		// support testnet aura block import
-		if !!!(self.is_galois && block.header.number().clone().saturated_into::<u64>() < 1_252_435) {
-			let log = find_mathchain_log::<B>(&block.header)?;
-			let hash = block.post_hash();
+		// if !!!(self.is_galois && block.header.number().clone().saturated_into::<u64>() < 1_252_435) {
+		let log = find_mathchain_log::<B>(&block.header)?;
+		let hash = block.post_hash();
 
-			match log {
-				ConsensusLog::EndBlock {
-					block_hash, transaction_hashes,
-				} => {
-					aux_schema::write_block_hash(client.as_ref(), block_hash, hash, insert_closure!());
+		match log {
+			ConsensusLog::EndBlock {
+				block_hash, transaction_hashes,
+			} => {
+				aux_schema::write_block_hash(client.as_ref(), block_hash, hash, insert_closure!());
 
-					for (index, transaction_hash) in transaction_hashes.into_iter().enumerate() {
-						aux_schema::write_transaction_metadata(
-							transaction_hash,
-							(block_hash, index as u32),
-							insert_closure!(),
-						);
-					}
-				},
-			}
+				for (index, transaction_hash) in transaction_hashes.into_iter().enumerate() {
+					aux_schema::write_transaction_metadata(
+						transaction_hash,
+						(block_hash, index as u32),
+						insert_closure!(),
+					);
+				}
+			},
 		}
+		// }
 
 		self.inner.import_block(block, new_cache).map_err(Into::into)
 	}
