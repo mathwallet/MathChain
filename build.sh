@@ -23,7 +23,7 @@ docker build -f docker/Dockerfile.x86_64-linux-gnu -t x86_64-linux-gnu . #&> /de
 docker build -f docker/Dockerfile.aarch64-linux-gnu -t aarch64-linux-gnu . #&> /dev/null
 
 echo -e '\e[1;32m📥 Installing Cross Compile Toolchain(s)\e[0m'
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly-2020-10-06 #&> /dev/null
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly-2021-03-07 #&> /dev/null
 source ~/.cargo/env
 cargo install cross --git https://github.com/AurevoirXavier/cross --branch support-multi-sub-targets #&> /dev/null
 rustup target add x86_64-unknown-linux-gnu aarch64-unknown-linux-gnu wasm32-unknown-unknown #&> /dev/null

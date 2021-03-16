@@ -333,6 +333,29 @@ pub mod pallet {
 			Ok(().into())
 		}
 
+		#[pallet::weight(<T as Config<I>>::WeightInfo::set_limit())]
+		pub fn set_limit(
+			origin: OriginFor<T>,
+			limit_info: AccountLimit<T::Balance, T::Balance, T::Balance>
+		) -> DispatchResultWithPostInfo {
+			let sender = ensure_signed(origin)?;
+			let info = limit_info.clone();
+			ensure!(info.daily_limit <= T::DailyLimit::get(), Error::<T, I>::OutOfLimit);
+			ensure!(info.monthly_limit <= T::MonthlyLimit::get(), Error::<T, I>::OutOfLimit);
+			ensure!(info.yearly_limit <= T::YearlyLimit::get(), Error::<T, I>::OutOfLimit);
+			// let limit = match <Limits<T, I>>.get(&sender) {
+			// 	Some(mut id) => {
+			// 		id.daily_limit = info.daily_limit;
+			// 		id.monthly_limit = info.monthly_limit;
+			// 		id.yearly_limit = info.yearly_limit;
+			// 	}
+			// 	_ => 
+			// }
+			<Limits<T, I>>::insert(&sender, info);
+			Self::deposit_event(RawEvent::LimitChanged(sender.clone(), limit_info.clone()));
+			Ok(().into())
+		}
+
 		/// Exactly as `transfer`, except the origin must be root and the source account may be
 		/// specified.
 		/// # <weight>
