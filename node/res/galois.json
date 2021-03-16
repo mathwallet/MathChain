@@ -3,7 +3,7 @@
   "id": "galois",
   "chainType": "Local",
   "bootNodes": [
-    "/ip4/47.111.168.132/tcp/3031/p2p/12D3KooWLGe1Li8gUfKMiXzANVCcVtu48DUcqKh7R2LDZuV6C3Ay"
+    "/ip4/47.111.168.132/tcp/3031/p2p/12D3KooWQaE83fQvHza7hhLa18FB5Y1F8RmywVu4T52Stdooei5U"
   ],
   "telemetryEndpoints": null,
   "protocolId": "math",
