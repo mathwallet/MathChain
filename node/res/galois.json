@@ -5,7 +5,12 @@
   "bootNodes": [
     "/ip4/47.111.168.132/tcp/3031/p2p/12D3KooWQaE83fQvHza7hhLa18FB5Y1F8RmywVu4T52Stdooei5U"
   ],
-  "telemetryEndpoints": null,
+  "telemetryEndpoints": [
+		[
+			"/dns4/telemetry.polkadot.io/tcp/443/x-parity-wss/%2Fsubmit%2F",
+			0
+		]
+  ],
   "protocolId": "math",
   "properties": {
     "ss58Format": 40,
