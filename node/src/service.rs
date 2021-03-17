@@ -206,7 +206,7 @@ pub fn new_partial(config: &Configuration, sealing: Option<Sealing>) -> Result<
 
 /// Builds a new service for a full client.
 pub fn new_full(
-	config: Configuration,
+	mut config: Configuration,
 	sealing: Option<Sealing>,
 	enable_dev_signer: bool,
 ) -> Result<TaskManager, ServiceError> {
@@ -215,6 +215,8 @@ pub fn new_full(
 		select_chain, transaction_pool, inherent_data_providers,
 		other: (consensus_result, pending_transactions, filter_pool, frontier_backend),
 	} = new_partial(&config, sealing)?;
+
+	config.network.extra_sets.push(sc_finality_grandpa::grandpa_peers_set_config());
 
 	let (network, network_status_sinks, system_rpc_tx, network_starter) =
 		sc_service::build_network(sc_service::BuildNetworkParams {

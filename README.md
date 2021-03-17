@@ -42,7 +42,7 @@ http://scan.boka.network/#/Galois
 
 2、Clone MathChain from Github:
 
-``` git clone https://github.com:mathwallet/MathChain ```
+``` git clone https://github.com/mathwallet/MathChain.git ```
 
 3、Enter the directory:
 

@@ -252,6 +252,7 @@ impl pallet_grandpa::Config for Runtime {
 	)>>::IdentificationTuple;
 
 	type HandleEquivocation = ();
+
 	type WeightInfo = ();
 }
 
