@@ -15,6 +15,10 @@
     [
 			"/dns4/telemetry.maiziqianbao.net/tcp/443/x-parity-wss/%2Fsubmit%2F",
 			0
+		],
+    [
+			"/dns4/telemetry.mathwallet.vip/tcp/443/x-parity-wss/%2Fsubmit%2F",
+			0
 		]
   ],
   "protocolId": "math",
