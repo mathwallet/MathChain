@@ -215,8 +215,12 @@ fn testnet_genesis(
 			// Configure endowed accounts with initial balance of 10000 Math.
 			balances: endowed_accounts.iter().cloned().map(|k|(k, 10000 * MATH)).collect(),
 		},
-		pallet_aura: vec![],
-		pallet_grandpa: vec![],
+		pallet_aura: AuraConfig {
+			authorities: vec![],
+		},
+		pallet_grandpa: GrandpaConfig {
+			authorities: vec![],
+		},
 		pallet_sudo: SudoConfig {
 			// Assign network admin rights.
 			key: root_key,
