@@ -1,7 +1,7 @@
 use sp_core::{Pair, Public, sr25519, U256, H160};
 use mathchain_runtime::{
 	AccountId, AuraConfig, BalancesConfig, EVMConfig, EthereumConfig, GenesisConfig, GrandpaConfig,
-	SudoConfig, SystemConfig, WASM_BINARY, Signature
+	SudoConfig, SystemConfig, WASM_BINARY, Signature, ValidatorSetConfig, opaque::SessionKeys, SessionConfig
 };
 use mathchain_runtime::constants::currency::MATHS as MATH;
 
@@ -79,6 +79,25 @@ pub fn authority_keys_from_seed(s: &str) -> (AuraId, GrandpaId) {
 	)
 }
 
+fn session_keys(
+	aura: AuraId,
+	grandpa: GrandpaId,
+) -> SessionKeys {
+	SessionKeys { aura, grandpa }
+}
+
+pub fn get_authority_keys_from_seed(seed: &str) -> (
+	AccountId,
+	AuraId,
+	GrandpaId
+) {
+	(
+		get_account_id_from_seed::<sr25519::Public>(seed),
+		get_from_seed::<AuraId>(seed),
+		get_from_seed::<GrandpaId>(seed)
+	)
+}
+
 pub fn development_config() -> Result<ChainSpec, String> {
 	let wasm_binary = WASM_BINARY.ok_or_else(|| "Development wasm not available".to_string())?;
 
@@ -92,7 +111,7 @@ pub fn development_config() -> Result<ChainSpec, String> {
 			wasm_binary,
 			// Initial PoA authorities
 			vec![
-				authority_keys_from_seed("Alice"),
+				get_authority_keys_from_seed("Alice"),
 			],
 			// Sudo account
 			get_account_id_from_seed::<sr25519::Public>("Alice"),
@@ -131,8 +150,8 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 			wasm_binary,
 			// Initial PoA authorities
 			vec![
-				authority_keys_from_seed("Alice"),
-				authority_keys_from_seed("Bob"),
+				get_authority_keys_from_seed("Alice"),
+				get_authority_keys_from_seed("Bob"),
 			],
 			// Sudo account
 			get_account_id_from_seed::<sr25519::Public>("Alice"),
@@ -169,7 +188,7 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 /// Configure initial storage state for FRAME modules.
 fn testnet_genesis(
 	wasm_binary: &[u8],
-	initial_authorities: Vec<(AuraId, GrandpaId)>,
+	initial_authorities: Vec<(AccountId, AuraId, GrandpaId)>,
 	root_key: AccountId,
 	endowed_accounts: Vec<AccountId>,
 	_enable_println: bool,
@@ -196,12 +215,8 @@ fn testnet_genesis(
 			// Configure endowed accounts with initial balance of 10000 Math.
 			balances: endowed_accounts.iter().cloned().map(|k|(k, 10000 * MATH)).collect(),
 		},
-		pallet_aura: AuraConfig {
-			authorities: initial_authorities.iter().map(|x| (x.0.clone())).collect(),
-		},
-		pallet_grandpa: GrandpaConfig {
-			authorities: initial_authorities.iter().map(|x| (x.1.clone(), 1)).collect(),
-		},
+		pallet_aura: vec![],
+		pallet_grandpa: vec![],
 		pallet_sudo: SudoConfig {
 			// Assign network admin rights.
 			key: root_key,
@@ -210,5 +225,13 @@ fn testnet_genesis(
 			accounts: evm_accounts,
 		},
 		pallet_ethereum: EthereumConfig {},
+		pallet_validator_set: ValidatorSetConfig {
+			validators: initial_authorities.iter().map(|x| x.0.clone()).collect::<Vec<_>>(),
+		},
+		pallet_session: SessionConfig {
+			keys: initial_authorities.iter().map(|x| {
+				(x.0.clone(), x.0.clone(), session_keys(x.1.clone(), x.2.clone()))
+			}).collect::<Vec<_>>(),
+		},
 	}
 }

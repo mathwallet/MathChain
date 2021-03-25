@@ -3,9 +3,6 @@
   "id": "galois",
   "chainType": "Local",
   "bootNodes": [
-    "/ip4/47.111.168.132/tcp/3031/p2p/12D3KooWQaE83fQvHza7hhLa18FB5Y1F8RmywVu4T52Stdooei5U",
-    "/ip4/47.243.44.7/tcp/3033/p2p/12D3KooWFpvjMFp9xwLAYR8UQtARGmwqE6UnsKarpjvcsmLYhSwW",
-    "/ip4/8.209.214.249/tcp/3033/p2p/12D3KooWCrWmntGzNu1orWbbZfK8PvBp2qDttixV4Uro1bQCW2uK"
   ],
   "telemetryEndpoints": [
 		[

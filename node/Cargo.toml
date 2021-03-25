@@ -24,6 +24,7 @@ log = "0.4.8"
 jsonrpc-core = '15.0.0'
 jsonrpc-pubsub = "15.0.0"
 structopt = '0.3.8'
+array-bytes = { version = "0.3.0" }
 
 # local dependencies
 mathchain-runtime = { path = '../runtime', version = '0.1.0' }
