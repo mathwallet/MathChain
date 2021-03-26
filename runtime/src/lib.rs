@@ -14,7 +14,8 @@ use sp_runtime::{
 	transaction_validity::{TransactionValidity, TransactionSource},
 };
 use sp_runtime::traits::{
-	BlakeTwo256, Block as BlockT, Verify, IdentifyAccount, NumberFor, StaticLookup, LookupError
+	BlakeTwo256, Block as BlockT, Verify, IdentifyAccount, NumberFor, StaticLookup, LookupError,
+	OpaqueKeys
 };
 use sp_api::impl_runtime_apis;
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
@@ -25,6 +26,11 @@ use sp_version::RuntimeVersion;
 use sp_version::NativeVersion;
 use sp_core::crypto::Public;
 use sp_core::crypto::AccountId32;
+pub use pallet_validator_set;
+
+impl pallet_validator_set::Config for Runtime {
+	type Event = Event;
+}
 
 // A few exports that help ease life for downstream crates.
 #[cfg(any(feature = "std", test))]
@@ -112,7 +118,7 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
 	spec_name: create_runtime_str!("mathchain-galois"),
 	impl_name: create_runtime_str!("mathchain-galois"),
 	authoring_version: 1,
-	spec_version: 7,
+	spec_version: 8,
 	impl_version: 1,
 	apis: RUNTIME_API_VERSIONS,
 	transaction_version: 1,
@@ -408,6 +414,18 @@ impl pallet_ethereum::Config for Runtime {
 	type StateRoot = pallet_ethereum::IntermediateStateRoot;
 	type BlockGasLimit = BlockGasLimit;
 }
+impl pallet_session::Config for Runtime {
+	type SessionHandler = <opaque::SessionKeys as OpaqueKeys>::KeyTypeIdProviders;
+	type ShouldEndSession = ValidatorSet;
+	type SessionManager = ValidatorSet;
+	type Event = Event;
+	type Keys = opaque::SessionKeys;
+	type NextSessionRotation = ValidatorSet;
+	type ValidatorId = <Self as frame_system::Config>::AccountId;
+	type ValidatorIdOf = pallet_validator_set::ValidatorOf<Self>;
+	type DisabledValidatorsThreshold = ();
+	type WeightInfo = ();
+}
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
 construct_runtime!(
@@ -430,6 +448,8 @@ construct_runtime!(
 		// TemplateModule: pallet_template::{Module, Call, Storage, Event<T>},
 		Ethereum: pallet_ethereum::{Module, Call, Storage, Event, Config, ValidateUnsigned},
 		EVM: pallet_evm::{Module, Config, Call, Storage, Event<T>},
+		ValidatorSet: pallet_validator_set::{Module, Call, Storage, Event<T>, Config<T>},
+		Session: pallet_session::{Module, Call, Storage, Event, Config<T>},
 	}
 );
 

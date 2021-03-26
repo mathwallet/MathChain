@@ -1,7 +1,7 @@
-use sp_core::{Pair, Public, sr25519, U256, H160};
+use sp_core::{Pair, Public, sr25519, U256, H160, crypto::UncheckedInto,};
 use mathchain_runtime::{
 	AccountId, AuraConfig, BalancesConfig, EVMConfig, EthereumConfig, GenesisConfig, GrandpaConfig,
-	SudoConfig, SystemConfig, WASM_BINARY, Signature
+	SudoConfig, SystemConfig, WASM_BINARY, Signature, ValidatorSetConfig, opaque::SessionKeys, SessionConfig
 };
 use mathchain_runtime::constants::currency::MATHS as MATH;
 
@@ -11,6 +11,7 @@ use sp_runtime::traits::{Verify, IdentifyAccount};
 use sc_service::{ChainType, Properties};
 use std::collections::BTreeMap;
 use std::str::FromStr;
+use sc_telemetry::TelemetryEndpoints;
 
 const DEFAULT_PROTOCOL_ID: &str = "math";
 
@@ -79,6 +80,145 @@ pub fn authority_keys_from_seed(s: &str) -> (AuraId, GrandpaId) {
 	)
 }
 
+fn session_keys(
+	aura: AuraId,
+	grandpa: GrandpaId,
+) -> SessionKeys {
+	SessionKeys { aura, grandpa }
+}
+
+pub fn get_authority_keys_from_seed(seed: &str) -> (
+	AccountId,
+	AuraId,
+	GrandpaId
+) {
+	(
+		get_account_id_from_seed::<sr25519::Public>(seed),
+		get_from_seed::<AuraId>(seed),
+		get_from_seed::<GrandpaId>(seed)
+	)
+}
+
+pub fn galois_for_genesis() -> Result<ChainSpec, String> {
+	let wasm_binary = WASM_BINARY.ok_or_else(|| "Galois wasm not available".to_string())?;
+
+	const ROOT: &'static str = "0x24a80b84d2d5130beafcb2b1a3b1a0e0e1cee122ef0e508d6b1eb862b802fe1d";
+	let root: AccountId = array_bytes::hex_str_array_unchecked!(ROOT, 32).into();
+
+	const GENESIS_VALIDATOR_SR1: &'static str =
+		"0xf88768150c3a86509384e744132b5323390c6c24ddccbe39468865db7c07d842";
+	const GENESIS_VALIDATOR_ED1: &'static str =
+		"0x490c6732f48ae1ce0e0208d53776e7b0153713fce99e5a0c36731fd4da761450";
+
+	const GENESIS_VALIDATOR_SR2: &'static str =
+		"0xa2e1437ba4d59fc44ee774fab33a06d952527e909e35ef64dc91859bbb60fe65";
+	const GENESIS_VALIDATOR_ED2: &'static str =
+		"0xa2e1437ba4d59fc44ee774fab33a06d952527e909e35ef64dc91859bbb60fe65";
+
+	const GENESIS_VALIDATOR_SR3: &'static str =
+		"0xbca164498a1bc44c91e20a64c83431592a9caa7aa509e0ba5d1fc5710b524557";
+	const GENESIS_VALIDATOR_ED3: &'static str =
+		"0xf350c893e43dafe5d0e1c572673666b3d414057c0d117b476fcac5f777e627f2";
+
+	let genesis_validator1: (
+		AccountId,
+		AuraId,
+		GrandpaId,
+	) = {
+		let stash = array_bytes::hex_str_array_unchecked!(GENESIS_VALIDATOR_SR1, 32);
+		let session = array_bytes::hex_str_array_unchecked!(GENESIS_VALIDATOR_SR1, 32);
+		let grandpa = array_bytes::hex_str_array_unchecked!(GENESIS_VALIDATOR_ED1, 32);
+
+		(
+			stash.into(),
+			session.unchecked_into(),
+			grandpa.unchecked_into(),
+		)
+	};
+
+	let genesis_validator2: (
+		AccountId,
+		AuraId,
+		GrandpaId,
+	) = {
+		let stash = array_bytes::hex_str_array_unchecked!(GENESIS_VALIDATOR_SR2, 32);
+		let session = array_bytes::hex_str_array_unchecked!(GENESIS_VALIDATOR_SR2, 32);
+		let grandpa = array_bytes::hex_str_array_unchecked!(GENESIS_VALIDATOR_ED2, 32);
+
+		(
+			stash.into(),
+			session.unchecked_into(),
+			grandpa.unchecked_into(),
+		)
+	};
+
+	let genesis_validator3: (
+		AccountId,
+		AuraId,
+		GrandpaId,
+	) = {
+		let stash = array_bytes::hex_str_array_unchecked!(GENESIS_VALIDATOR_SR3, 32);
+		let session = array_bytes::hex_str_array_unchecked!(GENESIS_VALIDATOR_SR3, 32);
+		let grandpa = array_bytes::hex_str_array_unchecked!(GENESIS_VALIDATOR_ED3, 32);
+
+		(
+			stash.into(),
+			session.unchecked_into(),
+			grandpa.unchecked_into(),
+		)
+	};
+
+	let endowed_accounts = [
+		// Sudo 
+		"0x24a80b84d2d5130beafcb2b1a3b1a0e0e1cee122ef0e508d6b1eb862b802fe1d",
+		// node1
+		"0xf88768150c3a86509384e744132b5323390c6c24ddccbe39468865db7c07d842",
+		// node2
+		"0xa2e1437ba4d59fc44ee774fab33a06d952527e909e35ef64dc91859bbb60fe65",
+		// node3
+		"0xbca164498a1bc44c91e20a64c83431592a9caa7aa509e0ba5d1fc5710b524557"
+	]
+	.iter()
+	.map(|s| array_bytes::hex_str_array_unchecked!(s, 32).into())
+	.collect::<Vec<_>>();
+
+	Ok(ChainSpec::from_genesis(
+		// Name
+		"Galois",
+		"galois",
+		ChainType::Live,
+		move || testnet_genesis(
+			wasm_binary,
+			// Initial Poa authorities
+			vec![
+				genesis_validator1.clone(),
+				genesis_validator2.clone(),
+				genesis_validator3.clone(),
+			],
+			root.clone(),
+			endowed_accounts.clone(),
+			true
+		),
+		vec![
+			"/ip4/47.111.168.132/tcp/3031/p2p/12D3KooWNMtGp5TQGApApAoPj37QHXSCv1Yi4mkZvVnse2A5wQZK".parse().unwrap(),
+			"/ip4/8.209.214.249/tcp/3033/p2p/12D3KooWG2QSh8hKp1Bm4XuidjFijKZcHY9Q7my4fBJfJTqWj4Xd".parse().unwrap()
+		],
+		Some(
+			TelemetryEndpoints::new(vec![
+				("/dns4/telemetry.polkadot.io/tcp/443/x-parity-wss/%2Fsubmit%2F".parse().unwrap(), 0),
+				("/dns4/telemetry.maiziqianbao.net/tcp/443/x-parity-wss/%2Fsubmit%2F".parse().unwrap(), 0),
+				("/dns4/telemetry.maiziqianbao.vip/tcp/443/x-parity-wss/%2Fsubmit%2F".parse().unwrap(), 0),
+			]).expect("Galois telemetry url is valid; qed")
+		),
+		// Protocol ID
+		Some(DEFAULT_PROTOCOL_ID),
+		// Properties
+		Some(math_testnet_properties()),
+		// Extensions
+		None
+	))
+}
+
 pub fn development_config() -> Result<ChainSpec, String> {
 	let wasm_binary = WASM_BINARY.ok_or_else(|| "Development wasm not available".to_string())?;
 
@@ -92,7 +232,7 @@ pub fn development_config() -> Result<ChainSpec, String> {
 			wasm_binary,
 			// Initial PoA authorities
 			vec![
-				authority_keys_from_seed("Alice"),
+				get_authority_keys_from_seed("Alice"),
 			],
 			// Sudo account
 			get_account_id_from_seed::<sr25519::Public>("Alice"),
@@ -131,8 +271,8 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 			wasm_binary,
 			// Initial PoA authorities
 			vec![
-				authority_keys_from_seed("Alice"),
-				authority_keys_from_seed("Bob"),
+				get_authority_keys_from_seed("Alice"),
+				get_authority_keys_from_seed("Bob"),
 			],
 			// Sudo account
 			get_account_id_from_seed::<sr25519::Public>("Alice"),
@@ -169,7 +309,7 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 /// Configure initial storage state for FRAME modules.
 fn testnet_genesis(
 	wasm_binary: &[u8],
-	initial_authorities: Vec<(AuraId, GrandpaId)>,
+	initial_authorities: Vec<(AccountId, AuraId, GrandpaId)>,
 	root_key: AccountId,
 	endowed_accounts: Vec<AccountId>,
 	_enable_println: bool,
@@ -197,10 +337,10 @@ fn testnet_genesis(
 			balances: endowed_accounts.iter().cloned().map(|k|(k, 10000 * MATH)).collect(),
 		},
 		pallet_aura: AuraConfig {
-			authorities: initial_authorities.iter().map(|x| (x.0.clone())).collect(),
+			authorities: vec![],
 		},
 		pallet_grandpa: GrandpaConfig {
-			authorities: initial_authorities.iter().map(|x| (x.1.clone(), 1)).collect(),
+			authorities: vec![],
 		},
 		pallet_sudo: SudoConfig {
 			// Assign network admin rights.
@@ -210,5 +350,13 @@ fn testnet_genesis(
 			accounts: evm_accounts,
 		},
 		pallet_ethereum: EthereumConfig {},
+		pallet_validator_set: ValidatorSetConfig {
+			validators: initial_authorities.iter().map(|x| x.0.clone()).collect::<Vec<_>>(),
+		},
+		pallet_session: SessionConfig {
+			keys: initial_authorities.iter().map(|x| {
+				(x.0.clone(), x.0.clone(), session_keys(x.1.clone(), x.2.clone()))
+			}).collect::<Vec<_>>(),
+		},
 	}
 }
