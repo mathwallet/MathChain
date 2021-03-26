@@ -200,8 +200,8 @@ pub fn galois_for_genesis() -> Result<ChainSpec, String> {
 			true
 		),
 		vec![
-			// "/ip4/47.111.168.132/tcp/3031/p2p/12D3KooWNV5mPwcmwy1khFFP8HntaUgfVK2WB8etbwMExtLKG29k".parse().unwrap(),
-			// "/ip4/8.209.214.249/tcp/3033/p2p/12D3KooWKVtdDdUU2XQw2eTAGqv1bfhkabiMfp49JdsyXZrp4TBB".parse().unwrap()
+			"/ip4/47.111.168.132/tcp/3031/p2p/12D3KooWNMtGp5TQGApApAoPj37QHXSCv1Yi4mkZvVnse2A5wQZK".parse().unwrap(),
+			"/ip4/8.209.214.249/tcp/3033/p2p/12D3KooWG2QSh8hKp1Bm4XuidjFijKZcHY9Q7my4fBJfJTqWj4Xd".parse().unwrap()
 		],
 		Some(
 			TelemetryEndpoints::new(vec![
