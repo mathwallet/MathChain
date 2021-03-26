@@ -58,6 +58,7 @@ impl SubstrateCli for Cli {
 			// "galois_genesis" => Box::new(chain_spec::galois_build_spec_genesis()?),
 			"" | "local" => Box::new(chain_spec::local_testnet_config()?),
 			"galois" => Box::new(chain_spec::galois_config()?),
+			"galois_for_genesis" => Box::new(chain_spec::galois_for_genesis()?),
 			path => Box::new(chain_spec::ChainSpec::from_json_file(
 				std::path::PathBuf::from(path),
 			)?),
@@ -134,6 +135,7 @@ pub fn run() -> sc_cli::Result<()> {
 				Ok((cmd.run(client, backend), task_manager))
 			})
 		},
+		Some(Subcommand::Key(cmd)) => Ok(cmd.run(&cli)?),
 		Some(Subcommand::Benchmark(cmd)) => {
 			if cfg!(feature = "runtime-benchmarks") {
 				let runner = cli.create_runner(cmd)?;
