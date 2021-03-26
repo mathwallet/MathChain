@@ -1,4 +1,4 @@
-use sp_core::{Pair, Public, sr25519, U256, H160};
+use sp_core::{Pair, Public, sr25519, U256, H160, crypto::UncheckedInto,};
 use mathchain_runtime::{
 	AccountId, AuraConfig, BalancesConfig, EVMConfig, EthereumConfig, GenesisConfig, GrandpaConfig,
 	SudoConfig, SystemConfig, WASM_BINARY, Signature, ValidatorSetConfig, opaque::SessionKeys, SessionConfig
@@ -11,6 +11,7 @@ use sp_runtime::traits::{Verify, IdentifyAccount};
 use sc_service::{ChainType, Properties};
 use std::collections::BTreeMap;
 use std::str::FromStr;
+use sc_telemetry::TelemetryEndpoints;
 
 const DEFAULT_PROTOCOL_ID: &str = "math";
 
@@ -96,6 +97,126 @@ pub fn get_authority_keys_from_seed(seed: &str) -> (
 		get_from_seed::<AuraId>(seed),
 		get_from_seed::<GrandpaId>(seed)
 	)
+}
+
+pub fn galois_for_genesis() -> Result<ChainSpec, String> {
+	let wasm_binary = WASM_BINARY.ok_or_else(|| "Galois wasm not available".to_string())?;
+
+	const ROOT: &'static str = "0x24a80b84d2d5130beafcb2b1a3b1a0e0e1cee122ef0e508d6b1eb862b802fe1d";
+	let root: AccountId = array_bytes::hex_str_array_unchecked!(ROOT, 32).into();
+
+	const GENESIS_VALIDATOR_SR1: &'static str =
+		"0xf88768150c3a86509384e744132b5323390c6c24ddccbe39468865db7c07d842";
+	const GENESIS_VALIDATOR_ED1: &'static str =
+		"0x490c6732f48ae1ce0e0208d53776e7b0153713fce99e5a0c36731fd4da761450";
+
+	const GENESIS_VALIDATOR_SR2: &'static str =
+		"0xa2e1437ba4d59fc44ee774fab33a06d952527e909e35ef64dc91859bbb60fe65";
+	const GENESIS_VALIDATOR_ED2: &'static str =
+		"0xa2e1437ba4d59fc44ee774fab33a06d952527e909e35ef64dc91859bbb60fe65";
+
+	const GENESIS_VALIDATOR_SR3: &'static str =
+		"0xbca164498a1bc44c91e20a64c83431592a9caa7aa509e0ba5d1fc5710b524557";
+	const GENESIS_VALIDATOR_ED3: &'static str =
+		"0xf350c893e43dafe5d0e1c572673666b3d414057c0d117b476fcac5f777e627f2";
+
+	let genesis_validator1: (
+		AccountId,
+		AuraId,
+		GrandpaId,
+	) = {
+		let stash = array_bytes::hex_str_array_unchecked!(GENESIS_VALIDATOR_SR1, 32);
+		let session = array_bytes::hex_str_array_unchecked!(GENESIS_VALIDATOR_SR1, 32);
+		let grandpa = array_bytes::hex_str_array_unchecked!(GENESIS_VALIDATOR_ED1, 32);
+
+		(
+			stash.into(),
+			session.unchecked_into(),
+			grandpa.unchecked_into(),
+		)
+	};
+
+	let genesis_validator2: (
+		AccountId,
+		AuraId,
+		GrandpaId,
+	) = {
+		let stash = array_bytes::hex_str_array_unchecked!(GENESIS_VALIDATOR_SR2, 32);
+		let session = array_bytes::hex_str_array_unchecked!(GENESIS_VALIDATOR_SR2, 32);
+		let grandpa = array_bytes::hex_str_array_unchecked!(GENESIS_VALIDATOR_ED2, 32);
+
+		(
+			stash.into(),
+			session.unchecked_into(),
+			grandpa.unchecked_into(),
+		)
+	};
+
+	let genesis_validator3: (
+		AccountId,
+		AuraId,
+		GrandpaId,
+	) = {
+		let stash = array_bytes::hex_str_array_unchecked!(GENESIS_VALIDATOR_SR3, 32);
+		let session = array_bytes::hex_str_array_unchecked!(GENESIS_VALIDATOR_SR3, 32);
+		let grandpa = array_bytes::hex_str_array_unchecked!(GENESIS_VALIDATOR_ED3, 32);
+
+		(
+			stash.into(),
+			session.unchecked_into(),
+			grandpa.unchecked_into(),
+		)
+	};
+
+	let endowed_accounts = [
+		// Sudo 
+		"0x24a80b84d2d5130beafcb2b1a3b1a0e0e1cee122ef0e508d6b1eb862b802fe1d",
+		// node1
+		"0xf88768150c3a86509384e744132b5323390c6c24ddccbe39468865db7c07d842",
+		// node2
+		"0xa2e1437ba4d59fc44ee774fab33a06d952527e909e35ef64dc91859bbb60fe65",
+		// node3
+		"0xbca164498a1bc44c91e20a64c83431592a9caa7aa509e0ba5d1fc5710b524557"
+	]
+	.iter()
+	.map(|s| array_bytes::hex_str_array_unchecked!(s, 32).into())
+	.collect::<Vec<_>>();
+
+	Ok(ChainSpec::from_genesis(
+		// Name
+		"Galois",
+		"galois",
+		ChainType::Live,
+		move || testnet_genesis(
+			wasm_binary,
+			// Initial Poa authorities
+			vec![
+				genesis_validator1.clone(),
+				genesis_validator2.clone(),
+				genesis_validator3.clone(),
+			],
+			root.clone(),
+			endowed_accounts.clone(),
+			true
+		),
+		vec![
+			// "/ip4/47.111.168.132/tcp/3031/p2p/12D3KooWNV5mPwcmwy1khFFP8HntaUgfVK2WB8etbwMExtLKG29k".parse().unwrap(),
+			// "/ip4/8.209.214.249/tcp/3033/p2p/12D3KooWKVtdDdUU2XQw2eTAGqv1bfhkabiMfp49JdsyXZrp4TBB".parse().unwrap()
+		],
+		Some(
+			TelemetryEndpoints::new(vec![
+				("/dns4/telemetry.polkadot.io/tcp/443/x-parity-wss/%2Fsubmit%2F".parse().unwrap(), 0),
+				("/dns4/telemetry.maiziqianbao.net/tcp/443/x-parity-wss/%2Fsubmit%2F".parse().unwrap(), 0),
+				("/dns4/telemetry.maiziqianbao.vip/tcp/443/x-parity-wss/%2Fsubmit%2F".parse().unwrap(), 0),
+			]).expect("Galois telemetry url is valid; qed")
+		),
+		// Protocol ID
+		Some(DEFAULT_PROTOCOL_ID),
+		// Properties
+		Some(math_testnet_properties()),
+		// Extensions
+		None
+	))
 }
 
 pub fn development_config() -> Result<ChainSpec, String> {
