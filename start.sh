@@ -1,0 +1,3 @@
+nohup ./target/debug/mathchain --chain galois --ws-external -d alice --validator --rpc-methods=unsafe > alice.log &
+nohup ./target/debug/mathchain --chain galois --ws-external -d bob --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/12D3KooWJQ485edWjwVJRxRZKV4n84yyEsM3JDSMSLtuNiVjvYJg --ws-port 9945 --rpc-port 9934 --port 30334 --validator --rpc-methods=unsafe > bob.log &
+nohup ./target/debug/mathchain --chain galois --ws-external -d cic --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/12D3KooWJQ485edWjwVJRxRZKV4n84yyEsM3JDSMSLtuNiVjvYJg --ws-port 9946 --rpc-port 9935 --port 30335 --validator --rpc-methods=unsafe > cic.log &

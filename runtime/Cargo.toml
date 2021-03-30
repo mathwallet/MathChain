@@ -48,6 +48,7 @@ pallet-timestamp = { default-features = false, git = "https://github.com/parityt
 pallet-transaction-payment = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
 pallet-transaction-payment-rpc-runtime-api = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
 pallet-session = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
+pallet-im-online = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
 sp-api = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
 sp-block-builder = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
 sp-consensus-aura = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
@@ -60,7 +61,7 @@ sp-session = { default-features = false, git = "https://github.com/paritytech/su
 sp-std = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
 sp-transaction-pool = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
 sp-version = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
-pallet-evm-precompile-simple = { version = "2.0.0-dev", default-features = false, path = "../vendor/frontier/frame/evm/precompile/simple" }
+pallet-evm-precompile-simple = { default-features = false, path = "../vendor/frontier/frame/evm/precompile/simple" }
 
 fp-rpc = { default-features = false, path = "../vendor/frontier/primitives/rpc" }
 pallet-validator-set = { default-features = false, path = "../pallets/validator-set" }
@@ -91,6 +92,7 @@ std = [
     'pallet-recovery/std',
     'pallet-sudo/std',
     # 'pallet-template/std',
+	"pallet-im-online/std",
     'pallet-timestamp/std',
     'pallet-transaction-payment/std',
     'pallet-transaction-payment-rpc-runtime-api/std',
