@@ -10,7 +10,7 @@
 
 use sp_std::prelude::*;
 use frame_support::{
-    StorageValue,
+	StorageValue,
 	decl_event, decl_storage, decl_module, decl_error,
 	dispatch
 };
