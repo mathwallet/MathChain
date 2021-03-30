@@ -48,7 +48,6 @@ pallet-timestamp = { default-features = false, git = "https://github.com/parityt
 pallet-transaction-payment = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
 pallet-transaction-payment-rpc-runtime-api = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
 pallet-session = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
-pallet-im-online = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
 sp-api = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
 sp-block-builder = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
 sp-consensus-aura = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
@@ -92,7 +91,6 @@ std = [
     'pallet-recovery/std',
     'pallet-sudo/std',
     # 'pallet-template/std',
-	"pallet-im-online/std",
     'pallet-timestamp/std',
     'pallet-transaction-payment/std',
     'pallet-transaction-payment-rpc-runtime-api/std',

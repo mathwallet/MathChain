@@ -3773,7 +3773,6 @@ dependencies = [
  "pallet-evm",
  "pallet-evm-precompile-simple",
  "pallet-grandpa",
- "pallet-im-online",
  "pallet-randomness-collective-flip",
  "pallet-recovery",
  "pallet-session",
@@ -4389,25 +4388,6 @@ dependencies = [
  "sp-finality-grandpa",
  "sp-runtime",
  "sp-session",
- "sp-staking",
- "sp-std",
-]
-
-[[package]]
-name = "pallet-im-online"
-version = "3.0.0"
-source = "git+https://github.com/paritytech/substrate.git?branch=master#9768df2aef81f47da7875f8b5f42dd6206a551b6"
-dependencies = [
- "frame-support",
- "frame-system",
- "log",
- "pallet-authorship",
- "parity-scale-codec",
- "serde",
- "sp-application-crypto",
- "sp-core",
- "sp-io",
- "sp-runtime",
  "sp-staking",
  "sp-std",
 ]

@@ -27,7 +27,6 @@ use sp_version::NativeVersion;
 use sp_core::crypto::Public;
 use sp_core::crypto::AccountId32;
 pub use pallet_validator_set;
-use pallet_im_online::sr25519::AuthorityId as ImOnlineId;
 
 impl pallet_validator_set::Config for Runtime {
 	type Event = Event;
@@ -426,16 +425,6 @@ impl pallet_session::Config for Runtime {
 	type ValidatorIdOf = pallet_validator_set::ValidatorOf<Self>;
 	type DisabledValidatorsThreshold = ();
 	type WeightInfo = ();
-}
-
-impl pallet_im_online::Config for Runtime {
-	type AuthorityId = ImOnlineId;
-	type Event = Event;
-	type ValidatorSet = Historical;
-	type SessionDuration = SessionDuration;
-	type ReportUnresponsiveness = Offences;
-	type UnsignedPriority = ImOnlineUnsignedPriority;
-	type WeightInfo = pallet_im_online::weights::SubstrateWeight<Runtime>;
 }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
