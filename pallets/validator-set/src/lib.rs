@@ -10,12 +10,13 @@
 
 use sp_std::prelude::*;
 use frame_support::{
-    StorageValue,
+	StorageValue,
 	decl_event, decl_storage, decl_module, decl_error,
 	dispatch
 };
 use frame_system::{self as system, ensure_root};
 use sp_runtime::traits::{Convert, Zero};
+use sp_runtime::Percent;
 
 
 pub trait Config: system::Config + pallet_session::Config {
@@ -119,13 +120,12 @@ impl<T: Config> pallet_session::SessionManager<T::AccountId> for Module<T> {
 }
 
 impl<T: Config> frame_support::traits::EstimateNextSessionRotation<T::BlockNumber> for Module<T> {
-	fn estimate_next_session_rotation(_now: T::BlockNumber) -> Option<T::BlockNumber> {
-		None
+	fn estimate_current_session_progress(_: T::BlockNumber) -> (Option<Percent>, u64) {
+		(None, Zero::zero())
 	}
 
-	// The validity of this weight depends on the implementation of `estimate_next_session_rotation`
-	fn weight(_now: T::BlockNumber) -> u64 {
-		0
+	fn estimate_next_session_rotation(_: T::BlockNumber) -> (Option<T::BlockNumber>, u64) {
+		(None, Zero::zero())
 	}
 
 	fn average_session_length() -> T::BlockNumber {
