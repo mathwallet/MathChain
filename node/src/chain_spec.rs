@@ -73,12 +73,12 @@ pub fn get_account_id_from_seed<TPublic: Public>(seed: &str) -> AccountId where
 }
 
 /// Generate an Aura authority key.
-pub fn authority_keys_from_seed(s: &str) -> (AuraId, GrandpaId) {
-	(
-		get_from_seed::<AuraId>(s),
-		get_from_seed::<GrandpaId>(s),
-	)
-}
+// pub fn authority_keys_from_seed(s: &str) -> (AuraId, GrandpaId) {
+// 	(
+// 		get_from_seed::<AuraId>(s),
+// 		get_from_seed::<GrandpaId>(s),
+// 	)
+// }
 
 fn session_keys(
 	aura: AuraId,
