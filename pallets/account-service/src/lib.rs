@@ -66,7 +66,8 @@ pub struct MultiAddressDetails<
 	Info: Codec,
 > {
 	nickname: Info,
-	ethereum: Info
+	ethereum: Info,
+	twitter: Info,
 }
 
 #[derive(Encode, Decode, PartialEq, Eq, Clone, Debug)]
@@ -163,12 +164,25 @@ decl_module! {
 							id.nickname = info.clone();
 							id
 						}
-						None =>	MultiAddressDetails { nickname: info.clone(), ethereum: AccountServiceEnum::Ethereum([0u8; 20])},
+						None =>	MultiAddressDetails { nickname: info.clone(), ethereum: AccountServiceEnum::Ethereum([0u8; 20]), twitter: AccountServiceEnum::Twitter(vec![0]) },
 					};
 					<MultiAddressOf<T>>::insert(&sender, id);
 					<FromNickname<T>>::insert(info.clone(), &sender);	
 				},
-				_ => {
+				AccountServiceEnum::Ethereum(_) => {
+					ensure!(false, Error::<T>::NotAllowed);
+					// ensure!(!FromEthereum::<T>::contains_key(info.clone()), Error::<T>::AlreadyTaked);
+					// let id = match <MultiAddressOf<T>>::get(&sender) {
+					// 	Some(mut id) => {
+					// 		id.ethereum = info.clone();
+					// 		id
+					// 	}
+					// 	None => MultiAddressDetails { nickname: AccountService::Nickname(vec![0]), ethereum: info.clone()},
+					// };
+					// <MultiAddressOf<T>>::insert(&sender, id);
+					// <FromEthereum<T>>::insert(info.clone(), &sender);	
+				},
+				AccountServiceEnum::Twitter(_) => {
 					ensure!(false, Error::<T>::NotAllowed);
 					// ensure!(!FromEthereum::<T>::contains_key(info.clone()), Error::<T>::AlreadyTaked);
 					// let id = match <MultiAddressOf<T>>::get(&sender) {
@@ -212,7 +226,7 @@ decl_module! {
 							id.nickname = info.clone();
 							id
 						}
-						None =>	MultiAddressDetails { nickname: info.clone(), ethereum: AccountServiceEnum::Ethereum([0u8; 20])},
+						None =>	MultiAddressDetails { nickname: info.clone(), ethereum: AccountServiceEnum::Ethereum([0u8; 20]), twitter: AccountServiceEnum::Twitter(vec![0]) },
 					};
 					<MultiAddressOf<T>>::insert(&dest, id);
 					<FromNickname<T>>::insert(info.clone(), &dest);	
@@ -225,16 +239,26 @@ decl_module! {
 							id.ethereum = info.clone();
 							id
 						}
-						None => MultiAddressDetails { nickname: AccountServiceEnum::Nickname(vec![0]), ethereum: info.clone()},
+						None => MultiAddressDetails { nickname: AccountServiceEnum::Nickname(vec![0]), ethereum: info.clone(), twitter: AccountServiceEnum::Twitter(vec![0]) },
 					};
 					<MultiAddressOf<T>>::insert(&dest, id);
 					<FromEthereum<T>>::insert(info.clone(), &dest);	
 				},
 				AccountServiceEnum::Twitter(twitter) => {
 					ensure!(!FromTwitter::<T>::contains_key(info.clone()), Error::<T>::AlreadyTaked);
+					ensure!(twitter.len() > 8, Error::<T>::WrongFormat);
 					let words = "twitter@".as_bytes();
-					let prefix = &twitter[0..7];
+					let prefix = &twitter[0..8];
 					ensure!(prefix == words, Error::<T>::WrongFormat);
+					let id = match <MultiAddressOf<T>>::get(&dest) {
+						Some(mut id) => {
+							id.twitter = info.clone();
+							id
+						}
+						None =>	MultiAddressDetails { nickname: AccountServiceEnum::Nickname(vec![0]), ethereum: AccountServiceEnum::Ethereum([0u8; 20]), twitter: info.clone() },
+					};
+					<MultiAddressOf<T>>::insert(&dest, id);
+					<FromTwitter<T>>::insert(info.clone(), &dest);	
 				}
 			}
 			Self::deposit_event(RawEvent::NameChanged(dest.clone(), info.clone()));
