@@ -42,6 +42,7 @@ use frame_support::{
 	traits::{EnsureOrigin, Get},
 };
 use frame_system::{ensure_signed, ensure_root};
+use core::primitive::str;
 
 use codec::{Encode, Decode, Codec};
 
@@ -74,6 +75,8 @@ pub enum AccountServiceEnum {
 	Nickname(Vec<u8>),
 	/// Its a 20 byte representation.
 	Ethereum([u8; 20]),
+	/// It's a twitter nickname.
+	Twitter(Vec<u8>),
 }
 
 decl_storage! {
@@ -83,6 +86,7 @@ decl_storage! {
 		>>;
 		FromNickname get(fn from_nick_name): map hasher(blake2_128_concat) AccountServiceEnum => <T as frame_system::Config>::AccountId;
 		FromEthereum get(fn from_ethereum): map hasher(blake2_128_concat) AccountServiceEnum => <T as frame_system::Config>::AccountId;
+		FromTwitter get(fn from_twitter): map hasher(blake2_128_concat) AccountServiceEnum => <T as frame_system::Config>::AccountId;
 		AccountRoot get(fn account_root) config(): <T as frame_system::Config>::AccountId;
 	}
 }
@@ -113,6 +117,8 @@ decl_error! {
 		AlreadyTaked,
 		/// Not allow to bind
 		NotAllowed,
+		/// WrongFormat
+		WrongFormat,
 	}
 }
 
@@ -162,7 +168,7 @@ decl_module! {
 					<MultiAddressOf<T>>::insert(&sender, id);
 					<FromNickname<T>>::insert(info.clone(), &sender);	
 				},
-				AccountServiceEnum::Ethereum(_) => {
+				_ => {
 					ensure!(false, Error::<T>::NotAllowed);
 					// ensure!(!FromEthereum::<T>::contains_key(info.clone()), Error::<T>::AlreadyTaked);
 					// let id = match <MultiAddressOf<T>>::get(&sender) {
@@ -197,7 +203,8 @@ decl_module! {
 			let sender = ensure_signed(origin)?;
 			ensure!(sender == Self::account_root(), Error::<T>::NotAllowed);
 			let info = account_service.clone();
-			match info {
+			let account_info = info.clone();
+			match account_info {
 				AccountServiceEnum::Nickname(_) => {
 					ensure!(!FromNickname::<T>::contains_key(info.clone()), Error::<T>::AlreadyTaked);
 					let id = match <MultiAddressOf<T>>::get(&dest) {
@@ -222,6 +229,12 @@ decl_module! {
 					};
 					<MultiAddressOf<T>>::insert(&dest, id);
 					<FromEthereum<T>>::insert(info.clone(), &dest);	
+				},
+				AccountServiceEnum::Twitter(twitter) => {
+					ensure!(!FromTwitter::<T>::contains_key(info.clone()), Error::<T>::AlreadyTaked);
+					let words = "twitter@".as_bytes();
+					let prefix = &twitter[0..7];
+					ensure!(prefix == words, Error::<T>::WrongFormat);
 				}
 			}
 			Self::deposit_event(RawEvent::NameChanged(dest.clone(), info.clone()));
@@ -261,163 +274,3 @@ decl_module! {
 		}
 	}
 }
-
-// #[cfg(test)]
-// mod tests {
-// 	use super::*;
-
-// 	use frame_support::{
-// 		assert_ok, assert_noop, impl_outer_origin, parameter_types,
-// 		ord_parameter_types
-// 	};
-// 	use sp_core::H256;
-// 	use frame_system::EnsureSignedBy;
-// 	use sp_runtime::{
-// 		testing::Header, traits::{BlakeTwo256, IdentityLookup, BadOrigin},
-// 	};
-
-// 	impl_outer_origin! {
-// 		pub enum Origin for Test where system = frame_system {}
-// 	}
-
-// 	#[derive(Clone, Eq, PartialEq)]
-// 	pub struct Test;
-// 	parameter_types! {
-// 		pub const BlockHashCount: u64 = 250;
-// 		pub BlockWeights: frame_system::limits::BlockWeights =
-// 			frame_system::limits::BlockWeights::simple_max(1024);
-// 	}
-// 	impl frame_system::Config for Test {
-// 		type BaseCallFilter = ();
-// 		type BlockWeights = ();
-// 		type BlockLength = ();
-// 		type DbWeight = ();
-// 		type Origin = Origin;
-// 		type Index = u64;
-// 		type BlockNumber = u64;
-// 		type Hash = H256;
-// 		type Call = ();
-// 		type Hashing = BlakeTwo256;
-// 		type AccountId = u64;
-// 		type Lookup = IdentityLookup<Self::AccountId>;
-// 		type Header = Header;
-// 		type Event = ();
-// 		type BlockHashCount = BlockHashCount;
-// 		type Version = ();
-// 		type PalletInfo = ();
-// 		type AccountData = pallet_balances::AccountData<u64>;
-// 		type OnNewAccount = ();
-// 		type OnKilledAccount = ();
-// 		type SystemWeightInfo = ();
-// 	}
-// 	parameter_types! {
-// 		pub const ExistentialDeposit: u64 = 1;
-// 	}
-// 	impl pallet_balances::Config for Test {
-// 		type MaxLocks = ();
-// 		type Balance = u64;
-// 		type Event = ();
-// 		type DustRemoval = ();
-// 		type ExistentialDeposit = ExistentialDeposit;
-// 		type AccountStore = System;
-// 		type WeightInfo = ();
-// 	}
-// 	parameter_types! {
-// 		pub const ReservationFee: u64 = 2;
-// 		pub const MinLength: usize = 3;
-// 		pub const MaxLength: usize = 16;
-// 	}
-// 	ord_parameter_types! {
-// 		pub const One: u64 = 1;
-// 	}
-// 	impl Config for Test {
-// 		type Event = ();
-// 		type Currency = Balances;
-// 		type ReservationFee = ReservationFee;
-// 		type Slashed = ();
-// 		type ForceOrigin = EnsureSignedBy<One, u64>;
-// 		type MinLength = MinLength;
-// 		type MaxLength = MaxLength;
-// 	}
-// 	type System = frame_system::Module<Test>;
-// 	type Balances = pallet_balances::Module<Test>;
-// 	type Nicks = Module<Test>;
-
-// 	fn new_test_ext() -> sp_io::TestExternalities {
-// 		let mut t = frame_system::GenesisConfig::default().build_storage::<Test>().unwrap();
-// 		pallet_balances::GenesisConfig::<Test> {
-// 			balances: vec![
-// 				(1, 10),
-// 				(2, 10),
-// 			],
-// 		}.assimilate_storage(&mut t).unwrap();
-// 		t.into()
-// 	}
-
-// 	#[test]
-// 	fn kill_name_should_work() {
-// 		new_test_ext().execute_with(|| {
-// 			assert_ok!(Nicks::set_name(Origin::signed(2), b"Dave".to_vec()));
-// 			assert_eq!(Balances::total_balance(&2), 10);
-// 			assert_ok!(Nicks::kill_name(Origin::signed(1), 2));
-// 			assert_eq!(Balances::total_balance(&2), 8);
-// 			assert_eq!(<NameOf<Test>>::get(2), None);
-// 		});
-// 	}
-
-// 	#[test]
-// 	fn force_name_should_work() {
-// 		new_test_ext().execute_with(|| {
-// 			assert_noop!(
-// 				Nicks::set_name(Origin::signed(2), b"Dr. David Brubeck, III".to_vec()),
-// 				Error::<Test>::TooLong,
-// 			);
-
-// 			assert_ok!(Nicks::set_name(Origin::signed(2), b"Dave".to_vec()));
-// 			assert_eq!(Balances::reserved_balance(2), 2);
-// 			assert_ok!(Nicks::force_name(Origin::signed(1), 2, b"Dr. David Brubeck, III".to_vec()));
-// 			assert_eq!(Balances::reserved_balance(2), 2);
-// 			assert_eq!(<NameOf<Test>>::get(2).unwrap(), (b"Dr. David Brubeck, III".to_vec(), 2));
-// 		});
-// 	}
-
-// 	#[test]
-// 	fn normal_operation_should_work() {
-// 		new_test_ext().execute_with(|| {
-// 			assert_ok!(Nicks::set_name(Origin::signed(1), b"Gav".to_vec()));
-// 			assert_eq!(Balances::reserved_balance(1), 2);
-// 			assert_eq!(Balances::free_balance(1), 8);
-// 			assert_eq!(<NameOf<Test>>::get(1).unwrap().0, b"Gav".to_vec());
-
-// 			assert_ok!(Nicks::set_name(Origin::signed(1), b"Gavin".to_vec()));
-// 			assert_eq!(Balances::reserved_balance(1), 2);
-// 			assert_eq!(Balances::free_balance(1), 8);
-// 			assert_eq!(<NameOf<Test>>::get(1).unwrap().0, b"Gavin".to_vec());
-
-// 			assert_ok!(Nicks::clear_name(Origin::signed(1)));
-// 			assert_eq!(Balances::reserved_balance(1), 0);
-// 			assert_eq!(Balances::free_balance(1), 10);
-// 		});
-// 	}
-
-// 	#[test]
-// 	fn error_catching_should_work() {
-// 		new_test_ext().execute_with(|| {
-// 			assert_noop!(Nicks::clear_name(Origin::signed(1)), Error::<Test>::Unnamed);
-
-// 			assert_noop!(
-// 				Nicks::set_name(Origin::signed(3), b"Dave".to_vec()),
-// 				pallet_balances::Error::<Test, _>::InsufficientBalance
-// 			);
-
-// 			assert_noop!(Nicks::set_name(Origin::signed(1), b"Ga".to_vec()), Error::<Test>::TooShort);
-// 			assert_noop!(
-// 				Nicks::set_name(Origin::signed(1), b"Gavin James Wood, Esquire".to_vec()),
-// 				Error::<Test>::TooLong
-// 			);
-// 			assert_ok!(Nicks::set_name(Origin::signed(1), b"Dave".to_vec()));
-// 			assert_noop!(Nicks::kill_name(Origin::signed(2), 1), BadOrigin);
-// 			assert_noop!(Nicks::force_name(Origin::signed(2), 1, b"Whatever".to_vec()), BadOrigin);
-// 		});
-// 	}
-// }
