@@ -156,9 +156,11 @@ decl_module! {
 		fn bind(origin, account_service: AccountServiceEnum) {
 			let sender = ensure_signed(origin)?;
 			let info = account_service.clone();
-			match info {
-				AccountServiceEnum::Nickname(_) => {
+			let account_info = account_service.clone();
+			match account_info {
+				AccountServiceEnum::Nickname(nickname) => {
 					ensure!(!FromNickname::<T>::contains_key(info.clone()), Error::<T>::AlreadyTaked);
+					ensure!(!nickname.contains(&"@".as_bytes()[0]), Error::<T>::WrongFormat);
 					let id = match <MultiAddressOf<T>>::get(&sender) {
 						Some(mut id) => {
 							id.nickname = info.clone();
@@ -219,8 +221,9 @@ decl_module! {
 			let info = account_service.clone();
 			let account_info = info.clone();
 			match account_info {
-				AccountServiceEnum::Nickname(_) => {
+				AccountServiceEnum::Nickname(nickname) => {
 					ensure!(!FromNickname::<T>::contains_key(info.clone()), Error::<T>::AlreadyTaked);
+					ensure!(!nickname.contains(&"@".as_bytes()[0]), Error::<T>::WrongFormat);
 					let id = match <MultiAddressOf<T>>::get(&dest) {
 						Some(mut id) => {
 							id.nickname = info.clone();
