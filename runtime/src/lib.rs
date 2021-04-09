@@ -191,7 +191,7 @@ where
 						Ok(account.into())
 					}
 				} else if i.len() > 8 && i.len() < 21 {
-					if &i[0..8] == "twitter@".as_bytes() {
+					if &i[(i.len() - 8)..(i.len())] == "@twitter".as_bytes() {
 						let account = AccountService::from_twitter(&AccountServiceEnum::Twitter(i));
 						if account == AccountId32::new([0u8; 32]) {
 							Err(LookupError)

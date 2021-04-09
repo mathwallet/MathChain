@@ -155,6 +155,8 @@ decl_module! {
 		#[weight = 50_000_000]
 		fn bind(origin, account_service: AccountServiceEnum) {
 			let sender = ensure_signed(origin)?;
+			ensure!(false, Error::<T>::NotAllowed);
+			// Don't allow any one bind for there self now.
 			let info = account_service.clone();
 			let account_info = account_service.clone();
 			match account_info {
@@ -230,9 +232,9 @@ decl_module! {
 				AccountServiceEnum::Twitter(twitter) => {
 					ensure!(!FromTwitter::<T>::contains_key(info.clone()), Error::<T>::AlreadyTaked);
 					ensure!(twitter.len() > 8, Error::<T>::WrongFormat);
-					let words = "twitter@".as_bytes();
-					let prefix = &twitter[0..8];
-					ensure!(prefix == words, Error::<T>::WrongFormat);
+					let words = "@twitter".as_bytes();
+					let end_words = &twitter[(twitter.len() - 8)..(twitter.len())];
+					ensure!(end_words == words, Error::<T>::WrongFormat);
 					let id = match <MultiAddressOf<T>>::get(&dest) {
 						Some(mut id) => {
 							id.twitter = info.clone();
