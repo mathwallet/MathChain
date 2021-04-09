@@ -11,8 +11,8 @@
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=mathchain",
-                    "--package=mathchain"
+                    // "--bin=mathchain",
+                    // "--package=mathchain"
                 ],
                 "filter": {
                     "name": "mathchain",

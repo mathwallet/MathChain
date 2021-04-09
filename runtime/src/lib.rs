@@ -180,6 +180,36 @@ where
 					account
 				})
 			},
+			sp_runtime::MultiAddress::Raw(i) => {
+				if i.len() < 1 {
+					Err(LookupError)
+				} else if i.len() > 0 && i.len() < 9 {
+					let account = AccountService::from_nick_name(&AccountServiceEnum::Nickname(i));
+					if account == AccountId32::new([0u8; 32]) {
+						Err(LookupError)
+					} else {
+						Ok(account.into())
+					}
+				} else if i.len() > 8 && i.len() < 21 {
+					if &i[0..8] == "twitter@".as_bytes() {
+						let account = AccountService::from_twitter(&AccountServiceEnum::Twitter(i));
+						if account == AccountId32::new([0u8; 32]) {
+							Err(LookupError)
+						} else {
+							Ok(account.into())
+						}
+					} else {
+						let account = AccountService::from_nick_name(&AccountServiceEnum::Nickname(i));
+						if account == AccountId32::new([0u8; 32]) {
+							Err(LookupError)
+						} else {
+							Ok(account.into())
+						}	
+					}
+				} else {
+					Err(LookupError)
+				}
+			},
 			_ => Err(LookupError),
 		}
 	}
