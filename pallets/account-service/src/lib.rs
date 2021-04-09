@@ -173,29 +173,9 @@ decl_module! {
 				},
 				AccountServiceEnum::Ethereum(_) => {
 					ensure!(false, Error::<T>::NotAllowed);
-					// ensure!(!FromEthereum::<T>::contains_key(info.clone()), Error::<T>::AlreadyTaked);
-					// let id = match <MultiAddressOf<T>>::get(&sender) {
-					// 	Some(mut id) => {
-					// 		id.ethereum = info.clone();
-					// 		id
-					// 	}
-					// 	None => MultiAddressDetails { nickname: AccountService::Nickname(vec![0]), ethereum: info.clone()},
-					// };
-					// <MultiAddressOf<T>>::insert(&sender, id);
-					// <FromEthereum<T>>::insert(info.clone(), &sender);	
 				},
 				AccountServiceEnum::Twitter(_) => {
 					ensure!(false, Error::<T>::NotAllowed);
-					// ensure!(!FromEthereum::<T>::contains_key(info.clone()), Error::<T>::AlreadyTaked);
-					// let id = match <MultiAddressOf<T>>::get(&sender) {
-					// 	Some(mut id) => {
-					// 		id.ethereum = info.clone();
-					// 		id
-					// 	}
-					// 	None => MultiAddressDetails { nickname: AccountService::Nickname(vec![0]), ethereum: info.clone()},
-					// };
-					// <MultiAddressOf<T>>::insert(&sender, id);
-					// <FromEthereum<T>>::insert(info.clone(), &sender);	
 				}
 			}
 			Self::deposit_event(RawEvent::NameChanged(sender.clone(), info.clone()));
