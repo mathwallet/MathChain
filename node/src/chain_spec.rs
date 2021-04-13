@@ -1,7 +1,8 @@
 use sp_core::{Pair, Public, sr25519, U256, H160, crypto::UncheckedInto,};
 use mathchain_runtime::{
 	AccountId, AuraConfig, BalancesConfig, EVMConfig, EthereumConfig, GenesisConfig, GrandpaConfig,
-	SudoConfig, SystemConfig, WASM_BINARY, Signature, ValidatorSetConfig, opaque::SessionKeys, SessionConfig
+	SudoConfig, SystemConfig, WASM_BINARY, Signature, ValidatorSetConfig, opaque::SessionKeys, SessionConfig,
+	SecretStoreConfig
 };
 use mathchain_runtime::constants::currency::MATHS as MATH;
 
@@ -359,5 +360,45 @@ fn testnet_genesis(
 				(x.0.clone(), x.0.clone(), session_keys(x.1.clone(), x.2.clone()))
 			}).collect::<Vec<_>>(),
 		},
+		secretstore_runtime_module: SecretStoreConfig {
+			owner: get_account_id_from_seed::<sr25519::Public>("Alice"),
+			is_initialization_completed: true,
+			key_servers: vec![
+				(
+					"1a642f0e3c3af545e7acbd38b07251b3990914f1".parse().unwrap(),
+					"127.0.0.1:10000".to_owned().into_bytes(),
+				),
+				(
+					"5050a4f4b3f9338c3472dcc01a87c76a144b3c9c".parse().unwrap(),
+					"127.0.0.1:10001".to_owned().into_bytes(),
+				),
+				(
+					"3325a78425f17a7e487eb5666b2bfd93abb06c70".parse().unwrap(),
+					"127.0.0.1:10002".to_owned().into_bytes(),
+				),
+			],
+			claims: vec![
+				(
+					get_account_id_from_seed::<sr25519::Public>("Alice"),
+					"1a642f0e3c3af545e7acbd38b07251b3990914f1".parse().unwrap(),
+				),
+				(
+					get_account_id_from_seed::<sr25519::Public>("Bob"),
+					"5050a4f4b3f9338c3472dcc01a87c76a144b3c9c".parse().unwrap(),
+				),
+				(
+					get_account_id_from_seed::<sr25519::Public>("Charlie"),
+					"3325a78425f17a7e487eb5666b2bfd93abb06c70".parse().unwrap(),
+				),
+				(
+					get_account_id_from_seed::<sr25519::Public>("Dave"),
+					"c48b812bb43401392c037381aca934f4069c0517".parse().unwrap(),
+				),
+			],
+			server_key_generation_fee: 0,
+			server_key_retrieval_fee: 0,
+			document_key_store_fee: 0,
+			document_key_shadow_retrieval_fee: 0,
+		}
 	}
 }

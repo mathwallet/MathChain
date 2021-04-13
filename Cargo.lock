@@ -3768,7 +3768,7 @@ dependencies = [
  "hex-literal",
  "pallet-account-service",
  "pallet-aura",
- "pallet-balances",
+ "pallet-balances 2.0.0",
  "pallet-ethereum",
  "pallet-evm",
  "pallet-evm-precompile-simple",
@@ -3782,6 +3782,8 @@ dependencies = [
  "pallet-transaction-payment-rpc-runtime-api",
  "pallet-validator-set",
  "parity-scale-codec",
+ "parity-secretstore-substrate-runtime-module",
+ "parity-secretstore-substrate-runtime-primitives",
  "serde",
  "sp-api",
  "sp-block-builder",
@@ -4309,6 +4311,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "pallet-balances"
+version = "3.0.0"
+source = "git+https://github.com/paritytech/substrate.git?branch=master#9768df2aef81f47da7875f8b5f42dd6206a551b6"
+dependencies = [
+ "frame-benchmarking",
+ "frame-support",
+ "frame-system",
+ "log",
+ "parity-scale-codec",
+ "serde",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
 name = "pallet-ethereum"
 version = "0.1.0"
 dependencies = [
@@ -4322,7 +4339,7 @@ dependencies = [
  "frame-support",
  "frame-system",
  "libsecp256k1",
- "pallet-balances",
+ "pallet-balances 2.0.0",
  "pallet-evm",
  "pallet-timestamp",
  "parity-scale-codec",
@@ -4346,7 +4363,7 @@ dependencies = [
  "frame-support",
  "frame-system",
  "pallet-account-service",
- "pallet-balances",
+ "pallet-balances 2.0.0",
  "pallet-timestamp",
  "parity-scale-codec",
  "primitive-types",
@@ -4590,6 +4607,35 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "parity-secretstore-substrate-runtime-module"
+version = "1.0.0"
+source = "git+https://github.com/hging/secret-store.git?branch=move-secret-store-to-latest-substrate#794599aa4012243d51357236a6c6ad313228f0b7"
+dependencies = [
+ "frame-support",
+ "frame-system",
+ "pallet-balances 3.0.0",
+ "parity-scale-codec",
+ "parity-secretstore-substrate-runtime-primitives",
+ "serde",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
+name = "parity-secretstore-substrate-runtime-primitives"
+version = "1.0.0"
+source = "git+https://github.com/hging/secret-store.git?branch=move-secret-store-to-latest-substrate#794599aa4012243d51357236a6c6ad313228f0b7"
+dependencies = [
+ "parity-scale-codec",
+ "sp-api",
+ "sp-core",
+ "sp-runtime",
+ "sp-std",
 ]
 
 [[package]]
