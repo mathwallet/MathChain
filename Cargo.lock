@@ -3766,7 +3766,7 @@ dependencies = [
  "frame-system-benchmarking",
  "frame-system-rpc-runtime-api",
  "hex-literal",
- "pallet-account-service",
+ "pallet-account-service 2.0.0 (git+https://github.com/mathwallet/MathChain.git?branch=develop)",
  "pallet-aura",
  "pallet-balances 2.0.0",
  "pallet-ethereum",
@@ -4259,6 +4259,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "pallet-account-service"
+version = "2.0.0"
+source = "git+https://github.com/mathwallet/MathChain.git?branch=develop#069cc5170706c4740397a1e8233681287dec5410"
+dependencies = [
+ "frame-support",
+ "frame-system",
+ "parity-scale-codec",
+ "serde",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
 name = "pallet-aura"
 version = "3.0.0"
 source = "git+https://github.com/paritytech/substrate.git?branch=master#9768df2aef81f47da7875f8b5f42dd6206a551b6"
@@ -4380,7 +4394,7 @@ dependencies = [
  "fp-evm",
  "frame-support",
  "frame-system",
- "pallet-account-service",
+ "pallet-account-service 2.0.0 (git+https://github.com/mathwallet/MathChain.git?branch=develop)",
  "pallet-balances 2.0.0",
  "pallet-timestamp",
  "parity-scale-codec",
