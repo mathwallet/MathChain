@@ -4395,7 +4395,7 @@ dependencies = [
  "frame-support",
  "frame-system",
  "pallet-account-service 2.0.0 (git+https://github.com/mathwallet/MathChain.git?branch=feature/secret-store)",
- "pallet-balances 2.0.0",
+ "pallet-balances 2.0.0 (git+https://github.com/mathwallet/MathChain.git?branch=feature/secret-store)",
  "pallet-timestamp",
  "parity-scale-codec",
  "primitive-types",
