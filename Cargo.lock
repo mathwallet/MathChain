@@ -4312,6 +4312,24 @@ dependencies = [
 
 [[package]]
 name = "pallet-balances"
+version = "2.0.0"
+source = "git+https://github.com/mathwallet/MathChain.git?branch=develop#069cc5170706c4740397a1e8233681287dec5410"
+dependencies = [
+ "chrono",
+ "frame-benchmarking",
+ "frame-support",
+ "frame-system",
+ "log",
+ "pallet-timestamp",
+ "parity-scale-codec",
+ "serde",
+ "sp-api",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
+name = "pallet-balances"
 version = "3.0.0"
 source = "git+https://github.com/paritytech/substrate.git?branch=master#9768df2aef81f47da7875f8b5f42dd6206a551b6"
 dependencies = [
@@ -4339,7 +4357,7 @@ dependencies = [
  "frame-support",
  "frame-system",
  "libsecp256k1",
- "pallet-balances 2.0.0",
+ "pallet-balances 2.0.0 (git+https://github.com/mathwallet/MathChain.git?branch=develop)",
  "pallet-evm",
  "pallet-timestamp",
  "parity-scale-codec",
