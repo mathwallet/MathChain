@@ -35,7 +35,7 @@ frame-support = { default-features = false, git = "https://github.com/paritytech
 frame-system = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
 frame-system-benchmarking = { default-features = false, optional = true, git = "https://github.com/paritytech/substrate.git", branch = "master" }
 frame-system-rpc-runtime-api = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
-pallet-account-service = { default-features = false, git = "https://github.com/mathwallet/MathChain.git", branch = "develop" }
+pallet-account-service = { default-features = false, git = "https://github.com/mathwallet/MathChain.git", branch = "feature/secret-store" }
 pallet-aura = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
 pallet-balances = { default-features = false, path = "../frame/balances" }
 pallet-ethereum = { default-features = false, path = "../vendor/frontier/frame/ethereum" }
