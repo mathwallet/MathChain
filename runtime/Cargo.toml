@@ -98,6 +98,8 @@ std = [
     'pallet-transaction-payment/std',
     'pallet-transaction-payment-rpc-runtime-api/std',
     'pallet-validator-set/std',
+    'pallet-ethereum/std',
+    'pallet-evm/std',
     'sp-api/std',
     'sp-block-builder/std',
     'sp-consensus-aura/std',
