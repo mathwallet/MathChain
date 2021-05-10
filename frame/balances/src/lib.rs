@@ -1390,6 +1390,12 @@ impl<T: Config<I>, I: 'static> Currency<T::AccountId> for Pallet<T, I> where
 		if amount.is_zero() { return Ok(()) }
 		let min_balance = Self::account(who).frozen(reasons.into());
 		ensure!(new_balance >= min_balance, Error::<T, I>::LiquidityRestrictions);
+
+		// SBP M2 review: You may want to extract this logic in a custom CurrencyAdapter
+		// (to be used on the Transaction Payment pallet's OnChargeTransaction param)
+		// This would be implemented in the withdraw_fee function, accessing state from
+		// a custom pallet (e.g. account_limits), before calling the Currency withdraw function.
+		// This would obviate the need for maintaining a local fork of the FRAME balances pallet ;)
 		match reasons {
 			WithdrawReasons::TRANSFER => {
 				if amount.is_zero() { return Ok(()) }
