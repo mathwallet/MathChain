@@ -51,7 +51,7 @@ pub use frame_support::{
 	ConsensusEngineId,
 };
 use pallet_evm::{
-	Account as EVMAccount, FeeCalculator, HashedAddressMapping,
+	Account as EVMAccount, FeeCalculator,
 	EnsureAddressTruncated, Runner,
 };
 use fp_rpc::{TransactionStatus};
@@ -367,6 +367,34 @@ impl FeeCalculator for FixedGasPrice {
 	}
 }
 
+pub struct LookupAddressMapping<T>(sp_std::marker::PhantomData<T>);
+
+impl<T: pallet_account_service::Config> pallet_evm::AddressMapping<AccountId32> for LookupAddressMapping<T>
+where
+    AccountId32: Clone + From<<T as frame_system::Config>::AccountId>,
+{
+    fn into_account_id(address: H160) -> AccountId32 {
+		// SBP M2: would be best to have an option to match on Some | None
+        let account = pallet_account_service::Module::<T>::from_ethereum(
+            &AccountServiceEnum::Ethereum(address.to_fixed_bytes()),
+        )
+        .into();
+        let account_id = if account == AccountId32::new([0u8; 32]) {
+			// SBP M2: is this case for L2 address that haven't been bound to an L1 address ?
+			// What's the rationale for _not_ using a hash here ?
+			// Maybe you could just fallback to the evm pallet's HashedAddressMapping.
+            let mut data = [0u8; 32];
+            data[0..4].copy_from_slice(b"evm:");
+            data[4..24].copy_from_slice(&address[..]);
+            // let hash = H::hash(&data);
+            AccountId32::new(data)
+        } else {
+            account
+        };
+        account_id
+    }
+}
+
 parameter_types! {
 	pub const ChainId: u64 = 1140;
 }
@@ -376,7 +404,7 @@ impl pallet_evm::Config for Runtime {
 	type GasWeightMapping = ();
 	type CallOrigin = EnsureAddressTruncated;
 	type WithdrawOrigin = EnsureAddressTruncated;
-	type AddressMapping = HashedAddressMapping<Self>;
+	type AddressMapping = LookupAddressMapping<Self>;
 	type Currency = Balances;
 	type Event = Event;
 	type Runner = pallet_evm::runner::stack::Runner<Self>;

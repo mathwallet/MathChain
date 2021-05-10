@@ -8,6 +8,12 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
+// SBP M2 review: Just want to emphasize that this pallet is an example of an approach
+// for handling a dynamic validator set, but this has not gone through the same thorough
+// quality review process that the FRAME library has.
+// As stated in the README: this code not audited and reviewed for production use cases.
+// You can expect bugs and security vulnerabilities. Do not use it as-is in real applications.
+
 use sp_std::prelude::*;
 use frame_support::{
 	StorageValue,
