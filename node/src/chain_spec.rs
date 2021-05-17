@@ -177,7 +177,13 @@ pub fn galois_for_genesis() -> Result<ChainSpec, String> {
 		// node2
 		"0xa2e1437ba4d59fc44ee774fab33a06d952527e909e35ef64dc91859bbb60fe65",
 		// node3
-		"0xbca164498a1bc44c91e20a64c83431592a9caa7aa509e0ba5d1fc5710b524557"
+		"0xbca164498a1bc44c91e20a64c83431592a9caa7aa509e0ba5d1fc5710b524557",
+		// SS1
+		"0xb4b105e7526ce5ae94a9be24a6bf6ab6b168255b5ed0cd65d77b905e3c3da52c",
+		// SS2
+		"0x18d3fdd65fb3ed9a1d89727fe230af4683303140a77aa569de387c72d64c9300",
+		// SS3
+		"0x42a47793a6b2aaedbde78bbccbed0329d9d9103533fb2c53554aeac1bc24c650",
 	]
 	.iter()
 	.map(|s| array_bytes::hex_str_array_unchecked!(s, 32).into())
@@ -198,17 +204,33 @@ pub fn galois_for_genesis() -> Result<ChainSpec, String> {
 			],
 			root.clone(),
 			endowed_accounts.clone(),
+			vec![
+				(
+					"641f76320a8956f5cf2fe231bf1e3640ea3822dc".parse().unwrap(),
+					array_bytes::hex_str_array_unchecked!("0xb4b105e7526ce5ae94a9be24a6bf6ab6b168255b5ed0cd65d77b905e3c3da52c", 32).into(),
+					&"121.196.99.91:10001".to_owned().into_bytes(),
+				),
+				(
+					"c6c4c6cf871ca4a17d25fcafc67faf6ac559bb0a".parse().unwrap(),
+					array_bytes::hex_str_array_unchecked!("0x18d3fdd65fb3ed9a1d89727fe230af4683303140a77aa569de387c72d64c9300", 32).into(),
+					&"121.41.209.172:10002".to_owned().into_bytes(),
+				),
+				(
+					"4bebc08644746ce94e0fab55171d6f65d86336bb".parse().unwrap(),
+					array_bytes::hex_str_array_unchecked!("0x42a47793a6b2aaedbde78bbccbed0329d9d9103533fb2c53554aeac1bc24c650", 32).into(),
+					&"121.41.209.172:10003".to_owned().into_bytes(),
+				)
+			],
 			true
 		),
 		vec![
-			"/ip4/47.111.168.132/tcp/3031/p2p/12D3KooWQx4qMhpTAdYQNck1RhT8MvRQhCsTBWWSQTnicy8XQpYN".parse().unwrap(),
-			"/ip4/8.209.214.249/tcp/3033/p2p/12D3KooWSf1rbwLWcSqeR99ZJ2rkt17oVm57xXDJcfhksSbjuDdh".parse().unwrap(),
-			"/ip4/47.243.44.7/tcp/3032/p2p/12D3KooWGqzt3fBDpa1tYGBaaYqzHWAtfaUDyiSWkHHpjbs7cBCn".parse().unwrap(),
+			// "/ip4/47.111.168.132/tcp/3031/p2p/12D3KooWQx4qMhpTAdYQNck1RhT8MvRQhCsTBWWSQTnicy8XQpYN".parse().unwrap(),
+			// "/ip4/8.209.214.249/tcp/3033/p2p/12D3KooWSf1rbwLWcSqeR99ZJ2rkt17oVm57xXDJcfhksSbjuDdh".parse().unwrap(),
+			// "/ip4/47.243.44.7/tcp/3032/p2p/12D3KooWGqzt3fBDpa1tYGBaaYqzHWAtfaUDyiSWkHHpjbs7cBCn".parse().unwrap(),
 		],
 		Some(
 			TelemetryEndpoints::new(vec![
 				("/dns4/telemetry.polkadot.io/tcp/443/x-parity-wss/%2Fsubmit%2F".parse().unwrap(), 0),
-				("/dns4/telemetry.maiziqianbao.net/tcp/443/x-parity-wss/%2Fsubmit%2F".parse().unwrap(), 0),
 				("/dns4/telemetry.maiziqianbao.vip/tcp/443/x-parity-wss/%2Fsubmit%2F".parse().unwrap(), 0),
 			]).expect("Galois telemetry url is valid; qed")
 		),
@@ -242,8 +264,29 @@ pub fn development_config() -> Result<ChainSpec, String> {
 			vec![
 				get_account_id_from_seed::<sr25519::Public>("Alice"),
 				get_account_id_from_seed::<sr25519::Public>("Bob"),
+				get_account_id_from_seed::<sr25519::Public>("Charlie"),
+				get_account_id_from_seed::<sr25519::Public>("Dave"),
 				get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
 				get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
+				get_account_id_from_seed::<sr25519::Public>("Charlie//stash"),
+				get_account_id_from_seed::<sr25519::Public>("Dave//stash"),
+			],
+			vec![
+				(
+					"1a642f0e3c3af545e7acbd38b07251b3990914f1".parse().unwrap(),
+					get_account_id_from_seed::<sr25519::Public>("Alice"),
+					&"127.0.0.1:10000".to_owned().into_bytes(),
+				),
+				(
+					"5050a4f4b3f9338c3472dcc01a87c76a144b3c9c".parse().unwrap(),
+					get_account_id_from_seed::<sr25519::Public>("Bob"),
+					&"127.0.0.1:10001".to_owned().into_bytes(),
+				),
+				(
+					"3325a78425f17a7e487eb5666b2bfd93abb06c70".parse().unwrap(),
+					get_account_id_from_seed::<sr25519::Public>("Charlie"),
+					&"127.0.0.1:10002".to_owned().into_bytes(),
+				),
 			],
 			true,
 		),
@@ -293,6 +336,7 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 				get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
 				get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
 			],
+			vec![],
 			true,
 		),
 		// Bootnodes
@@ -314,6 +358,7 @@ fn testnet_genesis(
 	initial_authorities: Vec<(AccountId, AuraId, GrandpaId)>,
 	root_key: AccountId,
 	endowed_accounts: Vec<AccountId>,
+	key_servers: Vec<(H160, AccountId, &[u8])>,
 	_enable_println: bool,
 ) -> GenesisConfig {
 	// Alice evm address. private_key: 0xe5be9a5092b81bca64be81d212e7f2f9eba183bb7a90954f7b76361f6edb5c0a
@@ -363,38 +408,12 @@ fn testnet_genesis(
 		secretstore_runtime_module: SecretStoreConfig {
 			owner: get_account_id_from_seed::<sr25519::Public>("Alice"),
 			is_initialization_completed: true,
-			key_servers: vec![
-				(
-					"1a642f0e3c3af545e7acbd38b07251b3990914f1".parse().unwrap(),
-					"127.0.0.1:10000".to_owned().into_bytes(),
-				),
-				(
-					"5050a4f4b3f9338c3472dcc01a87c76a144b3c9c".parse().unwrap(),
-					"127.0.0.1:10001".to_owned().into_bytes(),
-				),
-				(
-					"3325a78425f17a7e487eb5666b2bfd93abb06c70".parse().unwrap(),
-					"127.0.0.1:10002".to_owned().into_bytes(),
-				),
-			],
-			claims: vec![
-				(
-					get_account_id_from_seed::<sr25519::Public>("Alice"),
-					"1a642f0e3c3af545e7acbd38b07251b3990914f1".parse().unwrap(),
-				),
-				(
-					get_account_id_from_seed::<sr25519::Public>("Bob"),
-					"5050a4f4b3f9338c3472dcc01a87c76a144b3c9c".parse().unwrap(),
-				),
-				(
-					get_account_id_from_seed::<sr25519::Public>("Charlie"),
-					"3325a78425f17a7e487eb5666b2bfd93abb06c70".parse().unwrap(),
-				),
-				(
-					get_account_id_from_seed::<sr25519::Public>("Dave"),
-					"c48b812bb43401392c037381aca934f4069c0517".parse().unwrap(),
-				),
-			],
+			key_servers: key_servers.iter().cloned().map(|k| (
+				k.0, k.2.iter().cloned().collect()
+			)).collect(),
+			claims: key_servers.iter().cloned().map(|k| (
+				k.1, k.0
+			)).collect(),
 			server_key_generation_fee: 0,
 			server_key_retrieval_fee: 0,
 			document_key_store_fee: 0,
