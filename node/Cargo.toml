@@ -63,16 +63,16 @@ sc-keystore = { git = "https://github.com/paritytech/substrate.git", branch = "m
 substrate-frame-rpc-system = { git = "https://github.com/paritytech/substrate.git", branch = "master" }
 
 mathchain-consensus = { path = "../consensus" }
-pallet-evm = { path = "../vendor/frontier/frame/evm" }
-pallet-ethereum = { path = "../vendor/frontier/frame/ethereum" }
-fc-consensus = { path = "../vendor/frontier/client/consensus" }
-fp-consensus = { path = "../vendor/frontier/primitives/consensus" }
-fc-rpc = { path = "../vendor/frontier/client/rpc" }
-fp-rpc = { path = "../vendor/frontier/primitives/rpc" }
-fc-rpc-core = { path = "../vendor/frontier/client/rpc-core" }
+pallet-evm = { git = "https://github.com/mathwallet/frontier", branch = "master" }
+pallet-ethereum = { git = "https://github.com/mathwallet/frontier", branch = "master" }
+fc-consensus = { git = "https://github.com/mathwallet/frontier", branch = "master" }
+fp-consensus = { git = "https://github.com/mathwallet/frontier", branch = "master" }
+fc-rpc = { git = "https://github.com/mathwallet/frontier", branch = "master" }
+fp-rpc = { git = "https://github.com/mathwallet/frontier", branch = "master" }
+fc-rpc-core = { git = "https://github.com/mathwallet/frontier", branch = "master" }
 sc-telemetry = { git = "https://github.com/paritytech/substrate.git", branch = "master" }
-fc-db = { path = "../vendor/frontier/client/db" }
-fc-mapping-sync = { path = "../vendor/frontier/client/mapping-sync" }
+fc-db = { git = "https://github.com/mathwallet/frontier", branch = "master" }
+fc-mapping-sync = { git = "https://github.com/mathwallet/frontier", branch = "master" }
 
 [features]
 runtime-benchmarks = ['mathchain-runtime/runtime-benchmarks']
