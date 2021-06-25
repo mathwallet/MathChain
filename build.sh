@@ -26,13 +26,10 @@ echo -e '\e[1;32m📥 Installing Cross Compile Toolchain(s)\e[0m'
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly-2021-03-07 #&> /dev/null
 source ~/.cargo/env
 cargo install cross --git https://github.com/AurevoirXavier/cross --branch support-multi-sub-targets #&> /dev/null
-rustup target add x86_64-unknown-linux-gnu-glibc-2.17 aarch64-unknown-linux-gnu wasm32-unknown-unknown #&> /dev/null
+rustup target add x86_64-unknown-linux-gnu aarch64-unknown-linux-gnu wasm32-unknown-unknown #&> /dev/null
 
-echo -e "\e[1;32m🧬 Building mathchain-$1-x86_64-linux-gnu-glibc-2.33-llvm-3.8 \e[0m"
-cargo build --release --target x86_64-linux-gnu-glibc-2.33-llvm-3.8 #&> /dev/null
- 
 echo -e "\e[1;32m🧬 Building mathchain-$1-x86_64-linux-gnu-glibc-2.17-llvm-3.8 \e[0m"
-cross build --release --target x86_64-unknown-linux-gnu-glibc-2.17 --sub-targets wasm32-unknown-unknown #&> /dev/null
+cross build --release --target x86_64-unknown-linux-gnu --sub-targets wasm32-unknown-unknown #&> /dev/null
 
 # echo -e "\e[1;32m🧬 Building mathchain-$1-aarch64-linux-gnu-glibc-2.23-llvm-3.8 \e[0m"
 # RUSTFLAGS='-C link-args=-latomic' SKIP_WASM_BUILD=1 cross build --locked --release --target aarch64-unknown-linux-gnu #&> /dev/null
@@ -40,21 +37,21 @@ cross build --release --target x86_64-unknown-linux-gnu-glibc-2.17 --sub-targets
 echo -e '\e[1;32m📦 Packing WASM(s)\e[0m'
 rm -rf wasm
 mkdir -p wasm
-cp target/x86_64-unknown-linux-gnu-glibc-2.17/release/wbuild/mathchain-runtime/mathchain_runtime.compact.wasm wasm
-cp target/x86_64-unknown-linux-gnu-glibc-2.17/release/wbuild/target/wasm32-unknown-unknown/release/mathchain_runtime.wasm wasm
+cp target/x86_64-unknown-linux-gnu/release/wbuild/mathchain-runtime/mathchain_runtime.compact.wasm wasm
+cp target/x86_64-unknown-linux-gnu/release/wbuild/target/wasm32-unknown-unknown/release/mathchain_runtime.wasm wasm
 
 echo -e '\e[1;32m📦 Packing Executable(s)\e[0m'
 rm -rf release
 mkdir -p release
 cd release
 cp ../wasm/* .
-cp ../target/x86_64-linux-gnu-glibc-2.33-llvm-3.8/release/mathchain .
-tar cjSf mathchain-$1-x86_64-linux-gnu-glibc-2.33-llvm-3.8.tar.bz2 mathchain
-rm mathchain
-cp ../target/x86_64-unknown-linux-gnu-glibc-2.17/release/mathchain .
+# cp ../target/x86_64-linux-gnu-glibc-2.33-llvm-3.8/release/mathchain .
+# tar cjSf mathchain-$1-x86_64-linux-gnu-glibc-2.33-llvm-3.8.tar.bz2 mathchain
+# rm mathchain
+cp ../target/x86_64-unknown-linux-gnu/release/mathchain .
 tar cjSf mathchain-$1-x86_64-linux-gnu-glibc-2.17-llvm-3.8.tar.bz2 mathchain
 rm mathchain
-# cp ../target/x86_64-unknown-linux-gnu-glibc-2.17/release/mathchain .
+# cp ../target/x86_64-unknown-linux-gnu/release/mathchain .
 # tar cjSf mathchain-$1-aarch64-linux-gnu-glibc-2.23-llvm-3.8.tar.bz2 mathchain
 # rm mathchain
 
