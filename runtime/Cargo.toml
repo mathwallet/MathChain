@@ -62,8 +62,8 @@ sp-transaction-pool = { default-features = false, git = "https://github.com/pari
 sp-version = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
 pallet-evm-precompile-simple = { default-features = false, git = "https://github.com/mathwallet/frontier", branch = "master" }
 
-secretstore-runtime-module = { package = "parity-secretstore-substrate-runtime-module", git = "https://github.com/hging/secret-store.git", branch = "move-secret-store-to-latest-substrate", default-features = false }
-secretstore-runtime-primitives = { package = "parity-secretstore-substrate-runtime-primitives", git = "https://github.com/hging/secret-store.git", branch = "move-secret-store-to-latest-substrate", default-features = false }
+secretstore-runtime-module = { package = "parity-secretstore-substrate-runtime-module", git = "https://github.com/mathwallet/secret-store.git", branch = "master", default-features = false }
+secretstore-runtime-primitives = { package = "parity-secretstore-substrate-runtime-primitives", git = "https://github.com/mathwallet/secret-store.git", branch = "master", default-features = false }
 
 fp-rpc = { default-features = false, git = "https://github.com/mathwallet/frontier", branch = "master" }
 pallet-validator-set = { default-features = false, git = "https://github.com/mathwallet/MathChain-common", branch = "master" }

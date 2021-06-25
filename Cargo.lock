@@ -3764,7 +3764,7 @@ dependencies = [
  "hex-literal",
  "pallet-account-service",
  "pallet-aura",
- "pallet-balances 2.0.0",
+ "pallet-balances",
  "pallet-ethereum",
  "pallet-evm",
  "pallet-evm-precompile-simple",
@@ -4305,21 +4305,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "pallet-balances"
-version = "3.0.0"
-source = "git+https://github.com/paritytech/substrate.git?branch=master#9768df2aef81f47da7875f8b5f42dd6206a551b6"
-dependencies = [
- "frame-benchmarking",
- "frame-support",
- "frame-system",
- "log",
- "parity-scale-codec",
- "serde",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
 name = "pallet-ethereum"
 version = "0.1.0"
 source = "git+https://github.com/mathwallet/frontier?branch=master#6963f14533ea13b0bf6e6fcfc8a9eee33cb4a014"
@@ -4334,7 +4319,7 @@ dependencies = [
  "frame-support",
  "frame-system",
  "libsecp256k1",
- "pallet-balances 2.0.0",
+ "pallet-balances",
  "pallet-evm",
  "pallet-timestamp",
  "parity-scale-codec",
@@ -4359,7 +4344,7 @@ dependencies = [
  "frame-support",
  "frame-system",
  "pallet-account-service",
- "pallet-balances 2.0.0",
+ "pallet-balances",
  "pallet-timestamp",
  "parity-scale-codec",
  "primitive-types",
@@ -4610,11 +4595,10 @@ dependencies = [
 [[package]]
 name = "parity-secretstore-substrate-runtime-module"
 version = "1.0.0"
-source = "git+https://github.com/hging/secret-store.git?branch=move-secret-store-to-latest-substrate#794599aa4012243d51357236a6c6ad313228f0b7"
+source = "git+https://github.com/mathwallet/secret-store.git?branch=master#829fe4e43e6680a49af9800932a57ab195974e6c"
 dependencies = [
  "frame-support",
  "frame-system",
- "pallet-balances 3.0.0",
  "parity-scale-codec",
  "parity-secretstore-substrate-runtime-primitives",
  "serde",
@@ -4627,7 +4611,7 @@ dependencies = [
 [[package]]
 name = "parity-secretstore-substrate-runtime-primitives"
 version = "1.0.0"
-source = "git+https://github.com/hging/secret-store.git?branch=move-secret-store-to-latest-substrate#794599aa4012243d51357236a6c6ad313228f0b7"
+source = "git+https://github.com/mathwallet/secret-store.git?branch=master#829fe4e43e6680a49af9800932a57ab195974e6c"
 dependencies = [
  "parity-scale-codec",
  "sp-api",
