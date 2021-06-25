@@ -38,7 +38,7 @@ echo -e '\e[1;32m📦 Packing WASM(s)\e[0m'
 rm -rf wasm
 mkdir -p wasm
 cp target/x86_64-unknown-linux-gnu/release/wbuild/mathchain-runtime/mathchain_runtime.compact.wasm wasm
-cp target/x86_64-unknown-linux-gnu/release/wbuild/target/wasm32-unknown-unknown/release/mathchain_runtime.wasm wasm
+cp target/x86_64-unknown-linux-gnu/release/wbuild/mathchain-runtime/target/wasm32-unknown-unknown/release/mathchain_runtime.wasm wasm
 
 echo -e '\e[1;32m📦 Packing Executable(s)\e[0m'
 rm -rf release
