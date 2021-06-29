@@ -223,11 +223,7 @@ pub fn galois_for_genesis() -> Result<ChainSpec, String> {
 			],
 			true
 		),
-		vec![
-			"/ip4/47.111.168.132/tcp/3031/p2p/12D3KooWMvrqFDcaek7mHeAfBCUa6ZU8zskZAWxwLAMLhyjchdXM".parse().unwrap(),
-			"/ip4/8.209.214.249/tcp/3033/p2p/12D3KooWHG2Qff9YsoqkdGk7LT4b6RJKG6LC1pVHxa2jeCueENxV".parse().unwrap(),
-			"/ip4/47.243.44.7/tcp/3032/p2p/12D3KooWLGYgpsfgGaezYHAB1D9MzRn644X9x5rWF8R2tGcfsuCY".parse().unwrap(),
-		],
+		vec![],
 		Some(
 			TelemetryEndpoints::new(vec![
 				("/dns4/telemetry.polkadot.io/tcp/443/x-parity-wss/%2Fsubmit%2F".parse().unwrap(), 0),
