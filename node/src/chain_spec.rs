@@ -114,7 +114,7 @@ pub fn galois_for_genesis() -> Result<ChainSpec, String> {
 	const GENESIS_VALIDATOR_SR2: &'static str =
 		"0xa2e1437ba4d59fc44ee774fab33a06d952527e909e35ef64dc91859bbb60fe65";
 	const GENESIS_VALIDATOR_ED2: &'static str =
-		"0xa2e1437ba4d59fc44ee774fab33a06d952527e909e35ef64dc91859bbb60fe65";
+		"0xe8fa4b0f758ba8c1e2911fd238bb6fd635f721f5025985ed100d5c7e730a3097";
 
 	const GENESIS_VALIDATOR_SR3: &'static str =
 		"0xbca164498a1bc44c91e20a64c83431592a9caa7aa509e0ba5d1fc5710b524557";
