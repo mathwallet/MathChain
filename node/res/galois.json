@@ -3,9 +3,9 @@
   "id": "galois",
   "chainType": "Live",
   "bootNodes": [
-    "/ip4/47.111.168.132/tcp/3031/p2p/12D3KooWS9zFQeL5PvFwUUgD8cUnpsXHSYgpdikBLtn82GVYUZGY",
-    "/ip4/8.209.214.249/tcp/3033/p2p/12D3KooWQPnXPz1TXbRpY49sJMPVZLTmNDjoytSvT8EknNdc5Hyx",
-    "/ip4/47.243.44.7/tcp/3032/p2p/12D3KooWJK8ZU2yZZmvEd4BWB3FhmzXz5KxpKptQ6E2KxnhHfvDE"
+    "/ip4/47.111.168.132/tcp/3031/p2p/12D3KooWB4hhk4u8jsJHLBZ2Mdp8vbCKWYVUs96VnJsqAE9ZTMLC",
+    "/ip4/8.209.214.249/tcp/3033/p2p/12D3KooWMroK9wjZMxZgGCkqLYdH6TBaiv2RA3psM6pK7JdiY8he",
+    "/ip4/47.243.44.7/tcp/3032/p2p/12D3KooWCEpyBCunxNgz679HF5qBP43nmsGhU7UuzgXPQ4yoMHEH"
   ],
   "telemetryEndpoints": [
     [
