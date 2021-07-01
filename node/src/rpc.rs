@@ -1,6 +1,6 @@
 //! A collection of node-specific RPC methods.
 
-use std::{sync::Arc, fmt};
+use std::sync::Arc;
 use std::collections::BTreeMap;
 use fc_rpc_core::types::{PendingTransactions, FilterPool};
 use sc_consensus_manual_seal::rpc::{ManualSeal, ManualSealApi};

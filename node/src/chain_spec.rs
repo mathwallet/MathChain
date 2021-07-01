@@ -1,7 +1,8 @@
 use sp_core::{Pair, Public, sr25519, U256, H160, crypto::UncheckedInto,};
 use mathchain_runtime::{
 	AccountId, AuraConfig, BalancesConfig, EVMConfig, EthereumConfig, GenesisConfig, GrandpaConfig,
-	SudoConfig, SystemConfig, WASM_BINARY, Signature, ValidatorSetConfig, opaque::SessionKeys, SessionConfig
+	SudoConfig, SystemConfig, WASM_BINARY, Signature, ValidatorSetConfig, opaque::SessionKeys, SessionConfig,
+	SecretStoreConfig
 };
 use mathchain_runtime::constants::currency::MATHS as MATH;
 
@@ -73,12 +74,12 @@ pub fn get_account_id_from_seed<TPublic: Public>(seed: &str) -> AccountId where
 }
 
 /// Generate an Aura authority key.
-pub fn authority_keys_from_seed(s: &str) -> (AuraId, GrandpaId) {
-	(
-		get_from_seed::<AuraId>(s),
-		get_from_seed::<GrandpaId>(s),
-	)
-}
+// pub fn authority_keys_from_seed(s: &str) -> (AuraId, GrandpaId) {
+// 	(
+// 		get_from_seed::<AuraId>(s),
+// 		get_from_seed::<GrandpaId>(s),
+// 	)
+// }
 
 fn session_keys(
 	aura: AuraId,
@@ -113,7 +114,7 @@ pub fn galois_for_genesis() -> Result<ChainSpec, String> {
 	const GENESIS_VALIDATOR_SR2: &'static str =
 		"0xa2e1437ba4d59fc44ee774fab33a06d952527e909e35ef64dc91859bbb60fe65";
 	const GENESIS_VALIDATOR_ED2: &'static str =
-		"0xa2e1437ba4d59fc44ee774fab33a06d952527e909e35ef64dc91859bbb60fe65";
+		"0xe8fa4b0f758ba8c1e2911fd238bb6fd635f721f5025985ed100d5c7e730a3097";
 
 	const GENESIS_VALIDATOR_SR3: &'static str =
 		"0xbca164498a1bc44c91e20a64c83431592a9caa7aa509e0ba5d1fc5710b524557";
@@ -176,7 +177,13 @@ pub fn galois_for_genesis() -> Result<ChainSpec, String> {
 		// node2
 		"0xa2e1437ba4d59fc44ee774fab33a06d952527e909e35ef64dc91859bbb60fe65",
 		// node3
-		"0xbca164498a1bc44c91e20a64c83431592a9caa7aa509e0ba5d1fc5710b524557"
+		"0xbca164498a1bc44c91e20a64c83431592a9caa7aa509e0ba5d1fc5710b524557",
+		// SS1
+		"0xb4b105e7526ce5ae94a9be24a6bf6ab6b168255b5ed0cd65d77b905e3c3da52c",
+		// SS2
+		"0x18d3fdd65fb3ed9a1d89727fe230af4683303140a77aa569de387c72d64c9300",
+		// SS3
+		"0xa6a7302b264499959f33d3eb069f5016399ba6b5c13809398a7ea8890aa19138",
 	]
 	.iter()
 	.map(|s| array_bytes::hex_str_array_unchecked!(s, 32).into())
@@ -184,7 +191,7 @@ pub fn galois_for_genesis() -> Result<ChainSpec, String> {
 
 	Ok(ChainSpec::from_genesis(
 		// Name
-		"Galois",
+		"Galois-PoC-1",
 		"galois",
 		ChainType::Live,
 		move || testnet_genesis(
@@ -197,17 +204,29 @@ pub fn galois_for_genesis() -> Result<ChainSpec, String> {
 			],
 			root.clone(),
 			endowed_accounts.clone(),
+			vec![
+				(
+					"641f76320a8956f5cf2fe231bf1e3640ea3822dc".parse().unwrap(),
+					array_bytes::hex_str_array_unchecked!("0xb4b105e7526ce5ae94a9be24a6bf6ab6b168255b5ed0cd65d77b905e3c3da52c", 32).into(),
+					&"47.111.168.132:10001".to_owned().into_bytes(), // node-validator
+				),
+				(
+					"c6c4c6cf871ca4a17d25fcafc67faf6ac559bb0a".parse().unwrap(),
+					array_bytes::hex_str_array_unchecked!("0x18d3fdd65fb3ed9a1d89727fe230af4683303140a77aa569de387c72d64c9300", 32).into(),
+					&"8.209.214.249:10001".to_owned().into_bytes(), // node-jp
+				),
+				(
+					"dCcf5258EBF7e34D494Cac9A01346575d040a1c3".parse().unwrap(),
+					array_bytes::hex_str_array_unchecked!("0xa6a7302b264499959f33d3eb069f5016399ba6b5c13809398a7ea8890aa19138", 32).into(),
+					&"47.243.44.7:10001".to_owned().into_bytes(), // node-hk
+				)
+			],
 			true
 		),
-		vec![
-			"/ip4/47.111.168.132/tcp/3031/p2p/12D3KooWQx4qMhpTAdYQNck1RhT8MvRQhCsTBWWSQTnicy8XQpYN".parse().unwrap(),
-			"/ip4/8.209.214.249/tcp/3033/p2p/12D3KooWSf1rbwLWcSqeR99ZJ2rkt17oVm57xXDJcfhksSbjuDdh".parse().unwrap(),
-			"/ip4/47.243.44.7/tcp/3032/p2p/12D3KooWGqzt3fBDpa1tYGBaaYqzHWAtfaUDyiSWkHHpjbs7cBCn".parse().unwrap(),
-		],
+		vec![],
 		Some(
 			TelemetryEndpoints::new(vec![
 				("/dns4/telemetry.polkadot.io/tcp/443/x-parity-wss/%2Fsubmit%2F".parse().unwrap(), 0),
-				("/dns4/telemetry.maiziqianbao.net/tcp/443/x-parity-wss/%2Fsubmit%2F".parse().unwrap(), 0),
 				("/dns4/telemetry.maiziqianbao.vip/tcp/443/x-parity-wss/%2Fsubmit%2F".parse().unwrap(), 0),
 			]).expect("Galois telemetry url is valid; qed")
 		),
@@ -241,8 +260,29 @@ pub fn development_config() -> Result<ChainSpec, String> {
 			vec![
 				get_account_id_from_seed::<sr25519::Public>("Alice"),
 				get_account_id_from_seed::<sr25519::Public>("Bob"),
+				get_account_id_from_seed::<sr25519::Public>("Charlie"),
+				get_account_id_from_seed::<sr25519::Public>("Dave"),
 				get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
 				get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
+				get_account_id_from_seed::<sr25519::Public>("Charlie//stash"),
+				get_account_id_from_seed::<sr25519::Public>("Dave//stash"),
+			],
+			vec![
+				(
+					"1a642f0e3c3af545e7acbd38b07251b3990914f1".parse().unwrap(),
+					get_account_id_from_seed::<sr25519::Public>("Alice"),
+					&"127.0.0.1:10000".to_owned().into_bytes(),
+				),
+				(
+					"5050a4f4b3f9338c3472dcc01a87c76a144b3c9c".parse().unwrap(),
+					get_account_id_from_seed::<sr25519::Public>("Bob"),
+					&"127.0.0.1:10001".to_owned().into_bytes(),
+				),
+				(
+					"3325a78425f17a7e487eb5666b2bfd93abb06c70".parse().unwrap(),
+					get_account_id_from_seed::<sr25519::Public>("Charlie"),
+					&"127.0.0.1:10002".to_owned().into_bytes(),
+				),
 			],
 			true,
 		),
@@ -292,6 +332,7 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 				get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
 				get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
 			],
+			vec![],
 			true,
 		),
 		// Bootnodes
@@ -313,6 +354,7 @@ fn testnet_genesis(
 	initial_authorities: Vec<(AccountId, AuraId, GrandpaId)>,
 	root_key: AccountId,
 	endowed_accounts: Vec<AccountId>,
+	key_servers: Vec<(H160, AccountId, &[u8])>,
 	_enable_println: bool,
 ) -> GenesisConfig {
 	// Alice evm address. private_key: 0xe5be9a5092b81bca64be81d212e7f2f9eba183bb7a90954f7b76361f6edb5c0a
@@ -359,5 +401,19 @@ fn testnet_genesis(
 				(x.0.clone(), x.0.clone(), session_keys(x.1.clone(), x.2.clone()))
 			}).collect::<Vec<_>>(),
 		},
+		secretstore_runtime_module: SecretStoreConfig {
+			owner: get_account_id_from_seed::<sr25519::Public>("Alice"),
+			is_initialization_completed: true,
+			key_servers: key_servers.iter().cloned().map(|k| (
+				k.0, k.2.iter().cloned().collect()
+			)).collect(),
+			claims: key_servers.iter().cloned().map(|k| (
+				k.1, k.0
+			)).collect(),
+			server_key_generation_fee: 0,
+			server_key_retrieval_fee: 0,
+			document_key_store_fee: 0,
+			document_key_shadow_retrieval_fee: 0,
+		}
 	}
 }
