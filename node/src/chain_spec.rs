@@ -114,7 +114,7 @@ pub fn galois_for_genesis() -> Result<ChainSpec, String> {
 	const GENESIS_VALIDATOR_SR2: &'static str =
 		"0xa2e1437ba4d59fc44ee774fab33a06d952527e909e35ef64dc91859bbb60fe65";
 	const GENESIS_VALIDATOR_ED2: &'static str =
-		"0xa2e1437ba4d59fc44ee774fab33a06d952527e909e35ef64dc91859bbb60fe65";
+		"0xe8fa4b0f758ba8c1e2911fd238bb6fd635f721f5025985ed100d5c7e730a3097";
 
 	const GENESIS_VALIDATOR_SR3: &'static str =
 		"0xbca164498a1bc44c91e20a64c83431592a9caa7aa509e0ba5d1fc5710b524557";
@@ -183,7 +183,7 @@ pub fn galois_for_genesis() -> Result<ChainSpec, String> {
 		// SS2
 		"0x18d3fdd65fb3ed9a1d89727fe230af4683303140a77aa569de387c72d64c9300",
 		// SS3
-		"0x42a47793a6b2aaedbde78bbccbed0329d9d9103533fb2c53554aeac1bc24c650",
+		"0xa6a7302b264499959f33d3eb069f5016399ba6b5c13809398a7ea8890aa19138",
 	]
 	.iter()
 	.map(|s| array_bytes::hex_str_array_unchecked!(s, 32).into())
@@ -191,7 +191,7 @@ pub fn galois_for_genesis() -> Result<ChainSpec, String> {
 
 	Ok(ChainSpec::from_genesis(
 		// Name
-		"Galois",
+		"Galois-PoC-1",
 		"galois",
 		ChainType::Live,
 		move || testnet_genesis(
@@ -208,26 +208,22 @@ pub fn galois_for_genesis() -> Result<ChainSpec, String> {
 				(
 					"641f76320a8956f5cf2fe231bf1e3640ea3822dc".parse().unwrap(),
 					array_bytes::hex_str_array_unchecked!("0xb4b105e7526ce5ae94a9be24a6bf6ab6b168255b5ed0cd65d77b905e3c3da52c", 32).into(),
-					&"121.196.99.91:10001".to_owned().into_bytes(),
+					&"47.111.168.132:10001".to_owned().into_bytes(), // node-validator
 				),
 				(
 					"c6c4c6cf871ca4a17d25fcafc67faf6ac559bb0a".parse().unwrap(),
 					array_bytes::hex_str_array_unchecked!("0x18d3fdd65fb3ed9a1d89727fe230af4683303140a77aa569de387c72d64c9300", 32).into(),
-					&"121.41.209.172:10002".to_owned().into_bytes(),
+					&"8.209.214.249:10001".to_owned().into_bytes(), // node-jp
 				),
 				(
-					"4bebc08644746ce94e0fab55171d6f65d86336bb".parse().unwrap(),
-					array_bytes::hex_str_array_unchecked!("0x42a47793a6b2aaedbde78bbccbed0329d9d9103533fb2c53554aeac1bc24c650", 32).into(),
-					&"121.41.209.172:10003".to_owned().into_bytes(),
+					"dCcf5258EBF7e34D494Cac9A01346575d040a1c3".parse().unwrap(),
+					array_bytes::hex_str_array_unchecked!("0xa6a7302b264499959f33d3eb069f5016399ba6b5c13809398a7ea8890aa19138", 32).into(),
+					&"47.243.44.7:10001".to_owned().into_bytes(), // node-hk
 				)
 			],
 			true
 		),
-		vec![
-			// "/ip4/47.111.168.132/tcp/3031/p2p/12D3KooWQx4qMhpTAdYQNck1RhT8MvRQhCsTBWWSQTnicy8XQpYN".parse().unwrap(),
-			// "/ip4/8.209.214.249/tcp/3033/p2p/12D3KooWSf1rbwLWcSqeR99ZJ2rkt17oVm57xXDJcfhksSbjuDdh".parse().unwrap(),
-			// "/ip4/47.243.44.7/tcp/3032/p2p/12D3KooWGqzt3fBDpa1tYGBaaYqzHWAtfaUDyiSWkHHpjbs7cBCn".parse().unwrap(),
-		],
+		vec![],
 		Some(
 			TelemetryEndpoints::new(vec![
 				("/dns4/telemetry.polkadot.io/tcp/443/x-parity-wss/%2Fsubmit%2F".parse().unwrap(), 0),
