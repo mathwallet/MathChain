@@ -434,50 +434,50 @@ pub fn new_full(
 				// the AURA authoring task is considered essential, i.e. if it
 				// fails we take down the service with it.
 				task_manager.spawn_essential_handle().spawn_blocking("aura", aura);
+			}
 
-				// if the node isn't actively participating in consensus then it doesn't
-				// need a keystore, regardless of which protocol we use below.
-				let keystore = if role.is_authority() {
-					Some(keystore_container.sync_keystore())
-				} else {
-					None
-				};
+			// if the node isn't actively participating in consensus then it doesn't
+			// need a keystore, regardless of which protocol we use below.
+			let keystore = if role.is_authority() {
+				Some(keystore_container.sync_keystore())
+			} else {
+				None
+			};
 
-				let grandpa_config = sc_finality_grandpa::Config {
-					// FIXME #1578 make this available through chainspec
-					gossip_duration: Duration::from_millis(333),
-					justification_period: 512,
-					name: Some(name),
-					observer_enabled: false,
-					keystore,
-					is_authority: role.is_authority(),
+			let grandpa_config = sc_finality_grandpa::Config {
+				// FIXME #1578 make this available through chainspec
+				gossip_duration: Duration::from_millis(333),
+				justification_period: 512,
+				name: Some(name),
+				observer_enabled: false,
+				keystore,
+				is_authority: role.is_authority(),
+				telemetry: telemetry.as_ref().map(|x| x.handle()),
+			};
+
+			if enable_grandpa {
+				// start the full GRANDPA voter
+				// NOTE: non-authorities could run the GRANDPA observer protocol, but at
+				// this point the full voter should provide better guarantees of block
+				// and vote data availability than the observer. The observer has not
+				// been tested extensively yet and having most nodes in a network run it
+				// could lead to finality stalls.
+				let grandpa_config = sc_finality_grandpa::GrandpaParams {
+					config: grandpa_config,
+					link: grandpa_link,
+					network,
+					voting_rule: sc_finality_grandpa::VotingRulesBuilder::default().build(),
+					prometheus_registry,
+					shared_voter_state: SharedVoterState::empty(),
 					telemetry: telemetry.as_ref().map(|x| x.handle()),
 				};
 
-				if enable_grandpa {
-					// start the full GRANDPA voter
-					// NOTE: non-authorities could run the GRANDPA observer protocol, but at
-					// this point the full voter should provide better guarantees of block
-					// and vote data availability than the observer. The observer has not
-					// been tested extensively yet and having most nodes in a network run it
-					// could lead to finality stalls.
-					let grandpa_config = sc_finality_grandpa::GrandpaParams {
-						config: grandpa_config,
-						link: grandpa_link,
-						network,
-						voting_rule: sc_finality_grandpa::VotingRulesBuilder::default().build(),
-						prometheus_registry,
-						shared_voter_state: SharedVoterState::empty(),
-						telemetry: telemetry.as_ref().map(|x| x.handle()),
-					};
-
-					// the GRANDPA voter task is considered infallible, i.e.
-					// if it fails we take down the service with it.
-					task_manager.spawn_essential_handle().spawn_blocking(
-						"grandpa-voter",
-						sc_finality_grandpa::run_grandpa_voter(grandpa_config)?
-					);
-				}
+				// the GRANDPA voter task is considered infallible, i.e.
+				// if it fails we take down the service with it.
+				task_manager.spawn_essential_handle().spawn_blocking(
+					"grandpa-voter",
+					sc_finality_grandpa::run_grandpa_voter(grandpa_config)?
+				);
 			}
 		}
 	}
