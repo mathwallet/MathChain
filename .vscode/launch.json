@@ -19,7 +19,7 @@
                     "kind": "bin"
                 }
             },
-            "args": ["--tmp", "--dev", "--ws-external", "--rpc-external"],
+            "args": ["--tmp", "--ws-external", "--rpc-external", "--chain", "galois"],
             "cwd": "${workspaceFolder}"
         },
         {

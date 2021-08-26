@@ -51,10 +51,12 @@ pub use frame_support::{
 	},
 	ConsensusEngineId,
 };
+
 use pallet_evm::{
-	Account as EVMAccount, FeeCalculator, HashedAddressMapping,
+	Account as EVMAccount, FeeCalculator, AddressMapping,
 	EnsureAddressTruncated, Runner,
 };
+
 use fp_rpc::{TransactionStatus};
 
 pub mod constants;
@@ -189,6 +191,28 @@ where
 	}
 }
 
+/// Hashed address mapping.
+pub struct HashedAddressMapping<T>(sp_std::marker::PhantomData<T>);
+
+impl<T: pallet_account_service::Config> AddressMapping<AccountId32> for HashedAddressMapping<T> 
+where 
+	AccountId32: Clone + From<<T as frame_system::Config>::AccountId>,
+{
+	fn into_account_id(address: H160) -> AccountId32 {
+		let account = pallet_account_service::Module::<T>::from_ethereum(&AccountServiceEnum::Ethereum(address.to_fixed_bytes())).into();
+		let account_id = if account == AccountId32::new([0u8; 32]) {
+			let mut data = [0u8; 32];
+			data[0..4].copy_from_slice(b"evm:");
+			data[4..24].copy_from_slice(&address[..]);
+			// let hash = H::hash(&data);
+			AccountId32::new(data)
+		} else {
+			account
+		};
+		account_id
+	}
+}
+
 // Configure FRAME pallets to include in runtime.
 
 impl frame_system::Config for Runtime {
@@ -295,9 +319,9 @@ impl pallet_timestamp::Config for Runtime {
 parameter_types! {
 	pub const ExistentialDeposit: u128 = 500;
 	pub const MaxLocks: u32 = 50;
-	pub const DailyLimit: u128 = 1_000 * MATHS;
-	pub const MonthlyLimit: u128 = 999_000_000_000 * MATHS;
-	pub const YearlyLimit: u128 = 999_000_000_000 * MATHS;
+	// pub const DailyLimit: u128 = 1_000 * MATHS;
+	// pub const MonthlyLimit: u128 = 999_000_000_000 * MATHS;
+	// pub const YearlyLimit: u128 = 999_000_000_000 * MATHS;
 }
 
 impl pallet_balances::Config for Runtime {
@@ -310,9 +334,9 @@ impl pallet_balances::Config for Runtime {
 	type ExistentialDeposit = ExistentialDeposit;
 	type AccountStore = System;
 	type WeightInfo = ();
-	type DailyLimit = DailyLimit;
-	type MonthlyLimit = MonthlyLimit;
-	type YearlyLimit = YearlyLimit;
+	// type DailyLimit = DailyLimit;
+	// type MonthlyLimit = MonthlyLimit;
+	// type YearlyLimit = YearlyLimit;
 }
 
 parameter_types! {

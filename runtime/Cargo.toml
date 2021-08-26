@@ -35,11 +35,12 @@ frame-support = { default-features = false, git = "https://github.com/paritytech
 frame-system = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
 frame-system-benchmarking = { default-features = false, optional = true, git = "https://github.com/paritytech/substrate.git", branch = "master" }
 frame-system-rpc-runtime-api = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
-pallet-account-service = { default-features = false, git = "https://github.com/mathwallet/MathChain-common", branch = "master" }
+pallet-account-service = { default-features = false, path = "../frame/account-service" }
 pallet-aura = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
-pallet-balances = { default-features = false, git = "https://github.com/mathwallet/MathChain-common", branch = "master" }
-pallet-ethereum = { default-features = false, git = "https://github.com/mathwallet/frontier", branch = "master" }
-pallet-evm = { default-features = false, git = "https://github.com/mathwallet/frontier", branch = "master" }
+# pallet-balances = { default-features = false, path = "../frame/balances" }
+pallet-balances = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master"  }
+pallet-ethereum = { default-features = false, git = "https://github.com/mathwallet/frontier", branch = "update_reference_0826" }
+pallet-evm = { default-features = false, git = "https://github.com/mathwallet/frontier", branch = "update_reference_0826" }
 pallet-grandpa = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
 pallet-randomness-collective-flip = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
 pallet-recovery = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
@@ -60,13 +61,14 @@ sp-session = { default-features = false, git = "https://github.com/paritytech/su
 sp-std = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
 sp-transaction-pool = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
 sp-version = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
-pallet-evm-precompile-simple = { default-features = false, git = "https://github.com/mathwallet/frontier", branch = "master" }
+pallet-evm-precompile-simple = { default-features = false, git = "https://github.com/mathwallet/frontier", branch = "update_reference_0826" }
 
-secretstore-runtime-module = { package = "parity-secretstore-substrate-runtime-module", git = "https://github.com/mathwallet/secret-store.git", branch = "master", default-features = false }
-secretstore-runtime-primitives = { package = "parity-secretstore-substrate-runtime-primitives", git = "https://github.com/mathwallet/secret-store.git", branch = "master", default-features = false }
+secretstore-runtime-module = { package = "parity-secretstore-substrate-runtime-module", path = "../frame/secret-store/module", default-features = false }
+secretstore-runtime-primitives = { package = "parity-secretstore-substrate-runtime-primitives", path = "../frame/secret-store/primitives", default-features = false }
 
-fp-rpc = { default-features = false, git = "https://github.com/mathwallet/frontier", branch = "master" }
-pallet-validator-set = { default-features = false, git = "https://github.com/mathwallet/MathChain-common", branch = "master" }
+fp-rpc = { default-features = false, git = "https://github.com/mathwallet/frontier", branch = "update_reference_0826" }
+pallet-validator-set = { default-features = false, path = "../frame/validator-set" }
+
 [features]
 default = ['std']
 runtime-benchmarks = [

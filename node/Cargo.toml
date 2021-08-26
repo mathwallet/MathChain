@@ -63,16 +63,16 @@ sc-keystore = { git = "https://github.com/paritytech/substrate.git", branch = "m
 substrate-frame-rpc-system = { git = "https://github.com/paritytech/substrate.git", branch = "master" }
 
 mathchain-consensus = { path = "../consensus" }
-pallet-evm = { git = "https://github.com/mathwallet/frontier", branch = "master" }
-pallet-ethereum = { git = "https://github.com/mathwallet/frontier", branch = "master" }
-fc-consensus = { git = "https://github.com/mathwallet/frontier", branch = "master" }
-fp-consensus = { git = "https://github.com/mathwallet/frontier", branch = "master" }
-fc-rpc = { git = "https://github.com/mathwallet/frontier", branch = "master" }
-fp-rpc = { git = "https://github.com/mathwallet/frontier", branch = "master" }
-fc-rpc-core = { git = "https://github.com/mathwallet/frontier", branch = "master" }
+pallet-evm = { git = "https://github.com/mathwallet/frontier", branch = "update_reference_0826" }
+pallet-ethereum = { git = "https://github.com/mathwallet/frontier", branch = "update_reference_0826" }
+fc-consensus = { git = "https://github.com/mathwallet/frontier", branch = "update_reference_0826" }
+fp-consensus = { git = "https://github.com/mathwallet/frontier", branch = "update_reference_0826" }
+fc-rpc = { git = "https://github.com/mathwallet/frontier", branch = "update_reference_0826" }
+fp-rpc = { git = "https://github.com/mathwallet/frontier", branch = "update_reference_0826" }
+fc-rpc-core = { git = "https://github.com/mathwallet/frontier", branch = "update_reference_0826" }
 sc-telemetry = { git = "https://github.com/paritytech/substrate.git", branch = "master" }
-fc-db = { git = "https://github.com/mathwallet/frontier", branch = "master" }
-fc-mapping-sync = { git = "https://github.com/mathwallet/frontier", branch = "master" }
+fc-db = { git = "https://github.com/mathwallet/frontier", branch = "update_reference_0826" }
+fc-mapping-sync = { git = "https://github.com/mathwallet/frontier", branch = "update_reference_0826" }
 
 [features]
 runtime-benchmarks = ['mathchain-runtime/runtime-benchmarks']
