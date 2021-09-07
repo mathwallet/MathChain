@@ -24,3 +24,4 @@ sp-timestamp = { git = "https://github.com/paritytech/substrate.git", branch = "
 derive_more = "0.99.2"
 prometheus-endpoint = { package = "substrate-prometheus-endpoint", git = "https://github.com/paritytech/substrate.git", branch = "master"}
 ethereum = { version = "0.7.1", features = ["with-codec"] }
+async-trait = "0.1"
