@@ -13,7 +13,6 @@ std = [
     'frame-support/std',
     'sp-core/std',
     'sp-io/std',
-    'serde',
     'frame-system/std',
     'pallet-session/std'
 ]
@@ -32,4 +31,3 @@ sp-core = { default-features = false, git = "https://github.com/paritytech/subst
 frame-support = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
 frame-system = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
 pallet-session = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
-serde = { features = ['derive'], optional = true, version = '1.0.101'}

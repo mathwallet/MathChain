@@ -13,7 +13,6 @@ readme = "README.md"
 targets = ["x86_64-unknown-linux-gnu"]
 
 [dependencies]
-serde = { version = "1.0.101", optional = true }
 codec = { package = "parity-scale-codec", version = "2.0.1", default-features = false, features = ["derive"] }
 sp-std = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
 sp-io = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
@@ -27,7 +26,6 @@ sp-core = { default-features = false, git = "https://github.com/paritytech/subst
 [features]
 default = ["std"]
 std = [
-	"serde",
 	"codec/std",
 	"sp-std/std",
 	"sp-io/std",
