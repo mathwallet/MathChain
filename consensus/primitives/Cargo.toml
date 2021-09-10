@@ -9,9 +9,9 @@ homepage = "https://mathwallet.net/mathchain"
 repository = "https://github.com/mathwallet/MathChain/"
 
 [dependencies]
-sp-std = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
-sp-runtime = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
-sp-core = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
+sp-std = { default-features = false, git = "https://github.com/paritytech/substrate.git", rev = "ec180313" }
+sp-runtime = { default-features = false, git = "https://github.com/paritytech/substrate.git", rev = "ec180313" }
+sp-core = { default-features = false, git = "https://github.com/paritytech/substrate.git", rev = "ec180313" }
 codec = { package = "parity-scale-codec", version = "2.0.1", default-features = false, features = ["derive"] }
 
 [features]

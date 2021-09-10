@@ -9,19 +9,19 @@ repository = "https://github.com/mathwallet/MathChain"
 
 [dependencies]
 codec = { package = "parity-scale-codec", version = "2.0.1", features = ["derive"] }
-sp-core = {git = "https://github.com/paritytech/substrate.git", branch = "master" }
-sp-blockchain = {git = "https://github.com/paritytech/substrate.git", branch = "master" }
-sp-runtime = {git = "https://github.com/paritytech/substrate.git", branch = "master" }
-sp-api = {git = "https://github.com/paritytech/substrate.git", branch = "master" }
-sc-client-api = {git = "https://github.com/paritytech/substrate.git", branch = "master" }
-sp-block-builder = {git = "https://github.com/paritytech/substrate.git", branch = "master" }
-sp-inherents = {git = "https://github.com/paritytech/substrate.git", branch = "master" }
+sp-core = {git = "https://github.com/paritytech/substrate.git", rev = "ec180313" }
+sp-blockchain = {git = "https://github.com/paritytech/substrate.git", rev = "ec180313" }
+sp-runtime = {git = "https://github.com/paritytech/substrate.git", rev = "ec180313" }
+sp-api = {git = "https://github.com/paritytech/substrate.git", rev = "ec180313" }
+sc-client-api = {git = "https://github.com/paritytech/substrate.git", rev = "ec180313" }
+sp-block-builder = {git = "https://github.com/paritytech/substrate.git", rev = "ec180313" }
+sp-inherents = {git = "https://github.com/paritytech/substrate.git", rev = "ec180313" }
 mathchain-consensus-primitives = { version = "0.1.0", path = "primitives" }
-sp-consensus = { git = "https://github.com/paritytech/substrate.git", branch = "master" }
+sp-consensus = { git = "https://github.com/paritytech/substrate.git", rev = "ec180313" }
 log = "0.4.8"
 futures = { version = "0.3.1", features = ["compat"] }
-sp-timestamp = { git = "https://github.com/paritytech/substrate.git", branch = "master" }
+sp-timestamp = { git = "https://github.com/paritytech/substrate.git", rev = "ec180313" }
 derive_more = "0.99.2"
-prometheus-endpoint = { package = "substrate-prometheus-endpoint", git = "https://github.com/paritytech/substrate.git", branch = "master"}
+prometheus-endpoint = { package = "substrate-prometheus-endpoint", git = "https://github.com/paritytech/substrate.git", rev = "ec180313"}
 ethereum = { version = "0.7.1", features = ["with-codec"] }
 async-trait = "0.1"
