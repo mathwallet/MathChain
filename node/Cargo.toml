@@ -16,7 +16,7 @@ targets = ['x86_64-unknown-linux-gnu']
 name = 'mathchain'
 
 [build-dependencies]
-substrate-build-script-utils = { git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f" }
+substrate-build-script-utils = { git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
 
 [dependencies]
 futures = "0.3.4"
@@ -32,35 +32,35 @@ galois-runtime-config = { path = '../runtime/galois', package = 'mathchain-runti
 mathchain-runtime-config = { path = '../runtime/mathchain', package = 'mathchain-runtime-mathchain'}
 
 # Substrate dependencies
-frame-benchmarking = { git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f" }
-frame-benchmarking-cli = { version = '3.0.0', git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f" }
-pallet-transaction-payment-rpc = { git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f" }
-sc-basic-authorship = { git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f" }
-sc-cli = { features = ['wasmtime'], git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f" }
-sc-client-api = { git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f" }
-sc-consensus = { git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f" }
-sc-consensus-aura = { git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f" }
-sc-executor = { features = ['wasmtime'], git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f" }
-sc-network = { git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f" }
-sc-finality-grandpa = { git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f" }
-sc-rpc = { git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f" }
-sc-rpc-api = { git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f" }
-sc-service = { features = ['wasmtime'], git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f" }
-sc-transaction-pool = { git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f" }
-sc-consensus-manual-seal = { git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f" }
-sp-api = { git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f" }
-sp-block-builder = { git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f" }
-sp-blockchain = { git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f" }
-sp-consensus = { git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f" }
-sp-consensus-aura = { git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f" }
-sp-core = { git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f" }
-sp-finality-grandpa = { git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f" }
-sp-inherents = { git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f" }
-sp-runtime = { git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f" }
-sp-transaction-pool = { git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f" }
-sp-timestamp = { git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f" }
-sc-keystore = { git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f" }
-substrate-frame-rpc-system = { git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f" }
+frame-benchmarking = { git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
+frame-benchmarking-cli = { version = '3.0.0', git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
+pallet-transaction-payment-rpc = { git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
+sc-basic-authorship = { git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
+sc-cli = { features = ['wasmtime'], git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
+sc-client-api = { git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
+sc-consensus = { git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
+sc-consensus-aura = { git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
+sc-executor = { features = ['wasmtime'], git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
+sc-network = { git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
+sc-finality-grandpa = { git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
+sc-rpc = { git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
+sc-rpc-api = { git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
+sc-service = { features = ['wasmtime'], git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
+sc-transaction-pool = { git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
+sc-consensus-manual-seal = { git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
+sp-api = { git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
+sp-block-builder = { git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
+sp-blockchain = { git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
+sp-consensus = { git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
+sp-consensus-aura = { git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
+sp-core = { git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
+sp-finality-grandpa = { git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
+sp-inherents = { git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
+sp-runtime = { git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
+sp-transaction-pool = { git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
+sp-timestamp = { git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
+sc-keystore = { git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
+substrate-frame-rpc-system = { git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
 
 mathchain-consensus = { path = "../consensus" }
 pallet-evm = { git = "https://github.com/mathwallet/frontier", branch = "update_reference_0826" }
@@ -71,7 +71,7 @@ fp-consensus = { git = "https://github.com/mathwallet/frontier", branch = "updat
 fc-rpc = { git = "https://github.com/mathwallet/frontier", branch = "update_reference_0826" }
 fp-rpc = { git = "https://github.com/mathwallet/frontier", branch = "update_reference_0826" }
 fc-rpc-core = { git = "https://github.com/mathwallet/frontier", branch = "update_reference_0826" }
-sc-telemetry = { git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f" }
+sc-telemetry = { git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
 fc-db = { git = "https://github.com/mathwallet/frontier", branch = "update_reference_0826" }
 fc-mapping-sync = { git = "https://github.com/mathwallet/frontier", branch = "update_reference_0826" }
 

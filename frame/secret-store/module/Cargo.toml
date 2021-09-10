@@ -5,14 +5,14 @@ authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2018"
 
 [dependencies]
-codec = { package = "parity-scale-codec", version = "2.0.1", default-features = false }
-frame-support = { git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f", default-features = false }
-frame-system = { git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f", default-features = false }
+codec = { package = "parity-scale-codec", version = "2.1.0", default-features = false }
+frame-support = { git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9", default-features = false }
+frame-system = { git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9", default-features = false }
 primitives = { package = "parity-secretstore-substrate-runtime-primitives", path = "../primitives", default-features = false }
-sp-core = { git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f", default-features = false }
-sp-io = { git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f", default-features = false }
-sp-runtime = { git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f", default-features = false }
-sp-std = { git = "https://github.com/paritytech/substrate.git", rev = "5f73ba1f", default-features = false }
+sp-core = { git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9", default-features = false }
+sp-io = { git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9", default-features = false }
+sp-runtime = { git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9", default-features = false }
+sp-std = { git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9", default-features = false }
 
 [dev-dependencies]
 parity-crypto = { version = "0.8", features = ["publickey"] }
