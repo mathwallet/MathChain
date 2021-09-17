@@ -50,7 +50,7 @@ impl<RequestKey, Response, Map> ResponsesSupport<RequestKey, Response, Map>
 
 	/// Clear all known responses.
 	pub fn reset(request: &RequestKey) {
-		Map::remove_prefix(request);
+		Map::remove_prefix(request, None);
 	}
 }
 

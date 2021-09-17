@@ -1,4 +1,4 @@
-use sp_core::{Pair, Public, sr25519, U256, H160, crypto::UncheckedInto,};
+use sp_core::{sr25519, Pair, Public, U256, H160, crypto::UncheckedInto,};
 use mathchain_runtime::{
 	AccountId, AuraConfig, BalancesConfig, EVMConfig, EthereumConfig, GenesisConfig, GrandpaConfig,
 	SudoConfig, SystemConfig, WASM_BINARY, Signature, ValidatorSetConfig, opaque::SessionKeys, SessionConfig,
@@ -194,35 +194,37 @@ pub fn galois_for_genesis() -> Result<ChainSpec, String> {
 		"Galois-PoC-1",
 		"galois",
 		ChainType::Live,
-		move || testnet_genesis(
-			wasm_binary,
-			// Initial Poa authorities
-			vec![
-				genesis_validator1.clone(),
-				genesis_validator2.clone(),
-				genesis_validator3.clone(),
-			],
-			root.clone(),
-			endowed_accounts.clone(),
-			vec![
-				(
-					"641f76320a8956f5cf2fe231bf1e3640ea3822dc".parse().unwrap(),
-					array_bytes::hex_str_array_unchecked!("0xb4b105e7526ce5ae94a9be24a6bf6ab6b168255b5ed0cd65d77b905e3c3da52c", 32).into(),
-					&"47.111.168.132:10001".to_owned().into_bytes(), // node-validator
-				),
-				(
-					"c6c4c6cf871ca4a17d25fcafc67faf6ac559bb0a".parse().unwrap(),
-					array_bytes::hex_str_array_unchecked!("0x18d3fdd65fb3ed9a1d89727fe230af4683303140a77aa569de387c72d64c9300", 32).into(),
-					&"8.209.214.249:10001".to_owned().into_bytes(), // node-jp
-				),
-				(
-					"dCcf5258EBF7e34D494Cac9A01346575d040a1c3".parse().unwrap(),
-					array_bytes::hex_str_array_unchecked!("0xa6a7302b264499959f33d3eb069f5016399ba6b5c13809398a7ea8890aa19138", 32).into(),
-					&"47.243.44.7:10001".to_owned().into_bytes(), // node-hk
-				)
-			],
-			true
-		),
+		move || {
+			testnet_genesis(
+				wasm_binary,
+				// Initial Poa authorities
+				vec![
+					genesis_validator1.clone(),
+					genesis_validator2.clone(),
+					genesis_validator3.clone(),
+				],
+				root.clone(),
+				endowed_accounts.clone(),
+				vec![
+					(
+						"641f76320a8956f5cf2fe231bf1e3640ea3822dc".parse().unwrap(),
+						array_bytes::hex_str_array_unchecked!("0xb4b105e7526ce5ae94a9be24a6bf6ab6b168255b5ed0cd65d77b905e3c3da52c", 32).into(),
+						&"47.111.168.132:10001".to_owned().into_bytes(), // node-validator
+					),
+					(
+						"c6c4c6cf871ca4a17d25fcafc67faf6ac559bb0a".parse().unwrap(),
+						array_bytes::hex_str_array_unchecked!("0x18d3fdd65fb3ed9a1d89727fe230af4683303140a77aa569de387c72d64c9300", 32).into(),
+						&"8.209.214.249:10001".to_owned().into_bytes(), // node-jp
+					),
+					(
+						"dCcf5258EBF7e34D494Cac9A01346575d040a1c3".parse().unwrap(),
+						array_bytes::hex_str_array_unchecked!("0xa6a7302b264499959f33d3eb069f5016399ba6b5c13809398a7ea8890aa19138", 32).into(),
+						&"47.243.44.7:10001".to_owned().into_bytes(), // node-hk
+					)
+				],
+				true
+			)
+		},
 		vec![],
 		Some(
 			TelemetryEndpoints::new(vec![
@@ -308,33 +310,35 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 		// ID
 		"mathchain_local_testnet",
 		ChainType::Local,
-		move || testnet_genesis(
-			wasm_binary,
-			// Initial PoA authorities
-			vec![
-				get_authority_keys_from_seed("Alice"),
-				get_authority_keys_from_seed("Bob"),
-			],
-			// Sudo account
-			get_account_id_from_seed::<sr25519::Public>("Alice"),
-			// Pre-funded accounts
-			vec![
+		move || {
+				testnet_genesis(
+				wasm_binary,
+				// Initial PoA authorities
+				vec![
+					get_authority_keys_from_seed("Alice"),
+					get_authority_keys_from_seed("Bob"),
+				],
+				// Sudo account
 				get_account_id_from_seed::<sr25519::Public>("Alice"),
-				get_account_id_from_seed::<sr25519::Public>("Bob"),
-				get_account_id_from_seed::<sr25519::Public>("Charlie"),
-				get_account_id_from_seed::<sr25519::Public>("Dave"),
-				get_account_id_from_seed::<sr25519::Public>("Eve"),
-				get_account_id_from_seed::<sr25519::Public>("Ferdie"),
-				get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
-				get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
-				get_account_id_from_seed::<sr25519::Public>("Charlie//stash"),
-				get_account_id_from_seed::<sr25519::Public>("Dave//stash"),
-				get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
-				get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
-			],
-			vec![],
-			true,
-		),
+				// Pre-funded accounts
+				vec![
+					get_account_id_from_seed::<sr25519::Public>("Alice"),
+					get_account_id_from_seed::<sr25519::Public>("Bob"),
+					get_account_id_from_seed::<sr25519::Public>("Charlie"),
+					get_account_id_from_seed::<sr25519::Public>("Dave"),
+					get_account_id_from_seed::<sr25519::Public>("Eve"),
+					get_account_id_from_seed::<sr25519::Public>("Ferdie"),
+					get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
+					get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
+					get_account_id_from_seed::<sr25519::Public>("Charlie//stash"),
+					get_account_id_from_seed::<sr25519::Public>("Dave//stash"),
+					get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
+					get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
+				],
+				vec![],
+				true,
+			)
+		},
 		// Bootnodes
 		vec![],
 		// Telemetry
@@ -370,22 +374,22 @@ fn testnet_genesis(
 		},
 	);
 	GenesisConfig {
-		frame_system: SystemConfig {
+		system: SystemConfig {
 			// Add Wasm runtime to storage.
 			code: wasm_binary.to_vec(),
 			changes_trie_config: Default::default(),
 		},
-		pallet_balances: BalancesConfig {
+		balances: BalancesConfig {
 			// Configure endowed accounts with initial balance of 10000 Math.
 			balances: endowed_accounts.iter().cloned().map(|k|(k, 10000 * MATH)).collect(),
 		},
-		pallet_aura: AuraConfig {
+		aura: AuraConfig {
 			authorities: vec![],
 		},
-		pallet_grandpa: GrandpaConfig {
+		grandpa: GrandpaConfig {
 			authorities: vec![],
 		},
-		pallet_sudo: SudoConfig {
+		sudo: SudoConfig {
 			// Assign network admin rights.
 			key: root_key,
 		},

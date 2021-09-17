@@ -354,8 +354,8 @@ impl<T: Config> DocumentKeyShadowRetrievalService<T> {
 
 /// Deletes request and all associated data.
 fn delete_request<T: Config>(request: &(ServerKeyId, EntityId)) {
-	DocumentKeyShadowRetrievalCommonResponses::remove_prefix(request);
-	DocumentKeyShadowRetrievalPersonalResponses::remove_prefix(request);
+	DocumentKeyShadowRetrievalCommonResponses::remove_prefix(request, None);
+	DocumentKeyShadowRetrievalPersonalResponses::remove_prefix(request, None);
 	DocumentKeyShadowRetrievalRequests::<T>::remove(request);
 	DocumentKeyShadowRetrievalRequestsKeys::mutate(|list| {
 		let index = list.iter().position(|lrequest| lrequest == request);

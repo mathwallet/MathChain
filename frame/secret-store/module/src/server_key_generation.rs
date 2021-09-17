@@ -180,7 +180,7 @@ impl<T: Config> ServerKeyGenerationService<T> {
 
 /// Deletes request and all associated data.
 fn delete_request<T: Config>(request: &ServerKeyId) {
-	ServerKeyGenerationResponses::remove_prefix(request);
+	ServerKeyGenerationResponses::remove_prefix(request, None);
 	ServerKeyGenerationRequests::<T>::remove(request);
 	ServerKeyGenerationRequestsKeys::mutate(|list| {
 		let index = list.iter().position(|lrequest| lrequest == request);

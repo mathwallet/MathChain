@@ -14,14 +14,14 @@ targets = ["x86_64-unknown-linux-gnu"]
 
 [dependencies]
 codec = { package = "parity-scale-codec", version = "2.1.0", default-features = false, features = ["derive"] }
-sp-std = { default-features = false, git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
-sp-io = { default-features = false, git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
-sp-runtime = { default-features = false, git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
-frame-support = { default-features = false, git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
-frame-system = { default-features = false, git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
+sp-std = { default-features = false, git = "https://github.com/paritytech/substrate" }
+sp-io = { default-features = false, git = "https://github.com/paritytech/substrate" }
+sp-runtime = { default-features = false, git = "https://github.com/paritytech/substrate" }
+frame-support = { default-features = false, git = "https://github.com/paritytech/substrate" }
+frame-system = { default-features = false, git = "https://github.com/paritytech/substrate" }
 
 [dev-dependencies]
-sp-core = { default-features = false, git = "https://github.com/paritytech/substrate.git", rev = "2a7aefb9" }
+sp-core = { default-features = false, git = "https://github.com/paritytech/substrate" }
 
 [features]
 default = ["std"]

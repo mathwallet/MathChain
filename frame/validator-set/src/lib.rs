@@ -16,7 +16,7 @@ use frame_support::{
 };
 use frame_system::{self as system, ensure_root};
 use sp_runtime::traits::{Convert, Zero};
-use sp_runtime::Percent;
+use sp_runtime::Permill;
 
 
 pub trait Config: system::Config + pallet_session::Config {
@@ -120,7 +120,7 @@ impl<T: Config> pallet_session::SessionManager<T::AccountId> for Module<T> {
 }
 
 impl<T: Config> frame_support::traits::EstimateNextSessionRotation<T::BlockNumber> for Module<T> {
-	fn estimate_current_session_progress(_: T::BlockNumber) -> (Option<Percent>, u64) {
+	fn estimate_current_session_progress(_: T::BlockNumber) -> (Option<Permill>, u64) {
 		(None, Zero::zero())
 	}
 

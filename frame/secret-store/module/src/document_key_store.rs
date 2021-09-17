@@ -170,7 +170,7 @@ impl<T: Config> DocumentKeyStoreService<T> {
 
 /// Deletes request and all associated data.
 fn delete_request<T: Config>(request: &ServerKeyId) {
-	DocumentKeyStoreResponses::remove_prefix(request);
+	DocumentKeyStoreResponses::remove_prefix(request, None);
 	DocumentKeyStoreRequests::<T>::remove(request);
 	DocumentKeyStoreRequestsKeys::mutate(|list| {
 		let index = list.iter().position(|lrequest| lrequest == request);

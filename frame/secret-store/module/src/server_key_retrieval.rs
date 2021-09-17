@@ -249,8 +249,8 @@ impl<T: Config> ServerKeyRetrievalService<T> {
 
 /// Deletes request and all associated data.
 fn delete_request<T: Config>(request: &ServerKeyId) {
-	ServerKeyRetrievalResponses::remove_prefix(request);
-	ServerKeyRetrievalThresholdResponses::remove_prefix(request);
+	ServerKeyRetrievalResponses::remove_prefix(request, None);
+	ServerKeyRetrievalThresholdResponses::remove_prefix(request, None);
 	ServerKeyRetrievalRequests::<T>::remove(request);
 	ServerKeyRetrievalRequestsKeys::mutate(|list| {
 		let index = list.iter().position(|lrequest| lrequest == request);
