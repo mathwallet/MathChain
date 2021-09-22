@@ -7,7 +7,7 @@ use async_trait::async_trait;
 use fc_consensus::FrontierBlockImport;
 use fc_mapping_sync::{MappingSyncWorker, SyncStrategy};
 use fc_rpc::EthTask;
-use fc_rpc_core::types::{FilterPool, PendingTransactions};
+use fc_rpc_core::types::FilterPool;
 use mathchain_runtime::{self, opaque::Block, RuntimeApi, SLOT_DURATION};
 use futures::StreamExt;
 use sc_cli::SubstrateCli;
@@ -16,7 +16,7 @@ use sc_client_api::{ExecutorProvider, RemoteBackend};
 use sc_consensus_aura::{ImportQueueParams, SlotProportion, StartAuraParams};
 #[cfg(feature = "manual-seal")]
 use sc_consensus_manual_seal::{self as manual_seal};
-pub use sc_executor::NativeExecutor;
+pub use sc_executor::NativeElseWasmExecutor;
 use sc_finality_grandpa::SharedVoterState;
 use sc_keystore::LocalKeystore;
 use sc_network::warp_request_handler::WarpSyncProvider;
@@ -34,9 +34,9 @@ use std::{
 };
 
 // Our native executor instance.
-pub struct Executor;
+pub struct ExecutorDispatch;
 
-impl sc_executor::NativeExecutionDispatch for Executor {
+impl sc_executor::NativeExecutionDispatch for ExecutorDispatch {
 	type ExtendHostFunctions = frame_benchmarking::benchmarking::HostFunctions;
 
 	fn dispatch(method: &str, data: &[u8]) -> Option<Vec<u8>> {
@@ -48,7 +48,8 @@ impl sc_executor::NativeExecutionDispatch for Executor {
 	}
 }
 
-type FullClient = sc_service::TFullClient<Block, RuntimeApi, Executor>;
+type FullClient =
+	sc_service::TFullClient<Block, RuntimeApi, NativeElseWasmExecutor<ExecutorDispatch>>;
 type FullBackend = sc_service::TFullBackend<Block>;
 type FullSelectChain = sc_consensus::LongestChain<FullBackend, Block>;
 
@@ -133,7 +134,6 @@ pub fn new_partial(
 		sc_transaction_pool::FullPool<Block, FullClient>,
 		(
 			ConsensusResult,
-			PendingTransactions,
 			Option<FilterPool>,
 			Arc<fc_db::Backend<Block>>,
 			Option<Telemetry>,
@@ -158,10 +158,17 @@ pub fn new_partial(
 		})
 		.transpose()?;
 
+	let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new(
+		config.wasm_method,
+		config.default_heap_pages,
+		config.max_runtime_instances,
+	);
+
 	let (client, backend, keystore_container, task_manager) =
-		sc_service::new_full_parts::<Block, RuntimeApi, Executor>(
+		sc_service::new_full_parts::<Block, RuntimeApi, _>(
 			&config,
 			telemetry.as_ref().map(|(_, telemetry)| telemetry.handle()),
+			executor,
 		)?;
 	let client = Arc::new(client);
 
@@ -180,8 +187,6 @@ pub fn new_partial(
 		client.clone(),
 	);
 
-	let pending_transactions: PendingTransactions = Some(Arc::new(Mutex::new(HashMap::new())));
-
 	let filter_pool: Option<FilterPool> = Some(Arc::new(Mutex::new(BTreeMap::new())));
 
 	let frontier_backend = open_frontier_backend(config)?;
@@ -190,11 +195,11 @@ pub fn new_partial(
 	{
 		let sealing = cli.run.sealing;
 
-		let mathchain_import =
+		let mathchain_block_import =
 			FrontierBlockImport::new(client.clone(), client.clone(), frontier_backend.clone());
 
 		let import_queue = sc_consensus_manual_seal::import_queue(
-			Box::new(mathchain_import.clone()),
+			Box::new(mathchain_block_import.clone()),
 			&task_manager.spawn_essential_handle(),
 			config.prometheus_registry(),
 		);
@@ -208,8 +213,7 @@ pub fn new_partial(
 			select_chain,
 			transaction_pool,
 			other: (
-				(mathchain_import, sealing),
-				pending_transactions,
+				(mathchain_block_import, sealing),
 				filter_pool,
 				frontier_backend,
 				telemetry,
@@ -226,7 +230,7 @@ pub fn new_partial(
 			telemetry.as_ref().map(|x| x.handle()),
 		)?;
 
-		let mathchain_import = FrontierBlockImport::new(
+		let mathchain_block_import = FrontierBlockImport::new(
 			grandpa_block_import.clone(),
 			client.clone(),
 			frontier_backend.clone(),
@@ -237,7 +241,7 @@ pub fn new_partial(
 
 		let import_queue =
 			sc_consensus_aura::import_queue::<AuraPair, _, _, _, _, _, _>(ImportQueueParams {
-				block_import: mathchain_import.clone(),
+				block_import: mathchain_block_import.clone(),
 				justification_import: Some(Box::new(grandpa_block_import.clone())),
 				client: client.clone(),
 				create_inherent_data_providers: move |_, ()| async move {
@@ -272,8 +276,7 @@ pub fn new_partial(
 			select_chain,
 			transaction_pool,
 			other: (
-				(mathchain_import, grandpa_link),
-				pending_transactions,
+				(mathchain_block_import, grandpa_link),
 				filter_pool,
 				frontier_backend,
 				telemetry,
@@ -299,8 +302,7 @@ pub fn new_full(mut config: Configuration, cli: &Cli) -> Result<TaskManager, Ser
 		mut keystore_container,
 		select_chain,
 		transaction_pool,
-		other:
-			(consensus_result, pending_transactions, filter_pool, frontier_backend, mut telemetry),
+		other: (consensus_result, filter_pool, frontier_backend, mut telemetry),
 	} = new_partial(&config, &cli)?;
 
 	if let Some(url) = &config.keystore_remote {
@@ -374,7 +376,6 @@ pub fn new_full(mut config: Configuration, cli: &Cli) -> Result<TaskManager, Ser
 		let client = client.clone();
 		let pool = transaction_pool.clone();
 		let network = network.clone();
-		let pending = pending_transactions.clone();
 		let filter_pool = filter_pool.clone();
 		let frontier_backend = frontier_backend.clone();
 		let max_past_logs = cli.run.max_past_logs;
@@ -383,11 +384,11 @@ pub fn new_full(mut config: Configuration, cli: &Cli) -> Result<TaskManager, Ser
 			let deps = crate::rpc::FullDeps {
 				client: client.clone(),
 				pool: pool.clone(),
+				graph: pool.pool().clone(),
 				deny_unsafe,
 				is_authority,
 				enable_dev_signer,
 				network: network.clone(),
-				pending_transactions: pending.clone(),
 				filter_pool: filter_pool.clone(),
 				backend: frontier_backend.clone(),
 				max_past_logs,
@@ -436,19 +437,6 @@ pub fn new_full(mut config: Configuration, cli: &Cli) -> Result<TaskManager, Ser
 		task_manager.spawn_essential_handle().spawn(
 			"frontier-filter-pool",
 			EthTask::filter_pool_task(Arc::clone(&client), filter_pool, FILTER_RETAIN_THRESHOLD),
-		);
-	}
-
-	// Spawn Frontier pending transactions maintenance task (as essential, otherwise we leak).
-	if let Some(pending_transactions) = pending_transactions {
-		const TRANSACTION_RETAIN_THRESHOLD: u64 = 5;
-		task_manager.spawn_essential_handle().spawn(
-			"frontier-pending-transactions",
-			EthTask::pending_transaction_task(
-				Arc::clone(&client),
-				pending_transactions,
-				TRANSACTION_RETAIN_THRESHOLD,
-			),
 		);
 	}
 
@@ -651,10 +639,17 @@ pub fn new_light(mut config: Configuration) -> Result<TaskManager, ServiceError>
 		})
 		.transpose()?;
 
+	let executor = NativeElseWasmExecutor::<ExecutorDispatch>::new(
+		config.wasm_method,
+		config.default_heap_pages,
+		config.max_runtime_instances,
+	);
+
 	let (client, backend, keystore_container, mut task_manager, on_demand) =
-		sc_service::new_light_parts::<Block, RuntimeApi, Executor>(
+		sc_service::new_light_parts::<Block, RuntimeApi, _>(
 			&config,
 			telemetry.as_ref().map(|(_, telemetry)| telemetry.handle()),
+			executor,
 		)?;
 
 	let mut telemetry = telemetry.map(|(worker, telemetry)| {

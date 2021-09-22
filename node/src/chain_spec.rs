@@ -393,19 +393,19 @@ fn testnet_genesis(
 			// Assign network admin rights.
 			key: root_key,
 		},
-		pallet_evm: EVMConfig {
+		evm: EVMConfig {
 			accounts: evm_accounts,
 		},
-		pallet_ethereum: EthereumConfig {},
-		pallet_validator_set: ValidatorSetConfig {
+		ethereum: EthereumConfig {},
+		validator_set: ValidatorSetConfig {
 			validators: initial_authorities.iter().map(|x| x.0.clone()).collect::<Vec<_>>(),
 		},
-		pallet_session: SessionConfig {
+		session: SessionConfig {
 			keys: initial_authorities.iter().map(|x| {
 				(x.0.clone(), x.0.clone(), session_keys(x.1.clone(), x.2.clone()))
 			}).collect::<Vec<_>>(),
 		},
-		secretstore_runtime_module: SecretStoreConfig {
+		secret_store: SecretStoreConfig {
 			owner: get_account_id_from_seed::<sr25519::Public>("Alice"),
 			is_initialization_completed: true,
 			key_servers: key_servers.iter().cloned().map(|k| (
