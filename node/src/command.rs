@@ -18,16 +18,16 @@
 use crate::{
 	chain_spec,
 	cli::{Cli, Subcommand},
-	service::{self, frontier_database_dir},
 };
+use crate::service;
 use mathchain_runtime::Block;
 use sc_cli::{ChainSpec, Role, RuntimeVersion, SubstrateCli};
 
 use sc_service::PartialComponents;
 use sp_core::crypto::Ss58AddressFormat;
 
-use galois_runtime_config::CHAIN_ID as GaoloisChainId;
-use mathchain_runtime_config::CHAIN_ID as MathchainChainId;
+use galois_runtime::CHAIN_ID as GaoloisChainId;
+use mathchain_runtime::CHAIN_ID as MathchainChainId;
 use service::IdentifyVariant;
 
 impl SubstrateCli for Cli {
@@ -76,7 +76,7 @@ impl SubstrateCli for Cli {
 fn set_default_ss58_version(spec: &Box<dyn sc_cli::ChainSpec>) {
 	let ss58_version = if spec.is_galois() {
 		Ss58AddressFormat::Custom(GaoloisChainId)
-	} else if spec.is_math() {
+	} else if spec.is_mathchain() {
 		Ss58AddressFormat::Custom(MathchainChainId)
 	} else {
 		Ss58AddressFormat::Custom(GaoloisChainId)
