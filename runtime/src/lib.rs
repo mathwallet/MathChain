@@ -116,7 +116,7 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
 	spec_name: create_runtime_str!("mathchain-galois"),
 	impl_name: create_runtime_str!("mathchain-galois"),
 	authoring_version: 2,
-	spec_version: 4,
+	spec_version: 5,
 	impl_version: 1,
 	apis: RUNTIME_API_VERSIONS,
 	transaction_version: 1,
@@ -187,35 +187,24 @@ where
 }
 
 /// Hashed address mapping.
-pub struct HashedAddressMapping<T>(sp_std::marker::PhantomData<T>);
+pub struct HashedAddressMapping;
 
-// impl<T: pallet_account_service::Config> AddressMapping<AccountId32> for HashedAddressMapping<T> 
-// where 
-// 	AccountId32: Clone + From<<T as frame_system::Config>::AccountId>,
-// {
-// 	fn into_account_id(address: H160) -> AccountId32 {
-// 		let account = pallet_account_service::Module::<T>::from_ethereum(&AccountServiceEnum::Ethereum(address.to_fixed_bytes())).into();
-// 		let account_id = if account == AccountId32::new([0u8; 32]) {
-// 			let mut data = [0u8; 32];
-// 			data[0..4].copy_from_slice(b"evm:");
-// 			data[4..24].copy_from_slice(&address[..]);
-// 			// let hash = H::hash(&data);
-// 			AccountId32::new(data)
-// 		} else {
-// 			account
-// 		};
-// 		account_id
-// 	}
-// }
-// Todo use account service info
-impl<H: Hasher<Out = H256>> AddressMapping<AccountId32> for HashedAddressMapping<H> {
+impl AddressMapping<AccountId32> for HashedAddressMapping
+where 
+	AccountId32: Clone + From<AccountId>,
+{
 	fn into_account_id(address: H160) -> AccountId32 {
-		let mut data = [0u8; 24];
-		data[0..4].copy_from_slice(b"evm:");
-		data[4..24].copy_from_slice(&address[..]);
-		let hash = H::hash(&data);
-
-		AccountId32::from(Into::<[u8; 32]>::into(hash))
+		let account = AccountService::from_ethereum(&AccountServiceEnum::Ethereum(address.to_fixed_bytes())).into();
+		let account_id = if account == AccountId32::new([0u8; 32]) {
+			let mut data = [0u8; 32];
+			data[0..4].copy_from_slice(b"evm:");
+			data[4..24].copy_from_slice(&address[..]);
+			// let hash = H::hash(&data);
+			AccountId32::new(data)
+		} else {
+			account
+		};
+		account_id
 	}
 }
 
@@ -439,7 +428,7 @@ impl pallet_evm::Config for Runtime {
 	type BlockHashMapping = pallet_ethereum::EthereumBlockHashMapping<Self>;
 	type CallOrigin = EnsureAddressTruncated;
 	type WithdrawOrigin = EnsureAddressTruncated;
-	type AddressMapping = HashedAddressMapping<BlakeTwo256>;
+	type AddressMapping = HashedAddressMapping;
 	type Currency = Balances;
 	type Event = Event;
 	type Runner = pallet_evm::runner::stack::Runner<Self>;
