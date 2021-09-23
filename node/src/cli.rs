@@ -1,14 +1,23 @@
-use structopt::{StructOpt, clap::arg_enum};
+#[cfg(feature = "manual-seal")]
+use structopt::clap::arg_enum;
+use structopt::StructOpt;
 
+#[cfg(feature = "manual-seal")]
 arg_enum! {
 	/// Available Sealing methods.
-	#[allow(missing_docs)]
 	#[derive(Debug, Copy, Clone, StructOpt)]
 	pub enum Sealing {
 		// Seal using rpc method.
 		Manual,
 		// Seal when transaction is executed.
 		Instant,
+	}
+}
+
+#[cfg(feature = "manual-seal")]
+impl Default for Sealing {
+	fn default() -> Sealing {
+		Sealing::Manual
 	}
 }
 
@@ -19,12 +28,21 @@ pub struct RunCmd {
 	#[structopt(flatten)]
 	pub base: sc_cli::RunCmd,
 
-	/// Force using Kusama native runtime.
+	#[cfg(feature = "manual-seal")]
+	/// Choose sealing method.
 	#[structopt(long = "sealing")]
-	pub sealing: Option<Sealing>,
+	pub sealing: Sealing,
 
 	#[structopt(long = "enable-dev-signer")]
 	pub enable_dev_signer: bool,
+
+	/// Maximum number of logs in a query.
+	#[structopt(long, default_value = "10000")]
+	pub max_past_logs: u32,
+
+	/// The dynamic-fee pallet target gas price set by block author
+	#[structopt(long, default_value = "1")]
+	pub target_gas_price: u64,
 }
 
 #[derive(Debug, StructOpt)]
@@ -38,6 +56,8 @@ pub struct Cli {
 
 #[derive(Debug, StructOpt)]
 pub enum Subcommand {
+	/// Key management cli utilities
+	Key(sc_cli::KeySubcommand),
 	/// Build a chain specification.
 	BuildSpec(sc_cli::BuildSpecCmd),
 
@@ -58,11 +78,8 @@ pub enum Subcommand {
 
 	/// Revert the chain to a previous state.
 	Revert(sc_cli::RevertCmd),
-	
+
 	/// The custom benchmark subcommmand benchmarking runtime pallets.
 	#[structopt(name = "benchmark", about = "Benchmark runtime pallets.")]
 	Benchmark(frame_benchmarking_cli::BenchmarkCmd),
-
-	/// Key management cli utilities
-	Key(sc_cli::KeySubcommand),
 }

@@ -5,8 +5,9 @@
 members = [
     'node',
     # 'pallets/template',
-    'consensus',
-    'consensus/primitives',
+    'frame/account-service',
+    # 'frame/balances',
+    'frame/validator-set',
     'runtime',
     'runtime/galois',
     'runtime/mathchain',
