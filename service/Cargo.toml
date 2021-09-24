@@ -1,11 +1,10 @@
 [package]
 authors = ['Mathwallet DevHub <https://github.com/mathwallet>']
-build = 'build.rs'
 description = 'A fresh FRAME-based Substrate node, ready for hacking.'
 edition = '2018'
 homepage = 'https://mathwallet.net/mathchain'
 license = 'Unlicense'
-name = 'mathchain'
+name = 'mathchain-service'
 repository = 'https://github.com/mathwallet/MathChain/'
 version = '0.7.0'
 
@@ -14,9 +13,9 @@ targets = ["x86_64-unknown-linux-gnu"]
 
 [dependencies]
 # mathchain-runtime = { path = "../runtime", default-features = false, features = ["std"] }
-galois-runtime = { path = '../runtime/galois', default-features = false, features = ["std"]}
-mathchain-runtime = { path = '../runtime/mathchain', default-features = false, features = ["std"]}
-# service = { path = './service', package = 'mathchain-service', default-features = false }
+galois-runtime = { path = '../runtime/galois', package = 'mathchain-runtime-galois', default-features = false, features = ["std"]}
+mathchain-runtime = { path = '../runtime/mathchain', package = 'mathchain-runtime-mathchain', default-features = false, features = ["std"]}
+
 array-bytes = { version = "0.3.0" }
 structopt = "0.3.8"
 async-trait = "0.1"
@@ -73,6 +72,8 @@ pallet-evm = { git = "https://github.com/paritytech/frontier" }
 pallet-ethereum = { git = "https://github.com/paritytech/frontier" }
 pallet-dynamic-fee = { git = "https://github.com/paritytech/frontier" }
 
+mathchain-cli = { path = "../cli" }
+mathchain-rpc = { path = "../rpc" }
 
 
 [build-dependencies]
@@ -85,8 +86,8 @@ aura = [
 	"galois-runtime/aura",
 ]
 manual-seal = [
-	"mathchain-runtime/aura",
-	"galois-runtime/aura",
+	"mathchain-runtime/manual-seal",
+	"galois-runtime/manual-seal",
 ]
 runtime-benchmarks = [
 	"mathchain-runtime/runtime-benchmarks",

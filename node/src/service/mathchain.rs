@@ -8,7 +8,7 @@ use fc_consensus::FrontierBlockImport;
 use fc_mapping_sync::{MappingSyncWorker, SyncStrategy};
 use fc_rpc::EthTask;
 use fc_rpc_core::types::FilterPool;
-use mathchain_runtime::{self, opaque::Block, RuntimeApi, SLOT_DURATION};
+pub use mathchain_runtime::{self, opaque::Block, RuntimeApi, SLOT_DURATION};
 use futures::StreamExt;
 use sc_cli::SubstrateCli;
 use sc_client_api::BlockchainEvents;
@@ -68,25 +68,6 @@ pub type ConsensusResult = (
 	FrontierBlockImport<Block, Arc<FullClient>, FullClient>,
 	Sealing,
 );
-
-/// Can be called for a `Configuration` to check if it is a configuration for the `Crab` network.
-pub trait IdentifyVariant {
-	/// Returns if this is a configuration for the `Galois` network.
-	fn is_galois(&self) -> bool;
-
-	/// Returns if this is a configuration for the `MathChain` network.
-	fn is_math(&self) -> bool;
-}
-
-impl IdentifyVariant for Box<dyn sc_service::ChainSpec> {
-	fn is_galois(&self) -> bool {
-		self.id().starts_with("Galois") || self.id().starts_with("dev")
-	}
-
-	fn is_math(&self) -> bool {
-		self.id().starts_with("MathChain")
-	}
-}
 
 /// Provide a mock duration starting at 0 in millisecond for timestamp inherent.
 /// Each call will increment timestamp by slot_duration making Aura think time has passed.

@@ -8,7 +8,6 @@ members = [
     'frame/account-service',
     # 'frame/balances',
     'frame/validator-set',
-    'runtime',
     'runtime/galois',
     'runtime/mathchain',
 ]
