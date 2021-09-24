@@ -2199,6 +2199,54 @@ dependencies = [
 ]
 
 [[package]]
+name = "galois-runtime"
+version = "0.1.0"
+dependencies = [
+ "fp-rpc",
+ "frame-benchmarking",
+ "frame-executive",
+ "frame-support",
+ "frame-system",
+ "frame-system-benchmarking",
+ "frame-system-rpc-runtime-api",
+ "pallet-account-service",
+ "pallet-aura",
+ "pallet-balances",
+ "pallet-dynamic-fee",
+ "pallet-ethereum",
+ "pallet-evm",
+ "pallet-evm-precompile-modexp",
+ "pallet-evm-precompile-sha3fips",
+ "pallet-evm-precompile-simple",
+ "pallet-grandpa",
+ "pallet-randomness-collective-flip",
+ "pallet-recovery",
+ "pallet-session",
+ "pallet-sudo",
+ "pallet-timestamp",
+ "pallet-transaction-payment",
+ "pallet-transaction-payment-rpc-runtime-api",
+ "pallet-validator-set",
+ "parity-scale-codec",
+ "parity-secretstore-substrate-runtime-module",
+ "parity-secretstore-substrate-runtime-primitives",
+ "serde",
+ "sp-api",
+ "sp-block-builder",
+ "sp-consensus-aura",
+ "sp-core",
+ "sp-inherents",
+ "sp-io",
+ "sp-offchain",
+ "sp-runtime",
+ "sp-session",
+ "sp-std",
+ "sp-transaction-pool",
+ "sp-version",
+ "substrate-wasm-builder",
+]
+
+[[package]]
 name = "gcc"
 version = "0.3.55"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3660,11 +3708,11 @@ dependencies = [
  "frame-benchmarking",
  "frame-benchmarking-cli",
  "futures 0.3.17",
+ "galois-runtime",
  "jsonrpc-core",
  "jsonrpc-pubsub",
  "log",
- "mathchain-runtime-galois",
- "mathchain-runtime-mathchain",
+ "mathchain-runtime",
  "pallet-dynamic-fee",
  "pallet-ethereum",
  "pallet-evm",
@@ -3701,55 +3749,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "mathchain-runtime-galois"
-version = "0.1.0"
-dependencies = [
- "fp-rpc",
- "frame-benchmarking",
- "frame-executive",
- "frame-support",
- "frame-system",
- "frame-system-benchmarking",
- "frame-system-rpc-runtime-api",
- "pallet-account-service",
- "pallet-aura",
- "pallet-balances",
- "pallet-dynamic-fee",
- "pallet-ethereum",
- "pallet-evm",
- "pallet-evm-precompile-modexp",
- "pallet-evm-precompile-sha3fips",
- "pallet-evm-precompile-simple",
- "pallet-grandpa",
- "pallet-randomness-collective-flip",
- "pallet-recovery",
- "pallet-session",
- "pallet-sudo",
- "pallet-timestamp",
- "pallet-transaction-payment",
- "pallet-transaction-payment-rpc-runtime-api",
- "pallet-validator-set",
- "parity-scale-codec",
- "parity-secretstore-substrate-runtime-module",
- "parity-secretstore-substrate-runtime-primitives",
- "serde",
- "sp-api",
- "sp-block-builder",
- "sp-consensus-aura",
- "sp-core",
- "sp-inherents",
- "sp-io",
- "sp-offchain",
- "sp-runtime",
- "sp-session",
- "sp-std",
- "sp-transaction-pool",
- "sp-version",
- "substrate-wasm-builder",
-]
-
-[[package]]
-name = "mathchain-runtime-mathchain"
+name = "mathchain-runtime"
 version = "0.1.0"
 dependencies = [
  "fp-rpc",

@@ -88,7 +88,6 @@ fn set_default_ss58_version(spec: &Box<dyn sc_cli::ChainSpec>) {
 /// Parse and run command line arguments
 pub fn run() -> sc_cli::Result<()> {
 	let cli = Cli::from_args();
-
 	match &cli.subcommand {
 		Some(Subcommand::Key(cmd)) => cmd.run(&cli),
 		Some(Subcommand::BuildSpec(cmd)) => {
@@ -97,79 +96,166 @@ pub fn run() -> sc_cli::Result<()> {
 		}
 		Some(Subcommand::CheckBlock(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
-			runner.async_run(|config| {
-				let PartialComponents {
-					client,
-					task_manager,
-					import_queue,
-					..
-				} = service::new_partial(&config, &cli)?;
-				Ok((cmd.run(client, import_queue), task_manager))
-			})
+			let chain_spec = &runner.config().chain_spec;
+			if chain_spec.is_mathchain() {
+				runner.async_run(|config| {
+					let PartialComponents {
+						client,
+						task_manager,
+						import_queue,
+						..
+					} = service::mathchain::new_partial(&config, &cli)?;
+					Ok((cmd.run(client, import_queue), task_manager))
+				})
+			} else {
+				runner.async_run(|config| {
+					let PartialComponents {
+						client,
+						task_manager,
+						import_queue,
+						..
+					} = service::galois::new_partial(&config, &cli)?;
+					Ok((cmd.run(client, import_queue), task_manager))
+				})
+			}
+			
 		}
 		Some(Subcommand::ExportBlocks(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
-			runner.async_run(|config| {
-				let PartialComponents {
-					client,
-					task_manager,
-					..
-				} = service::new_partial(&config, &cli)?;
-				Ok((cmd.run(client, config.database), task_manager))
-			})
+			let chain_spec = &runner.config().chain_spec;
+			if chain_spec.is_mathchain() {
+				runner.async_run(|config| {
+					let PartialComponents {
+						client,
+						task_manager,
+						..
+					} = service::mathchain::new_partial(&config, &cli)?;
+					Ok((cmd.run(client, config.database), task_manager))
+				})	
+			} else {
+				runner.async_run(|config| {
+					let PartialComponents {
+						client,
+						task_manager,
+						..
+					} = service::galois::new_partial(&config, &cli)?;
+					Ok((cmd.run(client, config.database), task_manager))
+				})
+			}
 		}
 		Some(Subcommand::ExportState(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
-			runner.async_run(|config| {
-				let PartialComponents {
-					client,
-					task_manager,
-					..
-				} = service::new_partial(&config, &cli)?;
-				Ok((cmd.run(client, config.chain_spec), task_manager))
-			})
+			let chain_spec = &runner.config().chain_spec;
+			if chain_spec.is_mathchain() {
+				runner.async_run(|config| {
+					let PartialComponents {
+						client,
+						task_manager,
+						..
+					} = service::mathchain::new_partial(&config, &cli)?;
+					Ok((cmd.run(client, config.chain_spec), task_manager))
+				})
+			} else {
+				runner.async_run(|config| {
+					let PartialComponents {
+						client,
+						task_manager,
+						..
+					} = service::galois::new_partial(&config, &cli)?;
+					Ok((cmd.run(client, config.chain_spec), task_manager))
+				})
+			}
 		}
 		Some(Subcommand::ImportBlocks(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
-			runner.async_run(|config| {
-				let PartialComponents {
-					client,
-					task_manager,
-					import_queue,
-					..
-				} = service::new_partial(&config, &cli)?;
-				Ok((cmd.run(client, import_queue), task_manager))
-			})
+			let chain_spec = &runner.config().chain_spec;
+			if chain_spec.is_mathchain() {
+				runner.async_run(|config| {
+					let PartialComponents {
+						client,
+						task_manager,
+						import_queue,
+						..
+					} = service::mathchain::new_partial(&config, &cli)?;
+					Ok((cmd.run(client, import_queue), task_manager))
+				})
+			} else {
+				runner.async_run(|config| {
+					let PartialComponents {
+						client,
+						task_manager,
+						import_queue,
+						..
+					} = service::galois::new_partial(&config, &cli)?;
+					Ok((cmd.run(client, import_queue), task_manager))
+				})
+			}
+			
 		}
 		Some(Subcommand::PurgeChain(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
-			runner.sync_run(|config| {
-				// Remove Frontier offchain db
-				let frontier_database_config = sc_service::DatabaseSource::RocksDb {
-					path: frontier_database_dir(&config),
-					cache_size: 0,
-				};
-				cmd.run(frontier_database_config)?;
-				cmd.run(config.database)
-			})
+			let chain_spec = &runner.config().chain_spec;
+			if chain_spec.is_mathchain() {
+				runner.sync_run(|config| {
+					// Remove Frontier offchain db
+					let frontier_database_config = sc_service::DatabaseSource::RocksDb {
+						path: service::mathchain::frontier_database_dir(&config),
+						cache_size: 0,
+					};
+					cmd.run(frontier_database_config)?;
+					cmd.run(config.database)
+				})
+			} else {
+				runner.sync_run(|config| {
+					// Remove Frontier offchain db
+					let frontier_database_config = sc_service::DatabaseSource::RocksDb {
+						path: service::galois::frontier_database_dir(&config),
+						cache_size: 0,
+					};
+					cmd.run(frontier_database_config)?;
+					cmd.run(config.database)
+				})
+			}
+			
 		}
 		Some(Subcommand::Revert(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
-			runner.async_run(|config| {
-				let PartialComponents {
-					client,
-					task_manager,
-					backend,
-					..
-				} = service::new_partial(&config, &cli)?;
-				Ok((cmd.run(client, backend), task_manager))
-			})
+			let chain_spec = &runner.config().chain_spec;
+			if chain_spec.is_mathchain() {
+				runner.async_run(|config| {
+					let PartialComponents {
+						client,
+						task_manager,
+						backend,
+						..
+					} = service::mathchain::new_partial(&config, &cli)?;
+					Ok((cmd.run(client, backend), task_manager))
+				})
+			} else {
+				runner.async_run(|config| {
+					let PartialComponents {
+						client,
+						task_manager,
+						backend,
+						..
+					} = service::galois::new_partial(&config, &cli)?;
+					Ok((cmd.run(client, backend), task_manager))
+				})
+			}
+			
 		}
 		Some(Subcommand::Benchmark(cmd)) => {
 			if cfg!(feature = "runtime-benchmarks") {
 				let runner = cli.create_runner(cmd)?;
+				let chain_spec = &runner.config().chain_spec;
+				if chain_spec.is_mathchain() {
+					runner.sync_run(|config| cmd.run::<Block, service::mathchain::ExecutorDispatch>(config))
+					
+				} else {
+					runner.sync_run(|config| cmd.run::<Block, service::galois::ExecutorDispatch>(config))
+					
+				}
 
-				runner.sync_run(|config| cmd.run::<Block, service::ExecutorDispatch>(config))
 			} else {
 				Err(
 					"Benchmarking wasn't enabled when building the node. You can enable it with `--features runtime-benchmarks`."
@@ -180,14 +266,26 @@ pub fn run() -> sc_cli::Result<()> {
 		None => {
 			let runner = cli.create_runner(&cli.run.base)?;
 			set_default_ss58_version(&runner.config().chain_spec);
+			let chain_spec = &runner.config().chain_spec;
+			if chain_spec.is_mathchain() {
+				runner.run_node_until_exit(|config| async move {
+					match config.role {
+						Role::Light => service::mathchain::new_light(config),
+						_ => service::mathchain::new_full(config, &cli),
+					}
+					.map_err(sc_cli::Error::Service)
+				})
+			} else {
+				runner.run_node_until_exit(|config| async move {
+					match config.role {
+						Role::Light => service::galois::new_light(config),
+						_ => service::galois::new_full(config, &cli),
+					}
+					.map_err(sc_cli::Error::Service)
+				})
+			}
 
-			runner.run_node_until_exit(|config| async move {
-				match config.role {
-					Role::Light => service::new_light(config),
-					_ => service::new_full(config, &cli),
-				}
-				.map_err(sc_cli::Error::Service)
-			})
+			
 		}
 	}
 }

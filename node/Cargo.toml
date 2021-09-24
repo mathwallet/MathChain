@@ -14,8 +14,8 @@ targets = ["x86_64-unknown-linux-gnu"]
 
 [dependencies]
 # mathchain-runtime = { path = "../runtime", default-features = false, features = ["std"] }
-galois-runtime = { path = '../runtime/galois', package = 'mathchain-runtime-galois', default-features = false, features = ["std"]}
-mathchain-runtime = { path = '../runtime/mathchain', package = 'mathchain-runtime-mathchain', default-features = false, features = ["std"]}
+galois-runtime = { path = '../runtime/galois', default-features = false, features = ["std"]}
+mathchain-runtime = { path = '../runtime/mathchain', default-features = false, features = ["std"]}
 # service = { path = './service', package = 'mathchain-service', default-features = false }
 array-bytes = { version = "0.3.0" }
 structopt = "0.3.8"
