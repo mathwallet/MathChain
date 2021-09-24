@@ -20,7 +20,7 @@
 
 echo -e '\e[1;32m🔧 Building Docker Image(s)\e[0m'
 docker build -f docker/Dockerfile.x86_64-linux-gnu -t x86_64-linux-gnu . #&> /dev/null
-docker build -f docker/Dockerfile.aarch64-linux-gnu -t aarch64-linux-gnu . #&> /dev/null
+# docker build -f docker/Dockerfile.aarch64-linux-gnu -t aarch64-linux-gnu . #&> /dev/null
 
 echo -e '\e[1;32m📥 Installing Cross Compile Toolchain(s)\e[0m'
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly-2021-03-07 #&> /dev/null
@@ -39,6 +39,8 @@ rm -rf wasm
 mkdir -p wasm
 cp target/x86_64-unknown-linux-gnu/release/wbuild/mathchain-runtime/mathchain_runtime.compact.wasm wasm
 cp target/x86_64-unknown-linux-gnu/release/wbuild/mathchain-runtime/target/wasm32-unknown-unknown/release/mathchain_runtime.wasm wasm
+cp target/x86_64-unknown-linux-gnu/release/wbuild/galois-runtime/galois_runtime.compact.wasm wasm
+cp target/x86_64-unknown-linux-gnu/release/wbuild/galois-runtime/target/wasm32-unknown-unknown/release/galois_runtime.wasm wasm
 
 echo -e '\e[1;32m📦 Packing Executable(s)\e[0m'
 rm -rf release
