@@ -165,6 +165,16 @@ pub fn mathchain_for_genesis() -> Result<MathChainChainSpec, String> {
 	const GENESIS_VALIDATOR_ED3: &'static str =
 		"0xcab2336b293bdae448fa71960bf24fe75600dbddb5a2ddf0b06d9ba943f40248";
 
+	const GENESIS_VALIDATOR_SR4: &'static str =
+		"0xe8dbd251d552fe21bdf4f865388c000c66642ddb5c13447071a867968f91af1c";
+	const GENESIS_VALIDATOR_ED4: &'static str =
+		"0x85798655f9fcf1f00595a50749c9ff82bab324a64d64b2d1d2ea514cb9e330a0";
+
+	const GENESIS_VALIDATOR_SR5: &'static str =
+		"0xda404b5492a4085cffba91ae336a652fd56a173ff756f6188b0216d7b6880062";
+	const GENESIS_VALIDATOR_ED5: &'static str =
+		"0x7a26e71c884ebc7ebb4d0d4032eaf561db77ccf9c71ba88ab663e847ee289a9d";
+
 	let genesis_validator1: (
 		AccountId,
 		AuraId,
@@ -222,6 +232,10 @@ pub fn mathchain_for_genesis() -> Result<MathChainChainSpec, String> {
 		"0x981b1f2a47fef3966bef324f04353f5b7604944735f3335bf0c16f7585561043",
 		// node3
 		"0xd0592370e4916780d04cdd15e3728a21c2bd4a2a0e90311069bdb65666818910",
+		// node4
+		"0xe8dbd251d552fe21bdf4f865388c000c66642ddb5c13447071a867968f91af1c",
+		// node5
+		"0xda404b5492a4085cffba91ae336a652fd56a173ff756f6188b0216d7b6880062",
 	]
 	.iter()
 	.map(|s| array_bytes::hex_str_array_unchecked!(s, 32).into())
