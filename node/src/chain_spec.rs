@@ -223,6 +223,38 @@ pub fn mathchain_for_genesis() -> Result<MathChainChainSpec, String> {
 		)
 	};
 
+	let genesis_validator4: (
+		AccountId,
+		AuraId,
+		GrandpaId,
+	) = {
+		let stash = array_bytes::hex_str_array_unchecked!(GENESIS_VALIDATOR_SR4, 32);
+		let session = array_bytes::hex_str_array_unchecked!(GENESIS_VALIDATOR_SR4, 32);
+		let grandpa = array_bytes::hex_str_array_unchecked!(GENESIS_VALIDATOR_ED4, 32);
+
+		(
+			stash.into(),
+			session.unchecked_into(),
+			grandpa.unchecked_into(),
+		)
+	};
+
+	let genesis_validator5: (
+		AccountId,
+		AuraId,
+		GrandpaId,
+	) = {
+		let stash = array_bytes::hex_str_array_unchecked!(GENESIS_VALIDATOR_SR5, 32);
+		let session = array_bytes::hex_str_array_unchecked!(GENESIS_VALIDATOR_SR5, 32);
+		let grandpa = array_bytes::hex_str_array_unchecked!(GENESIS_VALIDATOR_ED5, 32);
+
+		(
+			stash.into(),
+			session.unchecked_into(),
+			grandpa.unchecked_into(),
+		)
+	};
+
 	let endowed_accounts = [
 		// Sudo 
 		"0x52c8e8826b91de613ee17d235606e018c1b21b809a4dbaa2a02a201f3e652f46",
@@ -255,6 +287,8 @@ pub fn mathchain_for_genesis() -> Result<MathChainChainSpec, String> {
 					genesis_validator1.clone(),
 					genesis_validator2.clone(),
 					genesis_validator3.clone(),
+					genesis_validator4.clone(),
+					genesis_validator5.clone(),
 				],
 				root.clone(),
 				endowed_accounts.clone(),
