@@ -3778,8 +3778,6 @@ dependencies = [
  "pallet-transaction-payment-rpc-runtime-api",
  "pallet-validator-set",
  "parity-scale-codec",
- "parity-secretstore-substrate-runtime-module",
- "parity-secretstore-substrate-runtime-primitives",
  "serde",
  "sp-api",
  "sp-block-builder",

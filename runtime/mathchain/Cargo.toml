@@ -59,8 +59,8 @@ frame-system-benchmarking = { git = "https://github.com/paritytech/substrate", d
 
 pallet-validator-set = { default-features = false, path = "../../frame/validator-set" }
 
-secretstore-runtime-module = { package = "parity-secretstore-substrate-runtime-module", path = "../../frame/secret-store/module", default-features = false }
-secretstore-runtime-primitives = { package = "parity-secretstore-substrate-runtime-primitives", path = "../../frame/secret-store/primitives", default-features = false }
+# secretstore-runtime-module = { package = "parity-secretstore-substrate-runtime-module", path = "../../frame/secret-store/module", default-features = false }
+# secretstore-runtime-primitives = { package = "parity-secretstore-substrate-runtime-primitives", path = "../../frame/secret-store/primitives", default-features = false }
 
 
 [build-dependencies]
@@ -98,8 +98,8 @@ std = [
 	"pallet-validator-set/std",
 	"pallet-session/std",
 
-  "secretstore-runtime-module/std",
-	"secretstore-runtime-primitives/std",
+  # "secretstore-runtime-module/std",
+	# "secretstore-runtime-primitives/std",
 
 	"sp-api/std",
 	"sp-block-builder/std",
