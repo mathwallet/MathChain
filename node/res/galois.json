@@ -24,7 +24,6 @@
     "tokenSymbol": "MATH"
   },
   "consensusEngine": null,
-  "lightSyncState": null,
   "genesis": {
     "raw": {
       "top": {
