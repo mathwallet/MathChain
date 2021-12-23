@@ -20,12 +20,12 @@
 
 echo -e '\e[1;32m🔧 Building Docker Image(s)\e[0m'
 docker build -f docker/Dockerfile.x86_64-linux-gnu -t x86_64-linux-gnu . #&> /dev/null
-docker build -f docker/Dockerfile.aarch64-linux-gnu -t aarch64-linux-gnu . #&> /dev/null
+# docker build -f docker/Dockerfile.aarch64-linux-gnu -t aarch64-linux-gnu . #&> /dev/null
 
 echo -e '\e[1;32m📥 Installing Cross Compile Toolchain(s)\e[0m'
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly-2021-03-07 #&> /dev/null
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly-2021-09-01 #&> /dev/null
 source ~/.cargo/env
-cargo install cross --git https://github.com/AurevoirXavier/cross --branch support-multi-sub-targets #&> /dev/null
+cargo install cross --git https://github.com/l2ust/cross #&> /dev/null
 rustup target add x86_64-unknown-linux-gnu aarch64-unknown-linux-gnu wasm32-unknown-unknown #&> /dev/null
 
 echo -e "\e[1;32m🧬 Building mathchain-$1-x86_64-linux-gnu-glibc-2.17-llvm-3.8 \e[0m"
@@ -39,6 +39,8 @@ rm -rf wasm
 mkdir -p wasm
 cp target/x86_64-unknown-linux-gnu/release/wbuild/mathchain-runtime/mathchain_runtime.compact.wasm wasm
 cp target/x86_64-unknown-linux-gnu/release/wbuild/mathchain-runtime/target/wasm32-unknown-unknown/release/mathchain_runtime.wasm wasm
+cp target/x86_64-unknown-linux-gnu/release/wbuild/galois-runtime/galois_runtime.compact.wasm wasm
+cp target/x86_64-unknown-linux-gnu/release/wbuild/galois-runtime/target/wasm32-unknown-unknown/release/galois_runtime.wasm wasm
 
 echo -e '\e[1;32m📦 Packing Executable(s)\e[0m'
 rm -rf release
