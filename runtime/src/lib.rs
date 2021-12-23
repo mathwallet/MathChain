@@ -27,6 +27,7 @@ use sp_version::NativeVersion;
 use sp_core::crypto::Public;
 use sp_core::crypto::AccountId32;
 pub use pallet_validator_set;
+pub use secretstore_runtime_module::Call as SecretStoreCall;
 
 impl pallet_validator_set::Config for Runtime {
 	type Event = Event;
@@ -117,8 +118,8 @@ pub mod opaque {
 pub const VERSION: RuntimeVersion = RuntimeVersion {
 	spec_name: create_runtime_str!("mathchain-galois"),
 	impl_name: create_runtime_str!("mathchain-galois"),
-	authoring_version: 1,
-	spec_version: 8,
+	authoring_version: 2,
+	spec_version: 1,
 	impl_version: 1,
 	apis: RUNTIME_API_VERSIONS,
 	transaction_version: 1,
@@ -444,6 +445,7 @@ impl pallet_ethereum::Config for Runtime {
 	type StateRoot = pallet_ethereum::IntermediateStateRoot;
 	type BlockGasLimit = BlockGasLimit;
 }
+
 impl pallet_session::Config for Runtime {
 	type SessionHandler = <opaque::SessionKeys as OpaqueKeys>::KeyTypeIdProviders;
 	type ShouldEndSession = ValidatorSet;
@@ -455,6 +457,11 @@ impl pallet_session::Config for Runtime {
 	type ValidatorIdOf = pallet_validator_set::ValidatorOf<Self>;
 	type DisabledValidatorsThreshold = ();
 	type WeightInfo = ();
+}
+
+impl secretstore_runtime_module::Config for Runtime {
+	type Event = Event;
+	type Currency = Balances;
 }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
@@ -480,6 +487,7 @@ construct_runtime!(
 		EVM: pallet_evm::{Pallet, Config, Call, Storage, Event<T>},
 		ValidatorSet: pallet_validator_set::{Pallet, Call, Storage, Event<T>, Config<T>},
 		Session: pallet_session::{Pallet, Call, Storage, Event, Config<T>},
+		SecretStore: secretstore_runtime_module::{Pallet, Call, Event, Config<T>},
 	}
 );
 
@@ -769,6 +777,86 @@ impl_runtime_apis! {
 				Ethereum::current_receipts(),
 				Ethereum::current_transaction_statuses()
 			)
+		}
+	}
+	
+	impl secretstore_runtime_primitives::acl_storage::SecretStoreAclApi<Block> for Runtime {
+		fn check(
+			requester: secretstore_runtime_primitives::EntityId,
+			key: secretstore_runtime_primitives::ServerKeyId,
+		) -> bool {
+			SecretStore::check_key_access(key, requester)
+		}
+	}
+
+	impl secretstore_runtime_primitives::key_server_set::SecretStoreKeyServerSetApi<Block> for Runtime {
+		fn snapshot(
+			key_server: secretstore_runtime_primitives::KeyServerId,
+		) -> secretstore_runtime_primitives::key_server_set::KeyServerSetSnapshot {
+			SecretStore::key_server_set_snapshot(key_server)
+		}
+
+		fn current_set_with_indices() -> Vec<(secretstore_runtime_primitives::KeyServerId, u8)> {
+			SecretStore::key_server_set_with_indices()
+		}
+	}
+
+	impl secretstore_runtime_primitives::service::SecretStoreServiceApi<Block> for Runtime {
+		fn server_key_generation_tasks(
+			begin: u32,
+			end: u32,
+		) -> Vec<secretstore_runtime_primitives::service::ServiceTask> {
+			SecretStore::server_key_generation_tasks(begin, end)
+		}
+
+		fn is_server_key_generation_response_required(
+			key_server: secretstore_runtime_primitives::KeyServerId,
+			key_id: secretstore_runtime_primitives::ServerKeyId,
+		) -> bool {
+			SecretStore::is_server_key_generation_response_required(key_server, key_id)
+		}
+
+		fn server_key_retrieval_tasks(
+			begin: u32,
+			end: u32,
+		) -> Vec<secretstore_runtime_primitives::service::ServiceTask> {
+			SecretStore::server_key_retrieval_tasks(begin, end)
+		}
+
+		fn is_server_key_retrieval_response_required(
+			key_server: secretstore_runtime_primitives::KeyServerId,
+			key_id: secretstore_runtime_primitives::ServerKeyId,
+		) -> bool {
+			SecretStore::is_server_key_retrieval_response_required(key_server, key_id)
+		}
+
+		fn document_key_store_tasks(
+			begin: u32,
+			end: u32,
+		) -> Vec<secretstore_runtime_primitives::service::ServiceTask> {
+			SecretStore::document_key_store_tasks(begin, end)
+		}
+
+		fn is_document_key_store_response_required(
+			key_server: secretstore_runtime_primitives::KeyServerId,
+			key_id: secretstore_runtime_primitives::ServerKeyId,
+		) -> bool {
+			SecretStore::is_document_key_store_response_required(key_server, key_id)
+		}
+
+		fn document_key_shadow_retrieval_tasks(
+			begin: u32,
+			end: u32,
+		) -> Vec<secretstore_runtime_primitives::service::ServiceTask> {
+			SecretStore::document_key_shadow_retrieval_tasks(begin, end)
+		}
+
+		fn is_document_key_shadow_retrieval_response_required(
+			key_server: secretstore_runtime_primitives::KeyServerId,
+			key_id: secretstore_runtime_primitives::ServerKeyId,
+			requester: secretstore_runtime_primitives::EntityId,
+		) -> bool {
+			SecretStore::is_document_key_shadow_retrieval_response_required(key_server, key_id, requester)
 		}
 	}
 }
