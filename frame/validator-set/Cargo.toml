@@ -1,0 +1,33 @@
+[package]
+name = "pallet-validator-set"
+version = "0.2.0"
+authors = ["gautamdhameja"]
+edition = "2018"
+
+[features]
+default = ['std']
+std = [
+    'codec/std',
+    'sp-std/std',
+    'sp-runtime/std',
+    'frame-support/std',
+    'sp-core/std',
+    'sp-io/std',
+    'frame-system/std',
+    'pallet-session/std'
+]
+
+[dependencies.codec]
+default-features = false
+features = ['derive']
+package = 'parity-scale-codec'
+version = '2.0.1'
+
+[dependencies]
+sp-std = { default-features = false, git = "https://github.com/paritytech/substrate" }
+sp-runtime = { default-features = false, git = "https://github.com/paritytech/substrate" }
+sp-io = { default-features = false, git = "https://github.com/paritytech/substrate" }
+sp-core = { default-features = false, git = "https://github.com/paritytech/substrate" }
+frame-support = { default-features = false, git = "https://github.com/paritytech/substrate" }
+frame-system = { default-features = false, git = "https://github.com/paritytech/substrate" }
+pallet-session = { default-features = false, git = "https://github.com/paritytech/substrate" }
